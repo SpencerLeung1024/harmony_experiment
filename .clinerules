@@ -1,0 +1,12 @@
+# Harmony From First Principles
+
+All sound can be expressed as sums of sine waves
+Two sine waves are perceived as:
+- Consonant if almost exactly the same frequency
+- Dissonant if near each other, with a peak in dissonance at around 50 cents
+- Less dissonant if far away from each other
+
+Use PyTorch to generate random weights
+Treat these weights as inputs to an instrument (a fundamental and overtones)
+Calculate loss on the resulting sound
+Optimize the weights
