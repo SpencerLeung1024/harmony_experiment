@@ -7,6 +7,8 @@ import sounddevice
 
 # DEFINITION
 
+pitch_classes = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
+
 default_instrument_parameters = [
     (1.0, 1.0),   # Fundamental
     (2.0, 0.5),   # 2nd harmonic
@@ -185,8 +187,11 @@ def calculate_loss_fast(weights: torch.Tensor, D: torch.Tensor,
     # But balanced so it doesn't drive to zero
     sparsity = weights.sum() / (num_keys * num_beats)
     sparsity_penalty = torch.abs(sparsity - target_density)
+
+    # Sampling penalty: the optimization learns that notes 125, 126, and 127 cannot cause dissonance because their harmonics are above Nyquist
+    sampling_penalty = weights[num_keys-11:, :].sum()
     
-    total_loss = within_beat + temporal_decay * temporal + density_penalty + sparsity_penalty
+    total_loss = within_beat + temporal_decay * temporal + density_penalty + sparsity_penalty + sampling_penalty
     
     return total_loss
 
@@ -197,6 +202,7 @@ def analyze_chords(weights: torch.Tensor, threshold: float = 0.1) -> list:
         active = torch.where(weights[:, beat] > threshold)[0].tolist()
         # Convert to pitch classes
         pcs = sorted(set([k % 12 for k in active]))
+        pcs = [pitch_classes[pc] for pc in pcs]
         chords.append({
             'beat': beat,
             'active_keys': active,
