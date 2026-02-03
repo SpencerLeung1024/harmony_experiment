@@ -5,6 +5,8 @@ Two sine waves are perceived as:
 - Consonant if almost exactly the same frequency
 - Dissonant if near each other, with a peak in dissonance at around 50 cents
 - Less dissonant if far away from each other
+Surprisingly, just intervals don't matter for pure sine waves
+Those patterns in music only show up once overtones from real instruments are involved
 
 Use PyTorch to generate random weights
 Treat these weights as inputs to an instrument (a fundamental and overtones)
