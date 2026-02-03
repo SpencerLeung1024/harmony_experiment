@@ -150,6 +150,7 @@ def main():
                 for k2 in range(k1 + 1, p_weights.shape[0]):
                     f1, f2 = key_to_hz(k1), key_to_hz(k2)
                     x = abs(f2 - f1) / min(f1, f2)
+                    # Reaches a maximum at (0.041667, 0.99634)
                     dissonance = 65 * x * torch.exp(torch.tensor([-24 * x]))
                     loss = loss + dissonance * p_weights[k1, beat] * p_weights[k2, beat]
         
