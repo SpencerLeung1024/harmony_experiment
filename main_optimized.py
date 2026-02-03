@@ -9,6 +9,9 @@ import sounddevice
 
 pitch_classes = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
 
+# Note: P8 is not used in interval calculations below
+interval_names = ["P1", "m2", "M2", "m3", "M3", "P4", "TT", "P5", "m6", "M6", "m7", "M7", "P8"]
+
 default_instrument_parameters = [
     (1.0, 1.0),   # Fundamental
     (2.0, 0.5),   # 2nd harmonic
@@ -231,18 +234,17 @@ def main():
     print(f"Dissonance matrix computed: max={dissonance_matrix.max():.2f}, mean={dissonance_matrix.mean():.4f}")
     
     # Show which intervals are most dissonant
-    intervals = torch.zeros(12)
+    dissonances = torch.zeros(12)
     counts = torch.zeros(12)
     for i in range(num_keys):
         for j in range(i + 1, num_keys):
             interval = (j - i) % 12
-            intervals[interval] += dissonance_matrix[i, j]
+            dissonances[interval] += dissonance_matrix[i, j]
             counts[interval] += 1
-    intervals = intervals / (counts + 1e-8)
+    dissonances = dissonances / counts
     print("\nDissonance by interval (semitones):")
-    interval_names = ['unison', 'm2', 'M2', 'm3', 'M3', 'P4', 'tritone', 'P5', 'm6', 'M6', 'm7', 'M7']
-    for i, (d, name) in enumerate(zip(intervals, interval_names)):
-        print(f"  {i:2d} ({name:8s}): {d:.4f}")
+    for i in range(12):
+        print(f"  {i:2d} ({interval_names[i]}): {dissonances[i]:.4f}")
     
     # Initialize with gradients
     weights = torch.rand((num_keys, num_beats), requires_grad=True)
