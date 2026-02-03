@@ -17,8 +17,13 @@ default_instrument_parameters = [
 ]
 
 def key_to_hz(key: int) -> float:
-    """Convert MIDI key number to frequency in Hz."""
     return 440.0 * (2 ** ((key - 69) / 12))
+
+def bin_to_hz(bin: int, num_bins: int, sample_rate: int) -> float:
+    return bin * sample_rate / (2 * num_bins)
+
+def hz_to_key(freq: float) -> int:
+    return int(round(12 * np.log2(freq / 440.0) + 69))
 
 # GENERATION
 
@@ -51,16 +56,48 @@ def weights_to_audio(weights: torch.Tensor, sample_rate: int, duration: float) -
 
 # ANALYSIS
 
-def plot_weights_and_spectrogram(weights: torch.Tensor, spectrogram: np.ndarray):
+# Use C = red, C# = orange, etc.
+def color_weights(weights: np.ndarray) -> np.ndarray:
+    (num_keys, num_beats) = weights.shape
+    # If weights has height 128, generate a (128, 1, 3) color stick
+    # Note: key 0 is always C0
+    color_stick = np.zeros((num_keys, 3))
+    for key in range(num_keys):
+        color_stick[key] = plt.cm.hsv((key % 12) / 12)[:3]
+    # Element-wise multiply weights with color stick
+    colored = np.reshape(weights, (num_keys, num_beats, 1)) * np.reshape(color_stick, (num_keys, 1, 3))
+    return colored
+
+def color_spectrogram(spectrogram: np.ndarray, sample_rate: int) -> np.ndarray:
+    (num_bins, num_frames) = spectrogram.shape
+    color_stick = np.zeros((num_bins, 3))
+    for bin in range(num_bins):
+        # The first bin is 0 Hz which doesn't map to a key, so just leave it black
+        if bin == 0:
+            continue
+        # bin -> hz -> key
+        freq = bin_to_hz(bin, num_bins, sample_rate)
+        key = hz_to_key(freq)
+        color_stick[bin] = plt.cm.hsv((key % 12) / 12)[:3]
+    # Element-wise multiply spectrogram with color stick
+    spectrogram = spectrogram / spectrogram.max() # Floats must be in [0.0, 1.0]
+    colored = np.reshape(spectrogram, (num_bins, num_frames, 1)) * np.reshape(color_stick, (num_bins, 1, 3))
+    return colored
+
+def plot_weights_and_spectrogram(title: str, weights: np.ndarray, spectrogram: np.ndarray, sample_rate: int):
     fig, axs = plt.subplots(1, 2)
 
-    axs[0].imshow(weights.detach().numpy(), aspect='auto', cmap='gray')
+    fig.suptitle(title)
+
+    #axs[0].imshow(weights.detach().numpy(), aspect='auto', cmap='gray')
+    axs[0].imshow(color_weights(weights.detach().numpy()), aspect='auto')
     axs[0].set_title('Weights')
     axs[0].set_xlabel('Beats')
     axs[0].set_ylabel('MIDI Keys')
 
     axs[1].set_yscale('log')
-    axs[1].imshow(spectrogram, aspect='auto', cmap='gray')
+    #axs[1].imshow(spectrogram, aspect='auto', cmap='gray')
+    axs[1].imshow(color_spectrogram(spectrogram, sample_rate), aspect='auto')
     axs[1].set_title('Spectrogram')
     axs[1].set_xlabel('Time Frames')
     axs[1].set_ylabel('Frequency Bins')
@@ -102,6 +139,8 @@ def main():
 
         # Negative amplitudes don't make sense so enforce positive
         p_weights = torch.relu(weights)
+        # Note: clamping or otherwise directly modifying weights breaks things so just make negative weights do nothing
+        # Outside of this loop, "weights" is always p_weights post-ReLU
         
         # Optimize
         # Calculate loss in PyTorch (not numpy!)
@@ -130,7 +169,7 @@ def main():
             spectrogram = librosa.stft(audio, n_fft=num_bins)
             spectrogram = np.abs(spectrogram)
             print_time("Generated spectrogram")
-            plot_weights_and_spectrogram(p_weights, spectrogram)
+            plot_weights_and_spectrogram(f"Step {step + 1}/{steps}", p_weights, spectrogram, sample_rate)
 
 if __name__ == "__main__":
     main()
