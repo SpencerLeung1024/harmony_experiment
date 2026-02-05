@@ -60,7 +60,7 @@ def weights_to_audio(weights: torch.Tensor, sample_rate: int, duration: float) -
 def color_weights(weights: np.ndarray) -> np.ndarray:
     (num_keys, num_beats) = weights.shape
     # If weights has height 128, generate a (128, 1, 3) color stick
-    # Note: key 0 is always C0
+    # Note: key 0 is always C-1
     color_stick = np.zeros((num_keys, 3))
     for key in range(num_keys):
         color_stick[key] = plt.cm.hsv((key % 12) / 12)[:3]
