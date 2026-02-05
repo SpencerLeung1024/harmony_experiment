@@ -30,6 +30,9 @@ def bin_to_hz(bin: int, num_bins: int, sample_rate: int) -> float:
 def hz_to_key(freq: float) -> int:
     return int(round(12 * np.log2(freq / 440.0) + 69))
 
+def hz_to_bin(freq: float, num_bins: int, sample_rate: int) -> int:
+        return int((freq / (sample_rate / 2)) * num_bins)
+
 # PRECOMPUTED MATRICES
 
 def create_dissonance_matrix(num_keys: int, max_hz: float = 11025) -> torch.Tensor:
@@ -126,7 +129,18 @@ def color_spectrogram(spectrogram: np.ndarray, sample_rate: int) -> np.ndarray:
         freq = bin_to_hz(bin, num_bins, sample_rate)
         key = hz_to_key(freq)
         color_stick[bin] = plt.cm.hsv((key % 12) / 12)[:3]
-    spectrogram = spectrogram / (spectrogram.max() + 1e-8)
+    
+    # Amplitudes are all over the place. We need [0.0, 1.0]
+    # But a massive amount of energy is in infrasound that we don't have the resolution to look at anyways
+    # So find max in "interesting" part (50 Hz to 10 kHz) and use that as our scaling factor
+    interesting_bin_low = hz_to_bin(50, num_bins, sample_rate)
+    interesting_bin_high = hz_to_bin(10000, num_bins, sample_rate)
+    max_in_interesting_part = spectrogram[interesting_bin_low:interesting_bin_high, :].max()
+    #max_overall = spectrogram.max()
+    #print(f"Spectrogram max overall: {max_overall:.4f}, max in 50Hz-10kHz: {max_in_interesting_part:.4f}")
+    # Spectrogram max overall: 4572.6846, max in 50Hz-10kHz: 2770.6194
+    spectrogram = spectrogram / max_in_interesting_part
+
     colored = np.reshape(spectrogram, (num_bins, num_frames, 1)) * np.reshape(color_stick, (num_bins, 1, 3))
     return colored
 
@@ -134,16 +148,44 @@ def plot_weights_and_spectrogram(title: str, weights: np.ndarray, spectrogram: n
     fig, axs = plt.subplots(1, 2)
     fig.suptitle(title)
     
-    axs[0].imshow(color_weights(weights), aspect='auto')
+    # Weights plot with MIDI key ticks
+    im0 = axs[0].imshow(color_weights(weights), aspect='auto')
     axs[0].set_title('Weights')
     axs[0].set_xlabel('Beats')
     axs[0].set_ylabel('MIDI Keys')
     
-    axs[1].set_yscale('log')
-    axs[1].imshow(color_spectrogram(spectrogram, sample_rate), aspect='auto')
+    # Add Y-axis ticks for MIDI keys (C notes with octave notation)
+    num_keys = weights.shape[0]
+    c_keys = list(range(0, num_keys, 12))  # C notes: 0, 12, 24, ...
+    # Format as "60 (C4)"
+    c_labels = []
+    for k in c_keys:
+        octave = (k // 12) - 1  # MIDI octave: C-1 is key 0
+        c_labels.append(f"{k} (C{octave})")
+    axs[0].set_yticks(c_keys)
+    axs[0].set_yticklabels(c_labels, fontsize=8)
+    
+    # Spectrogram plot with Hz ticks
+    im1 = axs[1].imshow(color_spectrogram(spectrogram, sample_rate), aspect='auto')
     axs[1].set_title('Spectrogram')
     axs[1].set_xlabel('Time Frames')
-    axs[1].set_ylabel('Frequency Bins')
+    axs[1].set_ylabel('Frequency (Hz)')
+    axs[1].set_yscale('log')
+    
+    # Choose Hz ticks:
+    hz_ticks = [50, 100, 200, 500, 1000, 2000, 5000, 10000]
+    num_bins = spectrogram.shape[0]
+    bin_indices = [hz_to_bin(hz, num_bins, sample_rate) for hz in hz_ticks]
+    
+    axs[1].set_yticks(bin_indices)
+    axs[1].set_yticklabels([f"{hz}" for hz in hz_ticks])
+
+    # Fix height
+    #print(axs[1].get_ylim())
+    # (11220.18454301963, 4.0)
+    axs[1].set_ylim(bottom=hz_to_bin(hz_ticks[-1], num_bins, sample_rate), top=hz_to_bin(hz_ticks[0], num_bins, sample_rate))
+    #print(axs[1].get_ylim())
+    # (929.0, 4.0)
     
     plt.tight_layout()
     plt.show()
@@ -192,9 +234,14 @@ def calculate_loss_fast(weights: torch.Tensor, D: torch.Tensor,
     sparsity_penalty = torch.abs(sparsity - target_density)
 
     # Sampling penalty: the optimization learns that notes 125, 126, and 127 cannot cause dissonance because their harmonics are above Nyquist
-    sampling_penalty = weights[num_keys-11:, :].sum()
+    #sampling_penalty = weights[num_keys-11:, :].sum()
+
+    # Range penalty: supersedes sampling penalty, discourage use of MIDI notes outside an 88 key piano
+    piano_low = 21  # A0
+    piano_high = 108  # C8
+    range_penalty = torch.sum(weights[:piano_low, :]) + torch.sum(weights[piano_high + 1:, :])
     
-    total_loss = within_beat + temporal_decay * temporal + density_penalty + sparsity_penalty + sampling_penalty
+    total_loss = within_beat + temporal_decay * temporal + density_penalty + sparsity_penalty + range_penalty
     
     return total_loss
 
@@ -256,7 +303,7 @@ def main():
     num_keys = 128
     num_beats = 8
     
-    num_bins = 2048
+    num_bins = 4096
     duration = 4.0
     sample_rate = 22050
     
