@@ -23,10 +23,11 @@ for beat in range(num_beats):                    # Loop 1
 Plus temporal dissonance:
 
 ```python
-for beat in range(num_beats - 1):                # Loop 6
-    for k1 in range(num_keys):
-        for k2 in range(num_keys):
-            # ... same calculation for adjacent beats
+for beat1 in range(num_beats):                        # Loop 0 (current beat)
+    for beat2 in range(max(beat1 - 1, 0), beat1 + 1): # Loop 1 (up to 1 previous beat and the beat itself)
+        for k1 in range(num_keys):
+            for k2 in range(num_keys):
+                # ... same calculation for adjacent beats
 ```
 
 ## Step 1: Recognize Independence
@@ -151,7 +152,7 @@ def calculate_loss_fast(weights, D, temporal_decay=0.3):
 | Setup | None | ~590k ops (once) |
 | Per-step | O(beats × keys²) = 8 × 128² ≈ 131k | O(keys² × beats) = same |
 | Per-step (with harmonics) | O(beats × keys² × harm²) ≈ 4.7M | O(keys² × beats) = 131k |
-| Memory | O(keys²) for D | O(keys²) for D |
+| Memory | O(beats × keys) for W | O(keys²) for D |
 
 The key win: **harmonics are in the precomputation**, not the per-step calculation.
 
@@ -170,10 +171,6 @@ ratio = 2^((k2-k1)/12)
 ```
 
 The ratio depends **only on the interval**, not the absolute pitch.
-
-This means `D[k1, k2] = D[k1+12, k2+12]` — the matrix is periodic with period 12 (one octave).
-
-We could further optimize by exploiting this periodicity, but 128×128 is small enough that it's unnecessary.
 
 ## Summary
 
