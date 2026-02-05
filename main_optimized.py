@@ -214,6 +214,42 @@ def analyze_chords(weights: torch.Tensor, threshold: float = 0.1) -> list:
         })
     return chords
 
+def analyze_chords_top_p(weights: torch.Tensor, p: float = 0.8) -> list:
+    """Alternate sampling where pitch classes are treated as probability distributions."""
+    chords = []
+    (num_keys, num_beats) = weights.shape
+    for beat in range(num_beats):
+        pcs = [0 for _ in range(len(pitch_classes))]
+        # Start adding from weights
+        for key in range(num_keys):
+            pc = key % len(pcs)
+            pcs[pc] += weights[key, beat].item()
+        
+        # list of pc to list of [(pc, total_strength)]
+        pc_strengths = [(i, pcs[i]) for i in range(len(pcs))]
+        # Divide by sum to convert to probabilities
+        total = sum([s for (_, s) in pc_strengths])
+        pc_probs = [(pc, s / total) for (pc, s) in pc_strengths]
+        # Strongest first
+        pc_probs = sorted(pc_probs, key=lambda x: x[1], reverse=True)
+
+        # Sample until cumulative probability >= p
+        cumulative = 0.0
+        selected_range_end = 1
+        while cumulative < p and selected_range_end <= len(pc_probs):
+            cumulative += pc_probs[selected_range_end - 1][1]
+            selected_range_end += 1
+        
+        selected_pc_probs, other_pc_probs = pc_probs[:selected_range_end - 1], pc_probs[selected_range_end - 1:]
+
+        # Add chord
+        chords.append({
+            'beat': beat,
+            'selected_pc_info': [[pitch_classes[pc], prob] for (pc, prob) in selected_pc_probs], # Replace int with pitch class name
+            'other_pc_info': [[pitch_classes[pc], prob] for (pc, prob) in other_pc_probs]
+        })
+    return chords
+
 # MAIN
 
 def main():
@@ -272,9 +308,16 @@ def main():
             print(f"\nStep {step + 1}/{steps}, Loss: {loss.item():.4f}")
             
             # Analyze chords
-            chords = analyze_chords(p_weights, threshold=0.15)
-            for c in chords[:4]:  # Show first 4 beats
-                print(f"  Beat {c['beat']}: {c['num_notes']} notes, pitch classes: {c['pitch_classes']}")
+            #chords = analyze_chords(p_weights, threshold=0.15)
+            # Note: analyze_chord_top_p has a different format
+            chords = analyze_chords_top_p(p_weights, p=0.8)
+            #for c in chords[:4]:  # Show first 4 beats
+            for c in chords: # Show all beats
+                #print(f"  Beat {c['beat']}: {c['num_notes']} notes, pitch classes: {c['pitch_classes']}")
+                # Show "probabilities" as .2f
+                selected_str = ', '.join([f"{pc}:{prob:.2f}" for (pc, prob) in c['selected_pc_info']])
+                other_str = ', '.join([f"{pc}:{prob:.2f}" for (pc, prob) in c['other_pc_info']])
+                print(f"  Beat {c['beat']}: Selected: {selected_str}, Others: {other_str}")
             
             # Generate and play audio
             audio = weights_to_audio(p_weights.detach(), sample_rate, duration)
