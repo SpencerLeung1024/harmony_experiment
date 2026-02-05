@@ -12,3 +12,53 @@ Use PyTorch to generate random weights
 Treat these weights as inputs to an instrument (a fundamental and overtones)
 Calculate loss on the resulting sound
 Optimize the weights
+
+## Future Plans
+
+### Code Robustness and Alternate Musical Systems
+
+12-tone equal temperament, 12 tones, and in fact having equal divisions at all is not universal in music
+We just happen to use 12-TET and A4=440Hz because having all MIDI stuff work seamlessly is nice
+
+Since the dissonance matrix is defined for all "keys" against all other "keys", "keys" can support arbitrary frequencies
+Pythagorean, 1/4 comma meantone, 1/3 comma meantone, etc.
+We can even get rid of 12 divisions of the octave
+24-EDO, 31-EDO, 19-EDO, etc.
+Or even the octave
+alpha, beta, gamma, etc.
+
+We still need to have discrete keys for optimization though
+Bends and vibrato are impossible
+
+For multiple band members below:
+We also need a more robust way to map multiple weight[key, beat] to each other, where beat may be of different lengths
+All the different weights also need to be exported to one audio
+
+### Multiple Band Members
+
+Right now it's just 🎹 going ham on the keyboard. The "beats" as named in the code are really chords or bars
+- Add 🎸 , a monophonic (not chords) member that does guitar things every beat
+- Add 🥁 , which honestly I'm not sure how to turn into an optimization problem. It will probably just do kicks on 1 and 3 and snares on 2 and 4 and have a button to toggle on or off
+- Add 🍜 (there is no bass emoji), a monophonic member that, uh, what do basses do again? I think they're down to earth or something
+
+Monophonic members when playing audio will only play the strongest weight
+
+These members will probably need new "instrument" parameters. The current default instrument is very much a synth and does not behave like any real instrument
+Attack, decay, sustain, and release would be nice
+Per-harmonic ADSR would be even better but that would make a note's dissonance with other notes change over time, so the dissonance matrix might have to use an average value
+
+At the same time, probably add losses for instrument range and interval jumps
+
+### Gradio
+
+Gradio is the worst ML-demo-to-web-page framework, except for all others we've tried
+Uses Python, allows the same codebase to do both PyTorch and Gradio stuff, and can be deployed easily
+TODO: test how slow PyTorch on 2 vCPUs on the free HuggingFace space is
+
+### User Input
+
+Ties into multiple band members and a Gradio interface
+What if the user had yet another piano roll that they could place notes on? Those notes would be fixed and apply dissonance pressure on the random noise
+Sort of like partial denoising in image-to-image
+
+We could also impose Western diatonic music by choosing certain pitch classes to have higher loss
