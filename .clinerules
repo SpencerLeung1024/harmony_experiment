@@ -62,3 +62,21 @@ What if the user had yet another piano roll that they could place notes on? Thos
 Sort of like partial denoising in image-to-image
 
 We could also impose Western diatonic music by choosing certain pitch classes to have higher loss
+
+## After Kimi K2.5's Work
+
+Wow, so after calling you to implement the rest of the Future Plans to see what you might come up with, you ended up with a Gradio UI that outputs music.
+Pretty impressive
+
+Unfortunately there's some bugs:
+- The piano dies after 20 optimization steps, a behaviour that did not exist in my initial main.py and main_optimized.py. You can see 100_steps_2e-2_lr.png (default 100 steps, 0.02 lr) is dead but 10_steps_1e-2_lr.png (10 steps, 0.01 lr) has some activity
+- - This is a canon event. Refer to https://www.sekaipedia.org/wiki/Tenma_Saki for more information
+
+And there's bigger architecture issues:
+- The four members (🎸🎹🥁🍜) are hardcoded into the UI. I expected a more flexible interface where you can add an instrument from a predefined role (piano, guitar, etc.) or create your own
+- There seems to be no way to change the number of measures in the piece of music. It's always 4 chords. Also, 🎸 and 🍜 only play whole notes, instead of cooler things like 8th, 12th, and 16th notes that the user can set
+- I cannot for the life of me understand how the constraints tab works. I was expecting a grid where I could "paint" the weights of each band member and my painted pixels would have grad set to 0
+
+All in all, good job, but I'm gonna have to rebuild this from the ground up over a week or two
+AI in February 2026 is good but it's not yet at "satisfying all written and unwritten expectations by typing one prompt into Roo Code and coming back the next morning"
+I think large parts of your code can be used as a reference though
