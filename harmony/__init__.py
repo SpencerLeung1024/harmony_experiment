@@ -14,6 +14,8 @@ Modules:
     optimizer: Main harmony optimization orchestration
     synthesis: Audio synthesis with ADSR envelopes
     mixer: Audio mixing with gain control and limiting
+    visualization: Plotting and visualization utilities
+    ui: Gradio web interface
 """
 
 from .tuning import (
@@ -63,6 +65,17 @@ from .mixer import (
     AudioMixer,
 )
 
+from .visualization import (
+    plot_weights,
+    plot_spectrogram,
+    plot_dissonance_matrix,
+    plot_loss_history,
+    create_weight_piano_roll,
+    color_weights_by_pitch_class,
+    save_audio,
+    save_weights_plot,
+)
+
 __all__ = [
     # Tuning systems
     "TuningSystem",
@@ -93,4 +106,13 @@ __all__ = [
     "AudioSynthesizer",
     # Mixing
     "AudioMixer",
+    # Visualization
+    "plot_weights",
+    "plot_spectrogram",
+    "plot_dissonance_matrix",
+    "plot_loss_history",
+    "create_weight_piano_roll",
+    "color_weights_by_pitch_class",
+    "save_audio",
+    "save_weights_plot",
 ]

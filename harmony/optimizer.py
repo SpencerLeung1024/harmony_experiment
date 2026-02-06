@@ -242,32 +242,20 @@ class HarmonyOptimizer:
         """
         audio_tracks = []
         
-        # Get effective weights
-        effective_weights = self._get_effective_weights()
+        # Create a synthesizer with proper beat duration
+        beat_duration = duration / max(m.num_beats for m in self.members)
+        synthesizer = AudioSynthesizer(
+            sample_rate=sample_rate,
+            beat_duration=beat_duration
+        )
         
         for member in self.members:
-            if isinstance(member, DrumMember):
-                # Synthesize drums
-                track = self.synthesizer.synthesize_drums(
-                    member,
-                    duration=duration,
-                    sample_rate=sample_rate
-                )
-            else:
-                # Get weights for this member
-                weights = effective_weights.get(member.name, member.weights)
-                
-                # Detach and convert to numpy
-                weights_np = weights.detach().numpy()
-                
-                # Synthesize
-                track = self.synthesizer.synthesize_from_weights(
-                    weights_np,
-                    member,
-                    duration=duration,
-                    sample_rate=sample_rate
-                )
-            
+            # Synthesize audio for this member
+            track = synthesizer.synthesize_member(
+                member,
+                duration=duration,
+                sample_rate=sample_rate
+            )
             audio_tracks.append(track)
         
         # Mix all tracks

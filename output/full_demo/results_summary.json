@@ -1,0 +1,3438 @@
+[
+  {
+    "name": "Piano Solo 12-TET",
+    "initial_loss": 0.3757171034812927,
+    "final_loss": 0.0009227105183526874,
+    "improvement": 99.75441349094754,
+    "time": 0.29137539863586426,
+    "loss_history": [
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.022553790360689163,
+        "sparsity": 0.1501791924238205,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.3757171034812927
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.008440655656158924,
+        "sparsity": 0.09187304228544235,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.17627960443496704
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.003914074040949345,
+        "sparsity": 0.06256256252527237,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.10170330107212067
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.001154332421720028,
+        "sparsity": 0.03397546708583832,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.045518793165683746
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 4.139282100368291e-05,
+        "sparsity": 0.006433725357055664,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.006847653537988663
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.0003842355217784643,
+        "sparsity": 0.01960192620754242,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.02344428189098835
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.0014234725385904312,
+        "sparsity": 0.0377289354801178,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.05196366086602211
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.0023607322946190834,
+        "sparsity": 0.048587366938591,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.07219468802213669
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.002827791729941964,
+        "sparsity": 0.05317698419094086,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.08145490288734436
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.0027673160657286644,
+        "sparsity": 0.0526052862405777,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.08027844876050949
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.002295632613822818,
+        "sparsity": 0.04791276156902313,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.0708690881729126
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.0016006765654310584,
+        "sparsity": 0.04000845551490784,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.056015223264694214
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.0008803327800706029,
+        "sparsity": 0.02967040240764618,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.03847372904419899
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.00030872493516653776,
+        "sparsity": 0.01757057011127472,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.020657818764448166
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 1.8521010133554228e-05,
+        "sparsity": 0.004303604364395142,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.004488814622163773
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 9.196095197694376e-05,
+        "sparsity": 0.009589627385139465,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.010509236715734005
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.00039418760570697486,
+        "sparsity": 0.01985415816307068,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.02379603311419487
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.0007013792637735605,
+        "sparsity": 0.02648356556892395,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.03349735960364342
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.0008783655357547104,
+        "sparsity": 0.029637232422828674,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.03842088580131531
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.0008761204080656171,
+        "sparsity": 0.029599331319332123,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.038360536098480225
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.0007147726137191057,
+        "sparsity": 0.026735231280326843,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.03388295695185661
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.0004603364213835448,
+        "sparsity": 0.02145545184612274,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.02605881541967392
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.00020137564570177346,
+        "sparsity": 0.014190688729286194,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.01620444469153881
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 2.8908865715493448e-05,
+        "sparsity": 0.005376696586608887,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.005665785167366266
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 2.0739897081512026e-05,
+        "sparsity": 0.0045541077852249146,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.004761506803333759
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.00013428709644358605,
+        "sparsity": 0.011588230729103088,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.012931101955473423
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.00024759024381637573,
+        "sparsity": 0.015735000371932983,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.01821090281009674
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.0002930623886641115,
+        "sparsity": 0.017119064927101135,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.0200496893376112
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.00025466381339356303,
+        "sparsity": 0.015958189964294434,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.018504828214645386
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.0001572186592966318,
+        "sparsity": 0.012538686394691467,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.014110872521996498
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 5.1746097597060725e-05,
+        "sparsity": 0.007193475961685181,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.0077109369449317455
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 8.10380242910469e-08,
+        "sparsity": 0.0002846717834472656,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.0002854821505025029
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 6.100023529143073e-05,
+        "sparsity": 0.007810264825820923,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.008420267142355442
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.0001692619116511196,
+        "sparsity": 0.013010069727897644,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.0147026889026165
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.00023674688418395817,
+        "sparsity": 0.015386581420898438,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.017754049971699715
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.00022854094277136028,
+        "sparsity": 0.015117570757865906,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.017402980476617813
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.00015534019621554762,
+        "sparsity": 0.012463554739952087,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.014016957022249699
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 5.99801423959434e-05,
+        "sparsity": 0.007744684815406799,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.008344486355781555
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 1.7446942592869163e-06,
+        "sparsity": 0.001320868730545044,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.001338315661996603
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 4.127326246816665e-05,
+        "sparsity": 0.006424427032470703,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.006837159860879183
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.00012767377484124154,
+        "sparsity": 0.011299282312393188,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.012576020322740078
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.00017901977116707712,
+        "sparsity": 0.01337982714176178,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.015170024707913399
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.00016507774125784636,
+        "sparsity": 0.012848258018493652,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.01449903566390276
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 9.940881136571988e-05,
+        "sparsity": 0.009970396757125854,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.010964484885334969
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 2.573559140728321e-05,
+        "sparsity": 0.005073025822639465,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.005330381914973259
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 2.1790299342683284e-06,
+        "sparsity": 0.0014761537313461304,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.0014979440020397305
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 2.9274719054228626e-05,
+        "sparsity": 0.005410611629486084,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.00570335891097784
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 4.642373096430674e-05,
+        "sparsity": 0.006813496351242065,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.007277733646333218
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 3.4372798836557195e-05,
+        "sparsity": 0.005862832069396973,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.00620655994862318
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 7.909428859420586e-06,
+        "sparsity": 0.0028123706579208374,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.0028914648573845625
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 4.112978785997257e-06,
+        "sparsity": 0.002028048038482666,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.0020691778045147657
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 1.015421912597958e-05,
+        "sparsity": 0.0031865686178207397,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.0032881107181310654
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 1.00860534075764e-05,
+        "sparsity": 0.0031758546829223633,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.003276715287938714
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 4.4244929995329585e-06,
+        "sparsity": 0.002103447914123535,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.0021476929541677237
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 7.682282365806259e-09,
+        "sparsity": 8.764863014221191e-05,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 8.772544970270246e-05
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 7.540111710113706e-06,
+        "sparsity": 0.0027459263801574707,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.002821327419951558
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 1.796375545382034e-05,
+        "sparsity": 0.0042383670806884766,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.004418004769831896
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 2.0101961126783863e-05,
+        "sparsity": 0.004483520984649658,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.004684540443122387
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 1.290545696974732e-05,
+        "sparsity": 0.0035924166440963745,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.0037214711774140596
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 2.8514189125417033e-06,
+        "sparsity": 0.0016886144876480103,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.0017171286744996905
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 1.201075065182522e-06,
+        "sparsity": 0.0010959357023239136,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.001107946503907442
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 6.53433517072699e-06,
+        "sparsity": 0.00255623459815979,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.0026215780526399612
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 7.756375453027431e-06,
+        "sparsity": 0.002785027027130127,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.002862590830773115
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 3.5807934182230383e-06,
+        "sparsity": 0.0018922984600067139,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.001928106416016817
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 9.967582315084655e-13,
+        "sparsity": 9.98377799987793e-07,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 9.983878044295125e-07
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 7.603667199873598e-06,
+        "sparsity": 0.0027574747800827026,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.002833511447533965
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 1.711928598524537e-05,
+        "sparsity": 0.004137545824050903,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.004308738745748997
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 1.7974998627323657e-05,
+        "sparsity": 0.004239693284034729,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.0044194431975483894
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 1.01268869912019e-05,
+        "sparsity": 0.0031822770833969116,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.0032835458405315876
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 1.2028067430946976e-06,
+        "sparsity": 0.0010967254638671875,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.0011087534949183464
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 3.523166014929302e-06,
+        "sparsity": 0.0018770098686218262,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.001912241568788886
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 1.1913753041881137e-05,
+        "sparsity": 0.003451630473136902,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.0035707680508494377
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 1.3878453501092736e-05,
+        "sparsity": 0.003725379705429077,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.0038641642313450575
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 7.927795195428189e-06,
+        "sparsity": 0.00281563401222229,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.002894911915063858
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 7.291386054930626e-07,
+        "sparsity": 0.0008538961410522461,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.0008611875236965716
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 4.076433469890617e-06,
+        "sparsity": 0.0020190179347991943,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.0020597821567207575
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 1.2124110071454197e-05,
+        "sparsity": 0.0034819692373275757,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.0036032104399055243
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 1.3227667295723222e-05,
+        "sparsity": 0.003636986017227173,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.003769262693822384
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 6.7874543674406596e-06,
+        "sparsity": 0.0026052743196487427,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.002673148876056075
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 2.725489309796103e-07,
+        "sparsity": 0.0005220621824264526,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.0005247876979410648
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 6.091783234296599e-06,
+        "sparsity": 0.0024681538343429565,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.002529071643948555
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 1.6086727555375546e-05,
+        "sparsity": 0.004010826349258423,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.0041716936975717545
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 1.7725566067383625e-05,
+        "sparsity": 0.004210174083709717,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.004387429915368557
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 1.0179496712225955e-05,
+        "sparsity": 0.0031905323266983032,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.003292327281087637
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 1.1901584002771415e-06,
+        "sparsity": 0.0010909438133239746,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.0011028454173356295
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 3.7626059565809555e-06,
+        "sparsity": 0.0019397437572479248,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.001977369887754321
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 1.2364062058622949e-05,
+        "sparsity": 0.003516256809234619,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.003639897331595421
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 1.4007207028043922e-05,
+        "sparsity": 0.003742620348930359,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.003882692428305745
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 7.527351044700481e-06,
+        "sparsity": 0.0027436017990112305,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.0028188752476125956
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 4.3424680029602314e-07,
+        "sparsity": 0.0006589740514755249,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.0006633165176026523
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 5.57600787942647e-06,
+        "sparsity": 0.0023613572120666504,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.0024171173572540283
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 1.5250757314788643e-05,
+        "sparsity": 0.0039052218198776245,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.004057729616761208
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 1.664516457822174e-05,
+        "sparsity": 0.004079848527908325,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.004246300086379051
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 9.080952622753102e-06,
+        "sparsity": 0.0030134618282318115,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.0031042713671922684
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 7.21853325558186e-07,
+        "sparsity": 0.0008496195077896118,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.0008568380144424736
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 5.0979033403564245e-06,
+        "sparsity": 0.0022578537464141846,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.0023088327143341303
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 1.4978364561102353e-05,
+        "sparsity": 0.0038701891899108887,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.0040199728682637215
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 1.6768317436799407e-05,
+        "sparsity": 0.004094913601875305,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.00426259683445096
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 9.37106779019814e-06,
+        "sparsity": 0.0030612200498580933,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.0031549306586384773
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 8.360361789527815e-07,
+        "sparsity": 0.000914350152015686,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.0009227105183526874
+      }
+    ]
+  },
+  {
+    "name": "Piano Guitar Pythagorean",
+    "initial_loss": 500.0774230957031,
+    "final_loss": 81.89830780029297,
+    "improvement": 83.62287437547054,
+    "time": 0.951683759689331,
+    "loss_history": [
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.04455854743719101,
+        "sparsity": 0.2984951138496399,
+        "range": 0.0,
+        "interval_jump": 998.6666870117188,
+        "total": 500.0774230957031
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.01851673610508442,
+        "sparsity": 0.19205449521541595,
+        "range": 0.0,
+        "interval_jump": 649.6666870117188,
+        "total": 325.2105712890625
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.011157041415572166,
+        "sparsity": 0.1471194624900818,
+        "range": 0.0,
+        "interval_jump": 624.3333129882812,
+        "total": 312.42535400390625
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.006458437070250511,
+        "sparsity": 0.10573876649141312,
+        "range": 0.0,
+        "interval_jump": 108.0,
+        "total": 54.17032241821289
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.004258144646883011,
+        "sparsity": 0.06961756199598312,
+        "range": 0.0,
+        "interval_jump": 296.3333435058594,
+        "total": 148.27886962890625
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.0037949546240270138,
+        "sparsity": 0.07920042425394058,
+        "range": 0.0,
+        "interval_jump": 272.6666564941406,
+        "total": 136.4504852294922
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.004184278193861246,
+        "sparsity": 0.0906841978430748,
+        "range": 0.0,
+        "interval_jump": 372.3333435058594,
+        "total": 186.2991943359375
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.004604799207299948,
+        "sparsity": 0.0958954468369484,
+        "range": 0.0,
+        "interval_jump": 153.6666717529297,
+        "total": 76.97528076171875
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.004584732931107283,
+        "sparsity": 0.09486804157495499,
+        "range": 0.0,
+        "interval_jump": 148.6666717529297,
+        "total": 74.47405242919922
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.0041226549074053764,
+        "sparsity": 0.08927849680185318,
+        "range": 0.0,
+        "interval_jump": 814.6666870117188,
+        "total": 407.4638366699219
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.0032964851707220078,
+        "sparsity": 0.07960104197263718,
+        "range": 0.0,
+        "interval_jump": 281.0,
+        "total": 140.61256408691406
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.0023253639228641987,
+        "sparsity": 0.06715107709169388,
+        "range": 0.0,
+        "interval_jump": 301.6666564941406,
+        "total": 150.92373657226562
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.001382444053888321,
+        "sparsity": 0.05230550467967987,
+        "range": 0.0,
+        "interval_jump": 663.0,
+        "total": 331.5661315917969
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.0006510838866233826,
+        "sparsity": 0.03595724701881409,
+        "range": 0.0,
+        "interval_jump": 981.6666870117188,
+        "total": 490.8758239746094
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.00025643911794759333,
+        "sparsity": 0.018694624304771423,
+        "range": 0.0,
+        "interval_jump": 258.6666564941406,
+        "total": 129.35458374023438
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.0002579048741608858,
+        "sparsity": 0.02270650863647461,
+        "range": 0.0,
+        "interval_jump": 611.0,
+        "total": 305.5252990722656
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.0005138984997756779,
+        "sparsity": 0.02876134216785431,
+        "range": 0.0,
+        "interval_jump": 541.6666870117188,
+        "total": 270.86724853515625
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.0007997971260920167,
+        "sparsity": 0.03142312169075012,
+        "range": 0.0,
+        "interval_jump": 807.0,
+        "total": 403.5394287109375
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.0009712662431411445,
+        "sparsity": 0.03204214572906494,
+        "range": 0.0,
+        "interval_jump": 351.0,
+        "total": 175.541748046875
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.000980245298705995,
+        "sparsity": 0.03555143624544144,
+        "range": 0.0,
+        "interval_jump": 317.6666564941406,
+        "total": 158.87867736816406
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.0008511216728948057,
+        "sparsity": 0.03637313097715378,
+        "range": 0.0,
+        "interval_jump": 135.3333282470703,
+        "total": 67.7115478515625
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.000647412845864892,
+        "sparsity": 0.0344415158033371,
+        "range": 0.0,
+        "interval_jump": 1040.6666259765625,
+        "total": 520.3742065429688
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.00047059275675565004,
+        "sparsity": 0.03066854178905487,
+        "range": 0.0,
+        "interval_jump": 839.0,
+        "total": 419.5353698730469
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.00041716621490195394,
+        "sparsity": 0.025447547435760498,
+        "range": 0.0,
+        "interval_jump": 51.0,
+        "total": 25.529619216918945
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.000555428909137845,
+        "sparsity": 0.027448415756225586,
+        "range": 0.0,
+        "interval_jump": 342.6666564941406,
+        "total": 171.3663330078125
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.000836546067148447,
+        "sparsity": 0.03805097937583923,
+        "range": 0.0,
+        "interval_jump": 304.6666564941406,
+        "total": 152.37974548339844
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.0011409696890041232,
+        "sparsity": 0.04568473994731903,
+        "range": 0.0,
+        "interval_jump": 629.6666870117188,
+        "total": 314.89044189453125
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.0013693036744371057,
+        "sparsity": 0.050064533948898315,
+        "range": 0.0,
+        "interval_jump": 45.66666793823242,
+        "total": 22.897090911865234
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.0015319896629080176,
+        "sparsity": 0.05193348228931427,
+        "range": 0.0,
+        "interval_jump": 181.6666717529297,
+        "total": 90.90058898925781
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.001643588300794363,
+        "sparsity": 0.051449745893478394,
+        "range": 0.0,
+        "interval_jump": 225.3333282470703,
+        "total": 112.73455047607422
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.0017399360658600926,
+        "sparsity": 0.048779234290122986,
+        "range": 0.0,
+        "interval_jump": 737.6666870117188,
+        "total": 368.8995361328125
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.001916411449201405,
+        "sparsity": 0.04470433294773102,
+        "range": 0.0,
+        "interval_jump": 430.3333435058594,
+        "total": 215.2305450439453
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.002191538456827402,
+        "sparsity": 0.05340816080570221,
+        "range": 0.0,
+        "interval_jump": 123.0,
+        "total": 61.57532501220703
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.002527109580114484,
+        "sparsity": 0.061081498861312866,
+        "range": 0.0,
+        "interval_jump": 732.3333129882812,
+        "total": 366.2530212402344
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.0028550310526043177,
+        "sparsity": 0.0661139190196991,
+        "range": 0.0,
+        "interval_jump": 503.3333435058594,
+        "total": 251.76133728027344
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.0030979181174188852,
+        "sparsity": 0.06826700270175934,
+        "range": 0.0,
+        "interval_jump": 751.0,
+        "total": 375.5992431640625
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.0032903682440519333,
+        "sparsity": 0.06805300712585449,
+        "range": 0.0,
+        "interval_jump": 333.6666564941406,
+        "total": 166.9342803955078
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.0034849364310503006,
+        "sparsity": 0.06588302552700043,
+        "range": 0.0,
+        "interval_jump": 49.33333206176758,
+        "total": 24.767398834228516
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.003707371884956956,
+        "sparsity": 0.06183825433254242,
+        "range": 0.0,
+        "interval_jump": 500.3333435058594,
+        "total": 250.2655792236328
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.004043021239340305,
+        "sparsity": 0.06993663311004639,
+        "range": 0.0,
+        "interval_jump": 37.66666793823242,
+        "total": 18.943700790405273
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.004402001388370991,
+        "sparsity": 0.07683803141117096,
+        "range": 0.0,
+        "interval_jump": 15.0,
+        "total": 7.620858192443848
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.004708487074822187,
+        "sparsity": 0.08076438307762146,
+        "range": 0.0,
+        "interval_jump": 33.66666793823242,
+        "total": 16.961183547973633
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.004944049287587404,
+        "sparsity": 0.08199067413806915,
+        "range": 0.0,
+        "interval_jump": 81.33333587646484,
+        "total": 40.798099517822266
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.005130625795572996,
+        "sparsity": 0.08084224164485931,
+        "range": 0.0,
+        "interval_jump": 367.0,
+        "total": 183.63214111328125
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.005314352922141552,
+        "sparsity": 0.07766067981719971,
+        "range": 0.0,
+        "interval_jump": 704.6666870117188,
+        "total": 352.4641418457031
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.0055318367667496204,
+        "sparsity": 0.07604493200778961,
+        "range": 0.0,
+        "interval_jump": 701.6666870117188,
+        "total": 350.9647216796875
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.005778995342552662,
+        "sparsity": 0.08147905766963959,
+        "range": 0.0,
+        "interval_jump": 862.3333129882812,
+        "total": 431.3059387207031
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.006070585455745459,
+        "sparsity": 0.08469460904598236,
+        "range": 0.0,
+        "interval_jump": 654.3333129882812,
+        "total": 327.3120422363281
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.006329751573503017,
+        "sparsity": 0.08548898994922638,
+        "range": 0.0,
+        "interval_jump": 301.6666564941406,
+        "total": 150.98211669921875
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.006561766378581524,
+        "sparsity": 0.08406151831150055,
+        "range": 0.0,
+        "interval_jump": 433.6666564941406,
+        "total": 216.98300170898438
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.006819950882345438,
+        "sparsity": 0.08430366218090057,
+        "range": 0.0,
+        "interval_jump": 340.6666564941406,
+        "total": 170.48582458496094
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.006954613141715527,
+        "sparsity": 0.08625273406505585,
+        "range": 0.0,
+        "interval_jump": 163.0,
+        "total": 81.65579986572266
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.007081868592649698,
+        "sparsity": 0.08701680600643158,
+        "range": 0.0,
+        "interval_jump": 47.0,
+        "total": 23.657835006713867
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.0071979402564466,
+        "sparsity": 0.0866788774728775,
+        "range": 0.0,
+        "interval_jump": 257.0,
+        "total": 128.65866088867188
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.0073478203266859055,
+        "sparsity": 0.08585701882839203,
+        "range": 0.0,
+        "interval_jump": 407.0,
+        "total": 203.65933227539062
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.007522382773458958,
+        "sparsity": 0.08765697479248047,
+        "range": 0.0,
+        "interval_jump": 147.0,
+        "total": 73.66287994384766
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.007683923002332449,
+        "sparsity": 0.08826926350593567,
+        "range": 0.0,
+        "interval_jump": 473.6666564941406,
+        "total": 236.99844360351562
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.007873021066188812,
+        "sparsity": 0.08943207561969757,
+        "range": 0.0,
+        "interval_jump": 315.0,
+        "total": 157.6681671142578
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.008058772422373295,
+        "sparsity": 0.0906248539686203,
+        "range": 0.0,
+        "interval_jump": 304.6666564941406,
+        "total": 152.50454711914062
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.008257802575826645,
+        "sparsity": 0.0909213274717331,
+        "range": 0.0,
+        "interval_jump": 499.6666564941406,
+        "total": 250.00682067871094
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.008457254618406296,
+        "sparsity": 0.09212803840637207,
+        "range": 0.0,
+        "interval_jump": 211.3333282470703,
+        "total": 105.84336853027344
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.008663367480039597,
+        "sparsity": 0.0937572717666626,
+        "range": 0.0,
+        "interval_jump": 179.6666717529297,
+        "total": 90.01372528076172
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.008859951049089432,
+        "sparsity": 0.09451921284198761,
+        "range": 0.0,
+        "interval_jump": 169.6666717529297,
+        "total": 85.0164566040039
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.009051022119820118,
+        "sparsity": 0.09605549275875092,
+        "range": 0.0,
+        "interval_jump": 551.3333129882812,
+        "total": 275.85321044921875
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.00925523042678833,
+        "sparsity": 0.09724128246307373,
+        "range": 0.0,
+        "interval_jump": 92.33333587646484,
+        "total": 46.35646057128906
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.00945120770484209,
+        "sparsity": 0.09729252755641937,
+        "range": 0.0,
+        "interval_jump": 344.6666564941406,
+        "total": 172.52513122558594
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.009644728153944016,
+        "sparsity": 0.10004836320877075,
+        "range": 0.0,
+        "interval_jump": 213.6666717529297,
+        "total": 107.02983093261719
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.00981436762958765,
+        "sparsity": 0.10153958201408386,
+        "range": 0.0,
+        "interval_jump": 652.6666870117188,
+        "total": 326.53302001953125
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.009990296326577663,
+        "sparsity": 0.10190016031265259,
+        "range": 0.0,
+        "interval_jump": 372.3333435058594,
+        "total": 186.36846923828125
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.010172308422625065,
+        "sparsity": 0.10123078525066376,
+        "range": 0.0,
+        "interval_jump": 327.0,
+        "total": 163.7029571533203
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.010377868078649044,
+        "sparsity": 0.1039961576461792,
+        "range": 0.0,
+        "interval_jump": 291.3333435058594,
+        "total": 145.87445068359375
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.01056696381419897,
+        "sparsity": 0.10604338347911835,
+        "range": 0.0,
+        "interval_jump": 344.6666564941406,
+        "total": 172.5450439453125
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.010743923485279083,
+        "sparsity": 0.10679545998573303,
+        "range": 0.0,
+        "interval_jump": 91.66666412353516,
+        "total": 46.04756546020508
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.010901478119194508,
+        "sparsity": 0.10633422434329987,
+        "range": 0.0,
+        "interval_jump": 177.0,
+        "total": 88.71534729003906
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.01106913760304451,
+        "sparsity": 0.10552310943603516,
+        "range": 0.0,
+        "interval_jump": 833.3333129882812,
+        "total": 416.88287353515625
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.011273123323917389,
+        "sparsity": 0.10742202401161194,
+        "range": 0.0,
+        "interval_jump": 223.3333282470703,
+        "total": 111.8868179321289
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.011480274610221386,
+        "sparsity": 0.10812564194202423,
+        "range": 0.0,
+        "interval_jump": 490.0,
+        "total": 245.22293090820312
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.011697494424879551,
+        "sparsity": 0.10853137075901031,
+        "range": 0.0,
+        "interval_jump": 25.66666603088379,
+        "total": 13.058839797973633
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.011910189874470234,
+        "sparsity": 0.10963134467601776,
+        "range": 0.0,
+        "interval_jump": 182.0,
+        "total": 91.2287368774414
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.012109734117984772,
+        "sparsity": 0.11054781079292297,
+        "range": 0.0,
+        "interval_jump": 163.3333282470703,
+        "total": 81.89830780029297
+      }
+    ]
+  },
+  {
+    "name": "Full Band 19-EDO",
+    "initial_loss": 342.2579040527344,
+    "final_loss": 414.6606750488281,
+    "improvement": -21.154448192068074,
+    "time": 1.096677303314209,
+    "loss_history": [
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.06505854427814484,
+        "sparsity": 0.4406375288963318,
+        "range": 0.0,
+        "interval_jump": 682.3333740234375,
+        "total": 342.2579040527344
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.028221670538187027,
+        "sparsity": 0.28958651423454285,
+        "range": 0.0,
+        "interval_jump": 1165.3333740234375,
+        "total": 583.2384643554688
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.01849096268415451,
+        "sparsity": 0.23053103685379028,
+        "range": 0.0,
+        "interval_jump": 1124.0,
+        "total": 562.4154663085938
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.012187846936285496,
+        "sparsity": 0.17750447988510132,
+        "range": 0.0,
+        "interval_jump": 845.6666870117188,
+        "total": 423.1327209472656
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.008495811372995377,
+        "sparsity": 0.1315506398677826,
+        "range": 0.0,
+        "interval_jump": 1060.3333740234375,
+        "total": 530.3831787109375
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.00655099842697382,
+        "sparsity": 0.13129976391792297,
+        "range": 0.0,
+        "interval_jump": 605.3333129882812,
+        "total": 302.86346435546875
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.005456784274429083,
+        "sparsity": 0.12623107433319092,
+        "range": 0.0,
+        "interval_jump": 290.0,
+        "total": 145.18080139160156
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.004596443846821785,
+        "sparsity": 0.11702634394168854,
+        "range": 0.0,
+        "interval_jump": 856.6666259765625,
+        "total": 428.4963073730469
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.0036736875772476196,
+        "sparsity": 0.1038895919919014,
+        "range": 0.0,
+        "interval_jump": 273.66668701171875,
+        "total": 136.97396850585938
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.0026778317987918854,
+        "sparsity": 0.08790938556194305,
+        "range": 0.0,
+        "interval_jump": 437.0,
+        "total": 218.61468505859375
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.0017181760631501675,
+        "sparsity": 0.07015454769134521,
+        "range": 0.0,
+        "interval_jump": 367.33331298828125,
+        "total": 183.75399780273438
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.0008888794109225273,
+        "sparsity": 0.05050791800022125,
+        "range": 0.0,
+        "interval_jump": 744.0,
+        "total": 372.05938720703125
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.0003246417036280036,
+        "sparsity": 0.02946317195892334,
+        "range": 0.0,
+        "interval_jump": 520.0,
+        "total": 260.03271484375
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.0001150546595454216,
+        "sparsity": 0.015430986881256104,
+        "range": 0.0,
+        "interval_jump": 761.3333129882812,
+        "total": 380.6832275390625
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.00021031402866356075,
+        "sparsity": 0.02187483012676239,
+        "range": 0.0,
+        "interval_jump": 601.0,
+        "total": 300.52398681640625
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.00040729285683482885,
+        "sparsity": 0.02742786705493927,
+        "range": 0.0,
+        "interval_jump": 280.6666564941406,
+        "total": 140.3648223876953
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.0005692599224857986,
+        "sparsity": 0.03539285063743591,
+        "range": 0.0,
+        "interval_jump": 312.3333435058594,
+        "total": 156.207763671875
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.0006601231871172786,
+        "sparsity": 0.04152016341686249,
+        "range": 0.0,
+        "interval_jump": 629.0,
+        "total": 314.5481262207031
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.0007068152772262692,
+        "sparsity": 0.044748514890670776,
+        "range": 0.0,
+        "interval_jump": 949.3333129882812,
+        "total": 474.7184753417969
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.0007886545499786735,
+        "sparsity": 0.04609370231628418,
+        "range": 0.0,
+        "interval_jump": 419.33331298828125,
+        "total": 209.72064208984375
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.0009675008477643132,
+        "sparsity": 0.04535992443561554,
+        "range": 0.0,
+        "interval_jump": 103.33333587646484,
+        "total": 51.721702575683594
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.0013140385271981359,
+        "sparsity": 0.056538134813308716,
+        "range": 0.0,
+        "interval_jump": 327.3333435058594,
+        "total": 163.73634338378906
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.0017655536066740751,
+        "sparsity": 0.06882175803184509,
+        "range": 0.0,
+        "interval_jump": 406.33331298828125,
+        "total": 203.2531280517578
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.0021836240775883198,
+        "sparsity": 0.07738707959651947,
+        "range": 0.0,
+        "interval_jump": 803.0,
+        "total": 401.5992126464844
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.002525949850678444,
+        "sparsity": 0.08264791965484619,
+        "range": 0.0,
+        "interval_jump": 330.33331298828125,
+        "total": 165.27456665039062
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.002815635409206152,
+        "sparsity": 0.0851692408323288,
+        "range": 0.0,
+        "interval_jump": 561.3333129882812,
+        "total": 280.77996826171875
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.0030888756737113,
+        "sparsity": 0.08526697754859924,
+        "range": 0.0,
+        "interval_jump": 352.0,
+        "total": 176.11614990234375
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.0033936446998268366,
+        "sparsity": 0.0831710696220398,
+        "range": 0.0,
+        "interval_jump": 455.66668701171875,
+        "total": 227.95045471191406
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.003843898419290781,
+        "sparsity": 0.093828946352005,
+        "range": 0.0,
+        "interval_jump": 272.66668701171875,
+        "total": 136.46560668945312
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.004330596886575222,
+        "sparsity": 0.10322476923465729,
+        "range": 0.0,
+        "interval_jump": 1490.333251953125,
+        "total": 745.3131713867188
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.004832693841308355,
+        "sparsity": 0.11006398499011993,
+        "range": 0.0,
+        "interval_jump": 302.0,
+        "total": 151.15838623046875
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.005235621239989996,
+        "sparsity": 0.1136864721775055,
+        "range": 0.0,
+        "interval_jump": 618.6666870117188,
+        "total": 309.4993896484375
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.0055861701257526875,
+        "sparsity": 0.11469332873821259,
+        "range": 0.0,
+        "interval_jump": 423.3333435058594,
+        "total": 211.83721923828125
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.005932760424911976,
+        "sparsity": 0.11342762410640717,
+        "range": 0.0,
+        "interval_jump": 273.0,
+        "total": 136.67276000976562
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.006343443877995014,
+        "sparsity": 0.11468055844306946,
+        "range": 0.0,
+        "interval_jump": 209.33334350585938,
+        "total": 104.84478759765625
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.006782466545701027,
+        "sparsity": 0.12241652607917786,
+        "range": 0.0,
+        "interval_jump": 808.3333129882812,
+        "total": 404.3569030761719
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.007243633735924959,
+        "sparsity": 0.1276625543832779,
+        "range": 0.0,
+        "interval_jump": 498.6666564941406,
+        "total": 249.53343200683594
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.007653075270354748,
+        "sparsity": 0.13016285002231598,
+        "range": 0.0,
+        "interval_jump": 362.0,
+        "total": 181.20669555664062
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.008055787533521652,
+        "sparsity": 0.13042742013931274,
+        "range": 0.0,
+        "interval_jump": 547.0,
+        "total": 273.71099853515625
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.00850620586425066,
+        "sparsity": 0.1318456381559372,
+        "range": 0.0,
+        "interval_jump": 540.3333129882812,
+        "total": 270.3835754394531
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.009090566076338291,
+        "sparsity": 0.13866963982582092,
+        "range": 0.0,
+        "interval_jump": 706.3333129882812,
+        "total": 353.396240234375
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.009647725149989128,
+        "sparsity": 0.14277811348438263,
+        "range": 0.0,
+        "interval_jump": 987.3333740234375,
+        "total": 493.90594482421875
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.010210120119154453,
+        "sparsity": 0.14464357495307922,
+        "range": 0.0,
+        "interval_jump": 268.6666564941406,
+        "total": 134.580078125
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.01079121045768261,
+        "sparsity": 0.1492486596107483,
+        "range": 0.0,
+        "interval_jump": 847.0,
+        "total": 423.7571716308594
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.011421119794249535,
+        "sparsity": 0.15498657524585724,
+        "range": 0.0,
+        "interval_jump": 307.6666564941406,
+        "total": 154.10252380371094
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.011947705410420895,
+        "sparsity": 0.15762053430080414,
+        "range": 0.0,
+        "interval_jump": 309.3333435058594,
+        "total": 154.9437713623047
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.012462086044251919,
+        "sparsity": 0.15795296430587769,
+        "range": 0.0,
+        "interval_jump": 377.33331298828125,
+        "total": 188.94923400878906
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.013042071834206581,
+        "sparsity": 0.16613277792930603,
+        "range": 0.0,
+        "interval_jump": 621.0,
+        "total": 310.7965393066406
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.013732481747865677,
+        "sparsity": 0.17226961255073547,
+        "range": 0.0,
+        "interval_jump": 452.6666564941406,
+        "total": 226.64292907714844
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.014326926320791245,
+        "sparsity": 0.17528873682022095,
+        "range": 0.0,
+        "interval_jump": 468.6666564941406,
+        "total": 234.65188598632812
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.014916538260877132,
+        "sparsity": 0.17595955729484558,
+        "range": 0.0,
+        "interval_jump": 879.6666870117188,
+        "total": 440.1584777832031
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.015281863510608673,
+        "sparsity": 0.1756393164396286,
+        "range": 0.0,
+        "interval_jump": 508.0,
+        "total": 254.32846069335938
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.01564246229827404,
+        "sparsity": 0.17934119701385498,
+        "range": 0.0,
+        "interval_jump": 318.0,
+        "total": 159.3357696533203
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.01599055528640747,
+        "sparsity": 0.18309786915779114,
+        "range": 0.0,
+        "interval_jump": 114.0,
+        "total": 57.34300231933594
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.016303986310958862,
+        "sparsity": 0.18531890213489532,
+        "range": 0.0,
+        "interval_jump": 387.3333435058594,
+        "total": 194.01502990722656
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.016610965132713318,
+        "sparsity": 0.1863042414188385,
+        "range": 0.0,
+        "interval_jump": 703.3333740234375,
+        "total": 352.01910400390625
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.016963191330432892,
+        "sparsity": 0.18642368912696838,
+        "range": 0.0,
+        "interval_jump": 814.6666259765625,
+        "total": 407.6893615722656
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.017315935343503952,
+        "sparsity": 0.18658433854579926,
+        "range": 0.0,
+        "interval_jump": 787.3333129882812,
+        "total": 394.0263977050781
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.017704658210277557,
+        "sparsity": 0.1900748312473297,
+        "range": 0.0,
+        "interval_jump": 181.6666717529297,
+        "total": 91.20045471191406
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.01806195080280304,
+        "sparsity": 0.19210049510002136,
+        "range": 0.0,
+        "interval_jump": 797.0,
+        "total": 398.8727111816406
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.01839418336749077,
+        "sparsity": 0.19282017648220062,
+        "range": 0.0,
+        "interval_jump": 1067.6666259765625,
+        "total": 534.2100830078125
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.018787192180752754,
+        "sparsity": 0.19472727179527283,
+        "range": 0.0,
+        "interval_jump": 566.3333740234375,
+        "total": 283.5492858886719
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.019225681200623512,
+        "sparsity": 0.19768685102462769,
+        "range": 0.0,
+        "interval_jump": 517.0,
+        "total": 258.88995361328125
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.019675444811582565,
+        "sparsity": 0.19946229457855225,
+        "range": 0.0,
+        "interval_jump": 829.3333740234375,
+        "total": 415.0628967285156
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.020111791789531708,
+        "sparsity": 0.20088236033916473,
+        "range": 0.0,
+        "interval_jump": 589.3333129882812,
+        "total": 295.06866455078125
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.020568128675222397,
+        "sparsity": 0.20346131920814514,
+        "range": 0.0,
+        "interval_jump": 706.6666870117188,
+        "total": 353.74249267578125
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.021037455648183823,
+        "sparsity": 0.20515930652618408,
+        "range": 0.0,
+        "interval_jump": 786.3333129882812,
+        "total": 393.5821838378906
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.02151760645210743,
+        "sparsity": 0.20757879316806793,
+        "range": 0.0,
+        "interval_jump": 450.0,
+        "total": 225.42276000976562
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.022009601816534996,
+        "sparsity": 0.21030589938163757,
+        "range": 0.0,
+        "interval_jump": 406.3333435058594,
+        "total": 203.59707641601562
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.02250784821808338,
+        "sparsity": 0.21226289868354797,
+        "range": 0.0,
+        "interval_jump": 37.33333206176758,
+        "total": 19.104007720947266
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.02296396903693676,
+        "sparsity": 0.21557068824768066,
+        "range": 0.0,
+        "interval_jump": 610.3333740234375,
+        "total": 305.6119079589844
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.023381194099783897,
+        "sparsity": 0.2177092432975769,
+        "range": 0.0,
+        "interval_jump": 184.66665649414062,
+        "total": 92.78485107421875
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.02376290038228035,
+        "sparsity": 0.21846656501293182,
+        "range": 0.0,
+        "interval_jump": 515.0,
+        "total": 257.9560852050781
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.024155516177415848,
+        "sparsity": 0.22128073871135712,
+        "range": 0.0,
+        "interval_jump": 422.3333435058594,
+        "total": 211.62950134277344
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.024519775062799454,
+        "sparsity": 0.2236100286245346,
+        "range": 0.0,
+        "interval_jump": 169.6666717529297,
+        "total": 85.3021469116211
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.024856911972165108,
+        "sparsity": 0.22454382479190826,
+        "range": 0.0,
+        "interval_jump": 1515.666748046875,
+        "total": 758.3064575195312
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.025234216824173927,
+        "sparsity": 0.22470636665821075,
+        "range": 0.0,
+        "interval_jump": 440.3333435058594,
+        "total": 220.6437225341797
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.025607779622077942,
+        "sparsity": 0.22676588594913483,
+        "range": 0.0,
+        "interval_jump": 695.6666870117188,
+        "total": 348.3161926269531
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.02599901147186756,
+        "sparsity": 0.22829866409301758,
+        "range": 0.0,
+        "interval_jump": 1004.6666259765625,
+        "total": 502.82159423828125
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.026407718658447266,
+        "sparsity": 0.22989629209041595,
+        "range": 0.0,
+        "interval_jump": 828.3333740234375,
+        "total": 414.6606750488281
+      }
+    ]
+  },
+  {
+    "name": "Piano with Constraints",
+    "initial_loss": 0.2793389856815338,
+    "final_loss": 0.0008863520342856646,
+    "improvement": 99.68269662320026,
+    "time": 0.17246413230895996,
+    "loss_history": [
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.015488584525883198,
+        "sparsity": 0.12445314228534698,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.2793389856815338
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.005484993103891611,
+        "sparsity": 0.07406073808670044,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.12891066074371338
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.0020016429480165243,
+        "sparsity": 0.044739723205566406,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.06475615501403809
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.000264227157458663,
+        "sparsity": 0.01625506579875946,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.018897337839007378
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.00011983526201220229,
+        "sparsity": 0.010946929454803467,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.01214528176933527
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.0008564342278987169,
+        "sparsity": 0.029264897108078003,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.037829238921403885
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.0015671427827328444,
+        "sparsity": 0.03958715498447418,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.05525858327746391
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.001867129816673696,
+        "sparsity": 0.04321029782295227,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.061881594359874725
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.0017219805158674717,
+        "sparsity": 0.04149675369262695,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.058716557919979095
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.0012719500809907913,
+        "sparsity": 0.03566440939903259,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.048383910208940506
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.0007147677824832499,
+        "sparsity": 0.02673514187335968,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.03388281911611557
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.00024213218421209604,
+        "sparsity": 0.01556059718132019,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.017981918528676033
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 8.223866643675137e-06,
+        "sparsity": 0.0028677284717559814,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.002949967049062252
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.00011450152669567615,
+        "sparsity": 0.010700538754463196,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.01184555422514677
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.0004077456542290747,
+        "sparsity": 0.020192712545394897,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.02427016943693161
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.0006593934376724064,
+        "sparsity": 0.02567865699529648,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.032272592186927795
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.00075238395947963,
+        "sparsity": 0.027429617941379547,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.03495345637202263
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.000668191583827138,
+        "sparsity": 0.02584940195083618,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.032531317323446274
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.0004584896960295737,
+        "sparsity": 0.021412372589111328,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.02599726989865303
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.00021376200311351568,
+        "sparsity": 0.014620602130889893,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.01675822213292122
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 3.5758082958636805e-05,
+        "sparsity": 0.005979806184768677,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.006337387021631002
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 1.6095216778921895e-05,
+        "sparsity": 0.004011884331703186,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.004172836430370808
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.00011842582171084359,
+        "sparsity": 0.010882362723350525,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.012066621333360672
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.00021477365226019174,
+        "sparsity": 0.014655157923698425,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.016802893951535225
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.00023998843971639872,
+        "sparsity": 0.015491560101509094,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.017891444265842438
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.00018655159510672092,
+        "sparsity": 0.013658389449119568,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.01552390493452549
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 9.016587137011811e-05,
+        "sparsity": 0.009495571255683899,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.0103972302749753
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 1.1484821698104497e-05,
+        "sparsity": 0.003388926386833191,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.0035037745255976915
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 1.8060389265883714e-05,
+        "sparsity": 0.004249751567840576,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.004430355504155159
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 8.080249972408637e-05,
+        "sparsity": 0.008989021182060242,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.009797045961022377
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.00011897260264959186,
+        "sparsity": 0.010907456278800964,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.012097182683646679
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 0.00010399701568530872,
+        "sparsity": 0.010197892785072327,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.011237863451242447
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 5.09848578076344e-05,
+        "sparsity": 0.007140368223190308,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.007650217041373253
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 4.31138460044167e-06,
+        "sparsity": 0.002076387405395508,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.002119501354172826
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 2.1278505300870165e-05,
+        "sparsity": 0.004612863063812256,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.004825647920370102
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 7.119516521925107e-05,
+        "sparsity": 0.00843772292137146,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.009149674326181412
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 9.037966083269566e-05,
+        "sparsity": 0.009506821632385254,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.010410618036985397
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 6.459218275267631e-05,
+        "sparsity": 0.00803692638874054,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.008682847954332829
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 1.8723823814070784e-05,
+        "sparsity": 0.004327103495597839,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.0045143417082726955
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 1.6025741160774487e-06,
+        "sparsity": 0.0012659281492233276,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.0012819538824260235
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 1.7645605112193152e-05,
+        "sparsity": 0.004200667142868042,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.0043771229684352875
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 2.1139609089004807e-05,
+        "sparsity": 0.004597783088684082,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.004809179343283176
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 7.158876996982144e-06,
+        "sparsity": 0.0026756078004837036,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.0027471964713186026
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 1.6196722754102666e-06,
+        "sparsity": 0.0012726634740829468,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.0012888602213934064
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 7.188011750258738e-06,
+        "sparsity": 0.002681046724319458,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.0027529268991202116
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 2.9695725061174016e-06,
+        "sparsity": 0.0017232447862625122,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.001752940472215414
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 1.8026003090199083e-06,
+        "sparsity": 0.0013426095247268677,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.001360635505989194
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 3.6889171042275848e-06,
+        "sparsity": 0.001920655369758606,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.0019575445912778378
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 4.6427661715142676e-08,
+        "sparsity": 0.0002154707908630371,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.00021593506971839815
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 1.2182603313704021e-05,
+        "sparsity": 0.003490358591079712,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.003612184664234519
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 2.0467452486627735e-05,
+        "sparsity": 0.004524096846580505,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.0047287712804973125
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 1.4497056326945312e-05,
+        "sparsity": 0.0038075000047683716,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.003952470608055592
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 3.9539559111290146e-06,
+        "sparsity": 0.001988455653190613,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.0020279951859265566
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 6.264565399760613e-07,
+        "sparsity": 0.0007914900779724121,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.0007977546192705631
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 4.789874765265267e-06,
+        "sparsity": 0.002188578248023987,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.0022364770993590355
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 5.2941554713470396e-06,
+        "sparsity": 0.0023009032011032104,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.0023538446985185146
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 1.552937646920327e-06,
+        "sparsity": 0.0012461692094802856,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.0012616985477507114
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 7.115091875675716e-07,
+        "sparsity": 0.0008435100317001343,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.0008506251033395529
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 2.556606887083035e-06,
+        "sparsity": 0.001598939299583435,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.00162450538482517
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 1.2729286709145526e-06,
+        "sparsity": 0.0011282414197921753,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.0011409707367420197
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 1.9640447135316208e-07,
+        "sparsity": 0.00044317543506622314,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.00044513947796076536
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 5.292194487083179e-07,
+        "sparsity": 0.0007274746894836426,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.0007327668718062341
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 2.5908875045388413e-08,
+        "sparsity": 0.00016096234321594238,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.00016122142551466823
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 2.9909237753145135e-08,
+        "sparsity": 0.0001729428768157959,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.00017324196232948452
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 4.433277069892938e-07,
+        "sparsity": 0.0006658285856246948,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.0006702618557028472
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 7.17986381459923e-08,
+        "sparsity": 0.00026795268058776855,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.0002686706720851362
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 1.5400403299281606e-06,
+        "sparsity": 0.0012409836053848267,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.0012563839554786682
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 2.0380582554935245e-06,
+        "sparsity": 0.0014276057481765747,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.0014479863457381725
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 1.7055717194125464e-07,
+        "sparsity": 0.0004129856824874878,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.00041469125426374376
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 2.775587518044631e-06,
+        "sparsity": 0.0016660094261169434,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.001693765283562243
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 5.50774439034285e-06,
+        "sparsity": 0.0023468583822250366,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.0024019358679652214
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 3.0525720831064973e-06,
+        "sparsity": 0.0017471611499786377,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.0017776868771761656
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 8.443246102274315e-12,
+        "sparsity": 2.905726432800293e-06,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 2.9058107884338824e-06
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 7.491824817407178e-06,
+        "sparsity": 0.0027371197938919067,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.002812037942931056
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 1.5811676348675974e-05,
+        "sparsity": 0.003976389765739441,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.004134506452828646
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 1.4669591109850444e-05,
+        "sparsity": 0.0038300901651382446,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.00397678604349494
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 5.9304525166226085e-06,
+        "sparsity": 0.002435252070426941,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.0024945565965026617
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 3.107532231538812e-09,
+        "sparsity": 5.574524402618408e-05,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 5.577631964115426e-05
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 1.261990860257356e-06,
+        "sparsity": 0.001123383641242981,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.001136003527790308
+      },
+      {
+        "within": 0.0,
+        "temporal": 0.0,
+        "cross": 0.0,
+        "density": 7.719943369011162e-07,
+        "sparsity": 0.0008786320686340332,
+        "range": 0.0,
+        "interval_jump": 0.0,
+        "total": 0.0008863520342856646
+      }
+    ]
+  }
+]

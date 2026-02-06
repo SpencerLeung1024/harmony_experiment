@@ -285,10 +285,12 @@ def test_optimization_loop():
     print("=" * 60)
     
     # Create smaller band for faster test (use direct constructor for smaller range)
-    from harmony import Instrument
+    from harmony import Instrument, TwelveTET
+    tuning = TwelveTET()
     piano = PolyphonicMember(
         name="piano",
         instrument=Instrument.piano(),
+        tuning=tuning,
         num_keys=24,
         key_offset=48,
         num_beats=4
@@ -296,6 +298,7 @@ def test_optimization_loop():
     guitar = MonophonicMember(
         name="guitar",
         instrument=Instrument.guitar(),
+        tuning=tuning,
         num_keys=24,
         key_offset=40,
         num_beats=4
@@ -331,10 +334,12 @@ def test_optimization_with_constraints():
     print("=" * 60)
     
     # Create band (use direct constructor for smaller range)
-    from harmony import Instrument
+    from harmony import Instrument, TwelveTET
+    tuning = TwelveTET()
     piano = PolyphonicMember(
         name="piano",
         instrument=Instrument.piano(),
+        tuning=tuning,
         num_keys=24,
         key_offset=48,
         num_beats=4
@@ -342,6 +347,7 @@ def test_optimization_with_constraints():
     guitar = MonophonicMember(
         name="guitar",
         instrument=Instrument.guitar(),
+        tuning=tuning,
         num_keys=24,
         key_offset=40,
         num_beats=4
@@ -428,7 +434,16 @@ def test_loss_weights():
     print("TEST 11: Custom Loss Weights")
     print("=" * 60)
     
-    piano = PolyphonicMember.piano(num_beats=4, num_keys=24, key_offset=48)
+    from harmony import Instrument, TwelveTET
+    tuning = TwelveTET()
+    piano = PolyphonicMember(
+        name="piano",
+        instrument=Instrument.piano(),
+        tuning=tuning,
+        num_keys=24,
+        key_offset=48,
+        num_beats=4
+    )
     
     # Custom weights emphasizing within-member dissonance
     custom_weights = {
@@ -461,8 +476,24 @@ def test_chord_analysis():
     print("TEST 12: Chord Analysis")
     print("=" * 60)
     
-    piano = PolyphonicMember.piano(num_beats=4, num_keys=24, key_offset=48)
-    guitar = MonophonicMember.guitar(num_beats=4, num_keys=24, key_offset=40)
+    from harmony import Instrument, TwelveTET
+    tuning = TwelveTET()
+    piano = PolyphonicMember(
+        name="piano",
+        instrument=Instrument.piano(),
+        tuning=tuning,
+        num_keys=24,
+        key_offset=48,
+        num_beats=4
+    )
+    guitar = MonophonicMember(
+        name="guitar",
+        instrument=Instrument.guitar(),
+        tuning=tuning,
+        num_keys=24,
+        key_offset=40,
+        num_beats=4
+    )
     
     optimizer = HarmonyOptimizer([piano, guitar], lr=0.02)
     optimizer.precompute_dissonance()
@@ -488,7 +519,16 @@ def test_active_notes():
     print("TEST 13: Active Notes")
     print("=" * 60)
     
-    piano = PolyphonicMember.piano(num_beats=4, num_keys=24, key_offset=48)
+    from harmony import Instrument, TwelveTET
+    tuning = TwelveTET()
+    piano = PolyphonicMember(
+        name="piano",
+        instrument=Instrument.piano(),
+        tuning=tuning,
+        num_keys=24,
+        key_offset=48,
+        num_beats=4
+    )
     drums = DrumMember.standard_rock(num_beats=4)
     
     optimizer = HarmonyOptimizer([piano, drums], lr=0.02)
@@ -516,7 +556,16 @@ def test_optimizer_reset():
     print("TEST 14: Optimizer Reset")
     print("=" * 60)
     
-    piano = PolyphonicMember.piano(num_beats=4, num_keys=24, key_offset=48)
+    from harmony import Instrument, TwelveTET
+    tuning = TwelveTET()
+    piano = PolyphonicMember(
+        name="piano",
+        instrument=Instrument.piano(),
+        tuning=tuning,
+        num_keys=24,
+        key_offset=48,
+        num_beats=4
+    )
     
     optimizer = HarmonyOptimizer([piano], lr=0.02)
     optimizer.precompute_dissonance()
