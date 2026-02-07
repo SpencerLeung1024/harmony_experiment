@@ -89,6 +89,11 @@ keys.shape = (128)
 keys[0] = C-1 (8.1758 Hz)
 keys[127] = G9 (12544 Hz)
 
+The exact implementation and meaning of keys, key_to_freq(), and freq_to_key() will differ between tuning systems.
+The least rigid tuning system is arbitrary frequencies provided by the user.
+[100 Hz, 110 Hz, 120 Hz, 130 Hz, ...] etc.
+freq_to_key() may return None for the vast majority of audible (20 Hz - 20 kHz) frequencies.
+
 Do not expect to be able to make a meaningful comparison between raw ints of different TuningSystems.
 60 may not be C4 (261.63 Hz). 69 may not be A4 (440.00 Hz).
 Always use key_to_freq() and generate the dissonance matrices between members using frequencies in Hz.
@@ -118,7 +123,11 @@ An ADSR has:
 A LossHandler calculates loss on a song.
 A LossHandler has:
 - dissonance_matrices: a dict of (int, int): torch.Tensor. (source member index, destination member index): dissonance matrix
+
 - sample_like(dst_weights: torch.Tensor, src: Member, note_shift: int) -> torch.Tensor
+
+note_shift = -1 means sample src.ticks_per_note from the past.
+note_shift = +1 means sample src.ticks_per_note from the future (not currently used).
 
 A dissonance matrix is the unit time, unit amplitude dissonance between two frequencies.
 The actual dissonance value scales with both time (seconds) and amplitude (as a ratio to 1).
@@ -133,17 +142,22 @@ dissonance_matrices[(1, 0)] is a (49, 88) matrix for dissonance to guitar caused
 dissonance_matrices[(1, 1)] is a (49, 49) matrix for dissonance to guitar caused by guitar (note that because lead guitars here are monophonic instruments they cannot cause concurrent dissonance to themselves, only temporal dissonance)
 
 These dissonance matrices are used to calculate:
+Sum over src.total_notes()
 - self_concurrent_loss for polyphonic members
 - - torch.sum(src.weights.T @ D @ src.weights)
 - mate_concurrent_loss
 - - torch.sum(src.weights.T @ D @ sample_like(dst.weights, src, 0))
+
+Sum over src.total_notes() - 1
 - self_temporal_loss (dissonance to self note_time caused by self note_time-1)
-- - torch.sum(src.weights[:, 1:].T @ D @ src.weights[:, :-1].T)
+- - torch.sum(src.weights[:, 1:].T @ D @ src.weights[:, :-1])
 - mate_temporal_loss (dissonance to self note_time caused by mate note_time-1)
 - - torch.sum(src.weights[:, 1:].T @ D @ sample_like(dst.weights, src, -1))
 
 sample_like is a very tedious function that produces a tensor with shape (dst.weights.shape[0] (dst keys), src.weights.shape[1] (src notes) - abs(note_shift))
 Energy-preserving horizontal scaling and cropping
+Stretching to 2x halves all amplitudes. Squashing to 0.5x doubles all amplitudes. torch.sum() remains the same.
+Yes I know 2x amplitude means 4x energy in physical terms but whatever
 - dst.weights (dst keys, dst notes) are stretched out by a factor of dst.ticks_per_note to become temp (dst keys, Song.total_ticks())
 - temp (dst keys, Song.total_ticks()) has note_shift * src.ticks_per_note cropped from the left (+) or right (-) to become temp (dst keys, Song.total_ticks() - abs(note_shift * src.ticks_per_note))
 - temp is squashed in by a factor of src.ticks_per_note to become result (dst keys, src notes - abs(note_shift))
@@ -201,7 +215,7 @@ v2 had some complicated mixing and level control but I don't think that's necess
 Gives color to a weights graymap or a spectrogram graymap.
 It is not an object. It just exists.
 The ColorService has:
-- color_weights(weights: np.ndarray, tuning_system: TuningSystem) -> np.ndarray: Turns (num_keys, num_time_thingys) (-inf, inf) into a (num_keys, num_time_thingys, 3) [0.0, 1.0]
+- color_weights(weights: np.ndarray, tuning_system: TuningSystem) -> np.ndarray: Turns (num_keys, num_notes) (-inf, inf) into a (num_keys, num_notes, 3) [0.0, 1.0]
 - color_spectrogram(spectrogram: np.ndarray, sample_rate: int) -> np.ndarray: Turns (num_bins, num_times) [0, inf) into a (num_bins, num_times, 3) [0.0, 1.0]
 
 I suppose if this project ever gets a large following I'll add more visualization options (different color schemes, one scheme from 20 Hz to 20 kHz instead of repeating every 2x, etc.).
