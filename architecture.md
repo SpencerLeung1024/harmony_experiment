@@ -13,45 +13,62 @@ A Song has:
 - optim_handler: an OptimHandler
 - audio_handler: an AudioHandler
 - measures: int, number of measures
-- bpm: float, beats per minute
+- tempo: float, beats per minute
 - beats_per_measure: int, beats per measure
-- subdivisions: int, number of subdivisions per beat
+- ticks_per_beat: int, number of ticks per beat. Ticks are the smallest unit of time in this song. All members play notes with length a natural number of ticks.
 
-- beat_time() -> float: bpm / 60
-- subdivision_time() -> float: beat_time() / subdivisions
+- beat_duration() -> float: 60.0 / tempo
+- tick_duration() -> float: beat_duration() / ticks_per_beat
 - total_beats() -> int: measures * beats_per_measure
-- total_subdivisions() -> int: total_beats() * subdivisions
-- total_time() -> float: total_subdivisions() * subdivision_time()
+- total_ticks() -> int: total_beats() * ticks_per_beat
+- song_duration() -> float: total_ticks() * tick_duration()
+
+TODO: Add serialization, save(), and load().
 
 ### Member
 A Member is a band member. It can be a PolyphonicMember or a MonophonicMember.
 A Member has:
 - name: str, a human readable name, like "Synth" or "🎹 Tenma Saki". Will be shown in the Gradio UI
-- weights: torch.Tensor, has shape (keys, time_thingys)
+- weights: torch.Tensor, has shape (keys, note_times)
 - tuning_system: a TuningSystem. Different Members of a Song can use different tuning systems
 - instrument_range: list of two ints, weights.shape[0] - 1 apart. Maps weights[0, :] and weights[-1, :] to whatever TuningSystem uses
 - instrument: an Instrument.
 - hp: a dict of string: any, hyperparameters for loss and optimization. Which hyperparameters exist depends on the exact member
-- time_thingy_size: int, number of subdivisions that one time_thingy represents
+- - TODO: "hp: dict for hyperparameters is flexible but error-prone; consider a typed MemberHyperparameters base class"
+- ticks_per_note: int, duration of one note from this member in terms of ticks of the song. This project does not support one member playing notes of different lengths.
 
-- time_thingy_time() -> float: Song.subdivision_time() * time_thingy_size
-- total_time_thingys() -> int: Song.total_subdivisions() / time_thingy_size
+- note_duration() -> float: Song.tick_duration() * ticks_per_note
+- total_notes() -> int: Song.total_ticks() / ticks_per_note
 
-weights.shape[1] is total_time_thingys().
-This means:
-- Song subdivisions must be the lowest common multiple of all members. If you have Member 1 playing 8th notes and Member 2 playing 12th notes, the song must have a multiple of (8, 12) = 24 subdivisions. Member 1 would have time_thingy_size = 3 and Member 2 would have time_thingy_size = 2.
+weights.shape[1] is total_notes().
+This means Song.total_ticks() must a common multiple of all Member.ticks_per_note.
+
+If Song.beats_per_measure = 4 (4/4 time), you want the pattern to repeat every beat, and you have:
+- Member 1 playing 8th notes (8 notes per measure, 2 notes per beat)
+- Member 2 playing 12th notes (12 notes per measure, 3 notes per beat)
+Then Song.ticks_per_beat must be at least 6. (You can do 12, 18, etc. but without other instruments that's superfluous.)
+At Song.ticks_per_beat = 6:
+- Member1.ticks_per_note = 3
+- Member2.ticks_per_note = 2
+
+Note: *Only* ticks matter for timing. The code does not care about measures or beats. They serve only to present the song's structure in ways the user can interpret.
+You can, as a contrived example, have:
+- Song: measures=6, beats_per_measure=3, ticks_per_beat=5 -> total_ticks() = 90, ticks per measure = 15
+- Member1.ticks_per_note = 9
+- Member2.ticks_per_note = 10
+This is basically a 10:9 polyrhythm. It is completely nonsensical since measures and beats are meaningless but the code will accept it.
 
 ### PolyphonicMember(Member)
-A PolyphonicMember represents a band member that can play zero to all notes at zero to unbounded amplitude every time_thingy.
+A PolyphonicMember represents a band member that can play zero to all notes at zero to unbounded amplitude every note_time.
 Piano, synth, etc.
-Its weights[key, time_thingy] is the amplitude of key at time_thingy.
+Its weights[key, note_time] is the amplitude of key at note_time.
 It uses ReLU. Due to problems with sigmoid dying we will not be using sigmoid.
 
 ### MonophonicMember(Member)
-A MonophonicMember represents a band member that must play one note at a given amplitude every time_thingy.
+A MonophonicMember represents a band member that must play one note at a given amplitude every note_time.
 Lead guitar, bass, etc.
-Its weights[key, time_thingy] is the logit of playing key at time_thingy.
-It uses Gumbel-Softmax.
+Its weights[key, note_time] is the logit of playing key at note_time.
+It uses Gumbel-softmax.
 It uses a straight-through estimator:
 - forward: argmax
 - backward: Gumbel-softmax
@@ -68,7 +85,7 @@ Different members may use different tuning systems. You can have a song with two
 ! Can return None.
 
 For example, in 12-TET, A4=440Hz:
-keys.shape[0] = 128
+keys.shape = (128)
 keys[0] = C-1 (8.1758 Hz)
 keys[127] = G9 (12544 Hz)
 
@@ -101,6 +118,7 @@ An ADSR has:
 A LossHandler calculates loss on a song.
 A LossHandler has:
 - dissonance_matrices: a dict of (int, int): torch.Tensor. (source member index, destination member index): dissonance matrix
+- sample_like(dst_weights: torch.Tensor, src: Member, note_shift: int) -> torch.Tensor
 
 A dissonance matrix is the unit time, unit amplitude dissonance between two frequencies.
 The actual dissonance value scales with both time (seconds) and amplitude (as a ratio to 1).
@@ -114,6 +132,23 @@ dissonance_matrices[(0, 1)] is a (88, 49) matrix for dissonance to piano caused 
 dissonance_matrices[(1, 0)] is a (49, 88) matrix for dissonance to guitar caused by piano
 dissonance_matrices[(1, 1)] is a (49, 49) matrix for dissonance to guitar caused by guitar (note that because lead guitars here are monophonic instruments they cannot cause concurrent dissonance to themselves, only temporal dissonance)
 
+These dissonance matrices are used to calculate:
+- self_concurrent_loss for polyphonic members
+- - torch.sum(src.weights.T @ D @ src.weights)
+- mate_concurrent_loss
+- - torch.sum(src.weights.T @ D @ sample_like(dst.weights, src, 0))
+- self_temporal_loss (dissonance to self note_time caused by self note_time-1)
+- - torch.sum(src.weights[:, 1:].T @ D @ src.weights[:, :-1].T)
+- mate_temporal_loss (dissonance to self note_time caused by mate note_time-1)
+- - torch.sum(src.weights[:, 1:].T @ D @ sample_like(dst.weights, src, -1))
+
+sample_like is a very tedious function that produces a tensor with shape (dst.weights.shape[0] (dst keys), src.weights.shape[1] (src notes) - abs(note_shift))
+Energy-preserving horizontal scaling and cropping
+- dst.weights (dst keys, dst notes) are stretched out by a factor of dst.ticks_per_note to become temp (dst keys, Song.total_ticks())
+- temp (dst keys, Song.total_ticks()) has note_shift * src.ticks_per_note cropped from the left (+) or right (-) to become temp (dst keys, Song.total_ticks() - abs(note_shift * src.ticks_per_note))
+- temp is squashed in by a factor of src.ticks_per_note to become result (dst keys, src notes - abs(note_shift))
+- The result has energy of each dst note as viewed by each of src's notes in its own duration.
+
 Before the first optimization step, the actual frequencies of, for example:
 Piano's key 12 and Guitar's key 34 is used in the dissonance function to fill in:
 - dissonance_matrices[(0, 1)][12, 34]
@@ -121,21 +156,46 @@ Piano's key 12 and Guitar's key 34 is used in the dissonance function to fill in
 
 There are probably smart ways to reduce duplicated work but we'll get to that when we get there
 
-loss = loss + torch.sum(src.weights.T @ D @ dst.weights)
+Besides these expensive dissonance sandwiches, a LossHandler also calculates auxiliary losses such as:
+- PolyphonicMember:
+- - quietness_loss (obviously you can have zero dissonance by not playing any notes, so encourage some activity)
+- - muddyness_loss (L1 loss, penalize small amplitudes across large numbers of keys and encourage sparse but strong notes)
+- - hand_stretch_loss (play notes close together on the keyboard / close to their median)
+
+- MonophonicMember:
+- - jump_loss (don't make large jumps between notes)
+
+- All:
+- - extreme_range_loss (prefer notes near the middle of each member's range)
 
 ### OptimHandler
 An OptimHandler uses the loss to optimize the members' weights.
 An OptimHandler has:
 - steps: int, number of steps to run
 
+- do_steps(desired_steps: int): accepts 1, 5, 10, etc. steps from the Gradio UI. Does that many steps before pausing. This allows the user to plot the weights and loss and listen to the song as it's being cooked.
+
 After the members are created and before the optimization loop runs, it explores the various members and their hyperparameters. Each member's weight is added to an optimizer with the specified hyperparameters.
 
+TODO: implementation details
+
 "Pixels" of user painted weights will not be optimized. A user may disable optimization on a member entirely. For example, if they manually wrote a chord progression on a synth and just want 🎸 Hoshino Ichika and 🍜 Hinomori Shiho to make something up on top of it.
+- Force 🎹 to use certain notes at certain amplitudes but allow adding random other notes:
+TenmaSaki.weights.grad[painted_notes_mask] = 0
+- Freeze 🎹 entirely:
+TenmaSaki.weights.grad = torch.zeros_like(TenmaSaki.weights)
+
+TODO: consider how to display grad state in the Gradio UI
 
 ### AudioHandler
 Turns the members of the song into audio.
 An AudioHandler has:
 - sample_rate: int, number of samples per second
+
+- render_member(member: Member) -> np.ndarray: Returns a (samples) ndarray where each value is the contribution this member makes to the song's audio. Loops over each weight in the member's weights.
+- render() -> np.ndarray: Returns a (samples) ndarray of every member added together
+
+v2 had some complicated mixing and level control but I don't think that's necessary to implement. If it's too quiet or clips the user will just adjust quietness_loss. Or export the generated weights and recreate them in FL studio, where they can stack all the soundgoodizers.
 
 ### ColorService
 Gives color to a weights graymap or a spectrogram graymap.
@@ -144,6 +204,8 @@ The ColorService has:
 - color_weights(weights: np.ndarray, tuning_system: TuningSystem) -> np.ndarray: Turns (num_keys, num_time_thingys) (-inf, inf) into a (num_keys, num_time_thingys, 3) [0.0, 1.0]
 - color_spectrogram(spectrogram: np.ndarray, sample_rate: int) -> np.ndarray: Turns (num_bins, num_times) [0, inf) into a (num_bins, num_times, 3) [0.0, 1.0]
 
-C in every octave is red (1.0, 0.0, 0.0). Hue increases with pitch class (C# is orange, etc.).
+I suppose if this project ever gets a large following I'll add more visualization options (different color schemes, one scheme from 20 Hz to 20 kHz instead of repeating every 2x, etc.).
+But for now, the visualization I like is to map the chromatic circle to the hue circle. This gives a visual indication of the 2x scale (oh, every red is a doubling) that does not depend on the underlying tuning system (what is key 47 in 19-EDO?).
+C in every octave is red (1.0, 0.0, 0.0). Hue increases with pitch class (C# is orange, etc.). Other tuning systems won't have 12 notes and 12 hues, but will still go around the chromatic circle with 19, 24, 31, or non-repeating colors.
 In non-octave scales, color_weights may have non-repeating colors.
-Since color_spectrogram takes a spectrogram generated from audio that came from every member, all of whom may have different tunings, it is not sensible to "round" to any particular pitch class. color_spectrogram will always show the color of the bin.
+Since color_spectrogram takes a spectrogram generated from audio that came from every member, all of whom may have different tunings, it is not sensible to "round" to any particular pitch class. color_spectrogram will always assign a color to each bin, which will be slightly different from bin-1 and bin+1.
