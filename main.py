@@ -27,7 +27,7 @@ def hz_to_key(freq: float) -> int:
 
 # GENERATION
 
-# Use additive synthesis instead of regenerating audio from a spectrogram
+# Kimi K2.5 suggested to use additive synthesis instead of regenerating audio from a spectrogram
 def weights_to_audio(weights: torch.Tensor, sample_rate: int, duration: float) -> np.ndarray:
     """Synthesize audio directly - ~100x faster than Griffin-Lim."""
     num_samples = int(sample_rate * duration)
