@@ -80,3 +80,9 @@ And there's bigger architecture issues:
 All in all, good job, but I'm gonna have to rebuild this from the ground up over a week or two
 AI in February 2026 is good but it's not yet at "satisfying all written and unwritten expectations by typing one prompt into Roo Code and coming back the next morning"
 I think large parts of your code can be used as a reference though
+
+## v3
+
+v1 contains files from the initial implementation: solo synth-like member using ReLU
+v2 contains Kimi K2.5's implementation
+Anything outside those two folders is work for v3
