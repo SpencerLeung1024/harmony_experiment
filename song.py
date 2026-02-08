@@ -1,31 +1,31 @@
-from typing import List
+from typing import List, TYPE_CHECKING
 
-from members import Member
-from audio_handler import AudioHandler
-# TODO
-#from loss_handler import LossHandler
-#from optim_handler import OptimHandler
+if TYPE_CHECKING:
+    from members import Member
+    from audio_service import AudioHandler
+    # TODO
+    #from loss_handler import LossHandler
+    #from optim_handler import OptimHandler
 
 class Song:
     def __init__(
         self,
-        members: List[Member],
-        #loss_handler: LossHandler,
-        #optim_handler: OptimHandler,
-        audio_handler: AudioHandler,
         measures: int,
         tempo: int,
         beats_per_measure: int,
-        ticks_per_beat: int
+        ticks_per_beat: int,
+        sample_rate: int
     ):
-        self.members = members
-        #self.loss_handler = loss_handler
-        #self.optim_handler = optim_handler
-        self.audio_handler = audio_handler
+        self.members = []
+        self.loss_handler = None
+        self.optim_handler = None
+        self.audio_handler = None
+
         self.measures = measures
         self.tempo = tempo
         self.beats_per_measure = beats_per_measure
         self.ticks_per_beat = ticks_per_beat
+        self.sample_rate = sample_rate
     
     # Helpers for commonly used values
     def beat_duration(self) -> float:

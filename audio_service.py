@@ -5,43 +5,39 @@ from song import Song
 from members import Member, PolyphonicMember, MonophonicMember
 from instruments import Instrument
 
-class AudioHandler:
-    def __init__(
-        self,
-        song: Song,
-        sample_rate: int,
-    ):
-        self.song = song
-        self.sample_rate = sample_rate
-    
+class AudioService:
     # Helper function for render_member
+    @staticmethod
     def apply_note(
-        self,
         audio: np.ndarray,
+        sample_rate: int,
         instrument: Instrument,
         start_sample: int,
         freq: float,
         velocity: float,
         note_duration: float,
     ):
-        note_audio = instrument.get_sound(freq, velocity, note_duration, self.sample_rate)
+        note_audio = instrument.get_sound(freq, velocity, note_duration, sample_rate)
         # Trim note if it goes past the end of the song
         if start_sample + len(note_audio) > len(audio):
             note_audio = note_audio[:len(audio) - start_sample]
         audio[start_sample:start_sample+len(note_audio)] += note_audio
     
+    @staticmethod
     def render_member(
-        self,
+        song_duration: float,
+        sample_rate: int,
+        tick_duration: float,
         member: Member
     ) -> np.ndarray:
-        samples = self.song.song_duration() * self.sample_rate
+        samples = song_duration * sample_rate
         audio = np.zeros(int(samples))
 
         note_duration = member.note_duration()
 
         for note in range(member.num_notes):
             start_tick = note * member.ticks_per_note
-            start_sample = int(start_tick * self.song.tick_duration() * self.sample_rate)
+            start_sample = int(start_tick * tick_duration * sample_rate)
 
             freq = None
             velocity = 0.0
@@ -52,7 +48,7 @@ class AudioHandler:
                     freq = member.tuning_system.key_to_freq(key)
                     velocity = member.weights[key, note].item()
                     if freq and velocity > 0.0:
-                        self.apply_note(audio, member.instrument, start_sample, freq, velocity, note_duration)
+                        AudioService.apply_note(audio, sample_rate, member.instrument, start_sample, freq, velocity, note_duration)
                     
             # This is a MonophonicMember and weights represent probabilities
             elif member is MonophonicMember:
@@ -61,16 +57,22 @@ class AudioHandler:
                 freq = member.tuning_system.key_to_freq(key)
                 velocity = member.weights[key, note].item()
                 if freq and velocity > 0.0:
-                    self.apply_note(audio, member.instrument, start_sample, freq, velocity, note_duration)
+                    AudioService.apply_note(audio, sample_rate, member.instrument, start_sample, freq, velocity, note_duration)
 
         return audio
     
+    @staticmethod
     def render(
-        self
+        song: Song
     ) -> np.ndarray:
         # Render each member and sum them together
-        audio = np.zeros(int(self.song.song_duration() * self.sample_rate))
-        for member in self.song.members:
-            member_audio = self.render_member(member)
+        audio = np.zeros(int(song.song_duration() * song.sample_rate))
+        for member in song.members:
+            member_audio = AudioService.render_member(
+                song.song_duration(),
+                song.sample_rate,
+                song.tick_duration(),
+                member
+            )
             audio[:len(member_audio)] += member_audio
         return audio

@@ -8,7 +8,7 @@ import sounddevice
 
 from song import Song
 from members import get_member
-from audio_handler import AudioHandler
+from audio_service import AudioService
 from color_service import ColorService
 
 OUTPUT_FOLDER = "output"
@@ -81,54 +81,51 @@ def plot_spectrogram(audio: np.ndarray, sample_rate: int):
 def main():
     # Create a song
     song = Song(
-        members=[
-            get_member(
-                "piano",
-                song=song,
-                num_notes=8,
-                ticks_per_note=24,
-                hp={},
-                #initial_weights=None
-            ),
-            get_member(
-                "guitar",
-                song=song,
-                num_notes=96,
-                ticks_per_note=2,
-                hp={},
-                #initial_weights=None
-            ),
-            get_member(
-                "bass",
-                song=song,
-                num_notes=32,
-                ticks_per_note=6,
-                hp={},
-                #initial_weights=None
-            ),
-            get_member(
-                "synth",
-                song=song,
-                num_notes=192,
-                ticks_per_note=1,
-                hp={},
-                #initial_weights=None
-            )
-        ],
-        #loss_handler=LossHandler(),
-        #optim_handler=OptimHandler(),
-        audio_handler=AudioHandler(
-            song=song,
-            sample_rate=SAMPLE_RATE
-        ),
         measures=8,
         tempo=120,
         beats_per_measure=4,
-        ticks_per_beat=6
+        ticks_per_beat=6,
+        sample_rate=SAMPLE_RATE
     )
 
+    # Create members
+    tick_duration = song.tick_duration()
+    total_ticks = song.total_ticks()
+    song.members.extend([
+        get_member(
+            "piano",
+            song=song,
+            tick_duration=tick_duration,
+            total_ticks=total_ticks,
+            ticks_per_note=24
+        ),
+        get_member(
+            "guitar",
+            song=song,
+            tick_duration=tick_duration,
+            total_ticks=total_ticks,
+            ticks_per_note=2
+        ),
+        get_member(
+            "bass",
+            song=song,
+            tick_duration=tick_duration,
+            total_ticks=total_ticks,
+            ticks_per_note=6
+        ),
+        get_member(
+            "synth",
+            song=song,
+            tick_duration=tick_duration,
+            total_ticks=total_ticks,
+            ticks_per_note=1
+        )
+    ])
+
+    # TODO: Create LossHandler and OptimHandler
+
     # Render and play the audio
-    audio = song.audio_handler.render_song()
+    audio = AudioService.render(song)
     save_audio(audio, f"{OUTPUT_FOLDER}/audio.wav", SAMPLE_RATE)
     sounddevice.play(audio, SAMPLE_RATE)
 
