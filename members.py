@@ -30,12 +30,12 @@ class Member(ABC):
         self.num_keys = num_keys
 
         # Check if total_ticks is a multiple of ticks_per_note, then calculate num_notes
-        if self.total_ticks % self.ticks_per_note != 0:
-            raise ValueError(f"total_ticks must be a multiple of ticks_per_note. Got {self.total_ticks} total ticks and {self.ticks_per_note} ticks per note.")
+        if total_ticks % ticks_per_note != 0:
+            raise ValueError(f"total_ticks must be a multiple of ticks_per_note. Got {total_ticks} total ticks and {ticks_per_note} ticks per note.")
         self.tick_duration = tick_duration
         self.total_ticks = total_ticks
         self.ticks_per_note = ticks_per_note
-        num_notes = self.total_ticks // self.ticks_per_note
+        num_notes = total_ticks // ticks_per_note
         self.num_notes = num_notes
         
         self.hp = hp
@@ -148,53 +148,49 @@ def get_member(
 # Register defaults
 
 # A standard 88 key piano
-register_member("piano", lambda **kwargs: PolyphonicMember(
+register_member("piano", lambda tick_duration, total_ticks, ticks_per_note, **kwargs: PolyphonicMember(
     name="piano",
     instrument=get_instrument("piano"),
     tuning_system=get_tuning_system("12-TET"),
     instrument_range=[21, 108],
-    # tick_duration
-    # total_ticks
-    # ticks_per_note
-    # hp = {}
-    # initial_weights = None
+    tick_duration=tick_duration,
+    total_ticks=total_ticks,
+    ticks_per_note=ticks_per_note,
+    **kwargs
 ))
 
 # A 6 string guitar (E2 to E4) with 24 frets (up to E6)
-register_member("guitar", lambda **kwargs: MonophonicMember(
+register_member("guitar", lambda tick_duration, total_ticks, ticks_per_note, **kwargs: MonophonicMember(
     name="guitar",
     instrument=get_instrument("guitar"),
     tuning_system=get_tuning_system("12-TET"),
     instrument_range=[40, 88],
-    # tick_duration
-    # total_ticks
-    # ticks_per_note
-    # hp = {}
-    # initial_weights = None
+    tick_duration=tick_duration,
+    total_ticks=total_ticks,
+    ticks_per_note=ticks_per_note,
+    **kwargs
 ))
 
 # A 4 string bass (E1 to G3) limited to 12 frets (up to G4). This should keep the optimizer from trying to use the bass too high
-register_member("bass", lambda **kwargs: MonophonicMember(
+register_member("bass", lambda tick_duration, total_ticks, ticks_per_note, **kwargs: MonophonicMember(
     name="bass",
     instrument=get_instrument("bass"),
     tuning_system=get_tuning_system("12-TET"),
     instrument_range=[28, 67],
-    # tick_duration
-    # total_ticks
-    # ticks_per_note
-    # hp = {}
-    # initial_weights = None
+    tick_duration=tick_duration,
+    total_ticks=total_ticks,
+    ticks_per_note=ticks_per_note,
+    **kwargs
 ))
 
 # A 128 key synth that supports all MIDI notes
-register_member("synth", lambda **kwargs: PolyphonicMember(
+register_member("synth", lambda tick_duration, total_ticks, ticks_per_note, **kwargs: PolyphonicMember(
     name="synth",
     instrument=get_instrument("synth"),
     tuning_system=get_tuning_system("12-TET"),
     instrument_range=[0, 127],
-    # tick_duration
-    # total_ticks
-    # ticks_per_note
-    # hp = {}
-    # initial_weights = None
+    tick_duration=tick_duration,
+    total_ticks=total_ticks,
+    ticks_per_note=ticks_per_note,
+    **kwargs
 ))

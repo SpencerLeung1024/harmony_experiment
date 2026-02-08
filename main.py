@@ -1,6 +1,7 @@
 # TODO: Make this do more than just a short test
 
 import numpy as np
+import os
 from matplotlib import pyplot as plt
 from scipy.io import wavfile
 import librosa
@@ -14,6 +15,8 @@ from color_service import ColorService
 OUTPUT_FOLDER = "output"
 SAMPLE_RATE = 22050
 NUM_BINS = 4096
+
+os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 
 def hz_to_bin(freq: float, num_bins: int, sample_rate: int) -> int:
     return int((freq / (sample_rate / 2)) * num_bins)
@@ -94,28 +97,24 @@ def main():
     song.members.extend([
         get_member(
             "piano",
-            song=song,
             tick_duration=tick_duration,
             total_ticks=total_ticks,
             ticks_per_note=24
         ),
         get_member(
             "guitar",
-            song=song,
             tick_duration=tick_duration,
             total_ticks=total_ticks,
             ticks_per_note=2
         ),
         get_member(
             "bass",
-            song=song,
             tick_duration=tick_duration,
             total_ticks=total_ticks,
             ticks_per_note=6
         ),
         get_member(
             "synth",
-            song=song,
             tick_duration=tick_duration,
             total_ticks=total_ticks,
             ticks_per_note=1

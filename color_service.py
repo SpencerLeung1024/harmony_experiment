@@ -35,7 +35,7 @@ class ColorService:
             color_stick[key] = plt.cm.hsv(hue)[:3]
         
         # Element-wise multiply weights with color stick
-        colormap = np.reshape(member.weights, (num_keys, num_notes, 1)) * np.reshape(color_stick, (num_keys, 1, 3))
+        colormap = np.reshape(member.weights.detach().numpy(), (num_keys, num_notes, 1)) * np.reshape(color_stick, (num_keys, 1, 3))
         return colormap
     
     @staticmethod

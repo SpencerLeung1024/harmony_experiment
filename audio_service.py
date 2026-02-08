@@ -30,6 +30,7 @@ class AudioService:
         tick_duration: float,
         member: Member
     ) -> np.ndarray:
+        print(f"Beginning rendering of member {member.name}")
         samples = song_duration * sample_rate
         audio = np.zeros(int(samples))
 
@@ -43,22 +44,34 @@ class AudioService:
             velocity = 0.0
 
             # This is a PolyphonicMember and weights represent amplitudes
+            print(f"What is member {member.name}?")
             if member is PolyphonicMember:
+                print("PolyphonicMember")
                 for key in range(member.num_keys):
                     freq = member.tuning_system.key_to_freq(key)
                     velocity = member.weights[key, note].item()
+                    print(f"Member {member.name}, note {note}, key {key}: freq={freq:.2f}Hz, velocity={velocity:.4f}")
                     if freq and velocity > 0.0:
+                        print(f"Applying note for member {member.name}: key={key}, freq={freq:.2f}Hz, velocity={velocity:.4f}, start_sample={start_sample}, note_duration={note_duration:.4f}s")
                         AudioService.apply_note(audio, sample_rate, member.instrument, start_sample, freq, velocity, note_duration)
                     
             # This is a MonophonicMember and weights represent probabilities
             elif member is MonophonicMember:
+                print("MonophonicMember")
                 # When rendering, use argmax
                 key = torch.argmax(member.weights[:, note]).item()
                 freq = member.tuning_system.key_to_freq(key)
                 velocity = member.weights[key, note].item()
+                print(f"Member {member.name}, note {note}: key={key}, freq={freq:.2f}Hz, velocity={velocity:.4f}")
                 if freq and velocity > 0.0:
+                    print(f"Applying note for member {member.name}: key={key}, freq={freq:.2f}Hz, velocity={velocity:.4f}, start_sample={start_sample}, note_duration={note_duration:.4f}s")
                     AudioService.apply_note(audio, sample_rate, member.instrument, start_sample, freq, velocity, note_duration)
+            
+            else:
+                print("Unknown member type")
 
+        
+        print(audio.shape, audio.min(), audio.max(), audio.mean())
         return audio
     
     @staticmethod
