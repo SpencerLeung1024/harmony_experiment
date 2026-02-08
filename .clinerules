@@ -84,7 +84,7 @@ I think large parts of your code can be used as a reference though
 ## v3
 
 v1 (2026-02-02) contains files from the initial implementation: solo synth-like member using ReLU
-v2 (2026-02-07) contains Kimi K2.5's implementation
+v2 (2026-02-05) contains Kimi K2.5's implementation
 Anything outside those two folders is work for v3
 
 ### State as of 2026-02-07
