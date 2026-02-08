@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Any, Optional, List, Dict
+from typing import Any, Optional, Union, Tuple, List, Dict, Callable
 import torch
 
 from song import Song
@@ -62,9 +62,9 @@ class PolyphonicMember(Member):
         self,
         song: Song,
         name: str,
+        instrument: Instrument,
         tuning_system: TuningSystem,
         instrument_range: List[int],
-        num_keys: int,
         num_notes: int,
         ticks_per_note: int,
         hp: Dict[str, Any],
@@ -73,9 +73,9 @@ class PolyphonicMember(Member):
         super().__init__(
             song,
             name,
+            instrument,
             tuning_system,
             instrument_range,
-            num_keys,
             num_notes,
             ticks_per_note,
             hp,
@@ -96,9 +96,9 @@ class MonophonicMember(Member):
         self,
         song: Song,
         name: str,
+        instrument: Instrument,
         tuning_system: TuningSystem,
         instrument_range: List[int],
-        num_keys: int,
         num_notes: int,
         ticks_per_note: int,
         hp: Dict[str, Any],
@@ -107,9 +107,9 @@ class MonophonicMember(Member):
         super().__init__(
             song,
             name,
+            instrument,
             tuning_system,
             instrument_range,
-            num_keys,
             num_notes,
             ticks_per_note,
             hp,
@@ -123,3 +123,76 @@ class MonophonicMember(Member):
         self.weights = torch.nn.Parameter(
             torch.randn((self.num_keys, self.num_notes))
         )
+
+# Use a registry pattern to turn str into default objects
+_MEMBER_REGISTRY = {}
+
+def register_member(
+    name: str,
+    factory: Callable[..., Member]
+):
+    _MEMBER_REGISTRY[name] = factory
+
+def get_member(
+    name_or_instance: Union[str, Member],
+    **kwargs
+) -> Member:
+    if isinstance(name_or_instance, Member):
+        return name_or_instance
+    if name_or_instance not in _MEMBER_REGISTRY:
+        raise ValueError(f"Unknown MEMBER: {name_or_instance}")
+    return _MEMBER_REGISTRY[name_or_instance](**kwargs)
+
+# Register defaults
+
+# A standard 88 key piano
+register_member("piano", lambda **kwargs: PolyphonicMember(
+    # song
+    name="piano",
+    instrument="piano",
+    tuning_system="12-TET",
+    instrument_range=[21, 108],
+    # num_notes
+    # ticks_per_note
+    # hp
+    # initial_weights = None
+))
+
+# A 6 string guitar (E2 to E4) with 24 frets (up to E6)
+register_member("guitar", lambda **kwargs: MonophonicMember(
+    # song
+    name="guitar",
+    instrument="guitar",
+    tuning_system="12-TET",
+    instrument_range=[40, 88],
+    # num_notes
+    # ticks_per_note
+    # hp
+    # initial_weights = None
+))
+
+# A 4 string bass (E1 to G3) limited to 12 frets (up to G4). This should keep the optimizer from trying to use the bass too high
+register_member("bass", lambda **kwargs: MonophonicMember(
+    # song
+    name="bass",
+    instrument="bass",
+    tuning_system="12-TET",
+    instrument_range=[28, 67],
+    # num_notes
+    # ticks_per_note
+    # hp
+    # initial_weights = None
+))
+
+# A 128 key synth that supports all MIDI notes
+register_member("synth", lambda **kwargs: PolyphonicMember(
+    # song
+    name="synth",
+    instrument="synth",
+    tuning_system="12-TET",
+    instrument_range=[0, 127],
+    # num_notes
+    # ticks_per_note
+    # hp
+    # initial_weights = None
+))

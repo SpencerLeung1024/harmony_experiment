@@ -1,8 +1,7 @@
-from typing import Optional, List, Dict
+from typing import Optional, Union, Tuple, List, Dict, Callable
 from functools import cache
 import numpy as np
 import torch
-
 
 class ADSR:
     def __init__(
@@ -54,7 +53,7 @@ class ADSR:
 class Instrument:
     def __init__(
         self,
-        harmonics: List[(float, float)],
+        harmonics: List[Tuple[float, float]],
         adsr: ADSR,
         harmonic_adsrs: Optional[Dict[int, ADSR]] = {}
     ):
@@ -86,10 +85,98 @@ class Instrument:
         return sound
 
     @cache
-    def mean_amplitudes(self, duration: float, sample_rate: int) -> List[(float, float)]:
+    def mean_amplitudes(self, duration: float, sample_rate: int) -> List[Tuple[float, float]]:
         mean_amps = []
         for i, (h_freq, h_amp) in enumerate(self.harmonics):
             harmonic_adsr = self.harmonic_adsrs.get(i) or self.adsr
             mean_amp = harmonic_adsr.mean_amplitude(duration, sample_rate)
             mean_amps.append((h_freq, h_amp * mean_amp))
         return mean_amps
+
+# Use a registry pattern to turn str into default objects
+_INSTRUMENT_REGISTRY = {}
+
+def register_instrument(
+    name: str,
+    factory: Callable[..., Instrument]
+):
+    _INSTRUMENT_REGISTRY[name] = factory
+
+def get_instrument(
+    name_or_instance: Union[str, Instrument],
+    **kwargs
+) -> Instrument:
+    if isinstance(name_or_instance, Instrument):
+        return name_or_instance
+    if name_or_instance not in _INSTRUMENT_REGISTRY:
+        raise ValueError(f"Unknown instrument: {name_or_instance}")
+    return _INSTRUMENT_REGISTRY[name_or_instance](**kwargs)
+
+# Register defaults
+
+# Piano has rich harmonic content with inharmonic stretch (upper harmonics are slightly sharp) and a percussive ADSR with quick attack and relatively fast decay.
+register_instrument("piano", lambda: Instrument(
+    harmonics=[
+        (1.000, 1.000),
+        (2.002, 0.450),
+        (3.005, 0.280),
+        (4.010, 0.180),
+        (5.015, 0.120),
+        (6.025, 0.080),
+        (7.035, 0.055),
+        (8.050, 0.040)
+    ],
+    adsr=ADSR(attack=0.005, decay=0.4, sustain=0.3, release=0.5),
+    harmonic_adsrs={
+        0: ADSR(attack=0.005, decay=0.4, sustain=0.3, release=0.5),
+        1: ADSR(attack=0.005, decay=0.35, sustain=0.25, release=0.4),
+        2: ADSR(attack=0.005, decay=0.3, sustain=0.2, release=0.35),
+        3: ADSR(attack=0.005, decay=0.25, sustain=0.15, release=0.3),
+        4: ADSR(attack=0.005, decay=0.2, sustain=0.1, release=0.25),
+        5: ADSR(attack=0.005, decay=0.15, sustain=0.08, release=0.2),
+        6: ADSR(attack=0.005, decay=0.1, sustain=0.05, release=0.15),
+        7: ADSR(attack=0.005, decay=0.08, sustain=0.03, release=0.1)
+    }
+))
+
+# Guitar has a plucked string sound with characteristic harmonics and a percussive envelope with quick attack and longer sustain than piano.
+register_instrument("guitar", lambda: Instrument(
+    harmonics=[
+        (1.0, 1.00),
+        (2.0, 0.55),
+        (3.0, 0.35),
+        (4.0, 0.22),
+        (5.0, 0.15),
+        (6.0, 0.10)
+    ],
+    adsr=ADSR(attack=0.002, decay=0.3, sustain=0.6, release=0.8)
+    # No harmonic ADSR overrides
+))
+
+# Bass has fewer harmonics than guitar/piano, emphasizing the fundamental and lower harmonics. Long sustain.
+register_instrument("bass", lambda: Instrument(
+    harmonics=[
+        (1.0, 1.00),
+        (2.0, 0.40),
+        (3.0, 0.20),
+        (4.0, 0.10),
+        (5.0, 0.05)
+    ],
+    adsr=ADSR(attack=0.01, decay=0.2, sustain=0.75, release=0.4)
+    # No harmonic ADSR overrides
+))
+
+# Synth has simple harmonic content (similar to the original default instrument) with no envelope (instant on/off).
+register_instrument("synth", lambda: Instrument(
+    harmonics=[
+        (1.0, 1.00),
+        (2.0, 0.50),
+        (3.0, 0.33),
+        (4.0, 0.25),
+        (5.0, 0.20),
+        (6.0, 0.17)
+    ],
+    # No envelope (or instant on / off)
+    adsr=ADSR(attack=0.0, decay=0.0, sustain=1.0, release=0.0)
+    # No harmonic ADSR overrides
+))
