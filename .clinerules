@@ -83,11 +83,11 @@ I think large parts of your code can be used as a reference though
 
 ## v3
 
-v1 contains files from the initial implementation: solo synth-like member using ReLU
-v2 contains Kimi K2.5's implementation
+v1 (2026-02-02) contains files from the initial implementation: solo synth-like member using ReLU
+v2 (2026-02-07) contains Kimi K2.5's implementation
 Anything outside those two folders is work for v3
 
-### State as of 2026-02-07 23:00
+### State as of 2026-02-07
 - main.py: does a simple test that creates a song with a piano, guitar, bass, and synth and renders the audio. Obviously it is random noise and produces awful clipping
 - song.py: Song
 - members.py: Member, PolyphonicMember, MonophonicMember
