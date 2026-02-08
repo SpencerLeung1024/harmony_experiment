@@ -2,7 +2,6 @@ from typing import List, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from members import Member
-    from audio_service import AudioHandler
     # TODO
     #from loss_handler import LossHandler
     #from optim_handler import OptimHandler
@@ -19,7 +18,6 @@ class Song:
         self.members = []
         self.loss_handler = None
         self.optim_handler = None
-        self.audio_handler = None
 
         self.measures = measures
         self.tempo = tempo

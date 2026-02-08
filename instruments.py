@@ -136,8 +136,6 @@ class Instrument:
         )
 
     def mean_amplitudes(self, duration: float, sample_rate: int) -> List[Tuple[float, float]]:
-        """Calculate mean amplitudes (cheap computation, no cache needed)."""
-    def mean_amplitudes(self, duration: float, sample_rate: int) -> List[Tuple[float, float]]:
         mean_amps = []
         for i, (h_freq, h_amp) in enumerate(self.harmonics):
             harmonic_adsr = self.harmonic_adsrs.get(i) or self.adsr

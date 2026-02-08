@@ -11,11 +11,13 @@ A Song has:
 - members: list of 0 or more Members
 - loss_handler: a LossHandler
 - optim_handler: an OptimHandler
-- audio_handler: an AudioHandler
+
+The above are deferred and not assigned until after init. A Song must be initialized with:
 - measures: int, number of measures
 - tempo: float, beats per minute
 - beats_per_measure: int, beats per measure
 - ticks_per_beat: int, number of ticks per beat. Ticks are the smallest unit of time in this song. All members play notes with length a natural number of ticks.
+- sample_rate: int, number of samples per second the audio should be rendered at
 
 - beat_duration() -> float: 60.0 / tempo
 - tick_duration() -> float: beat_duration() / ticks_per_beat
@@ -29,13 +31,17 @@ TODO: Add serialization, save(), and load().
 A Member is a band member. It can be a PolyphonicMember or a MonophonicMember.
 A Member has:
 - name: str, a human readable name, like "Synth" or "🎹 Tenma Saki". Will be shown in the Gradio UI
-- weights: torch.Tensor, has shape (keys, note_times)
+- instrument: an Instrument.
 - tuning_system: a TuningSystem. Different Members of a Song can use different tuning systems
 - instrument_range: list of two ints, weights.shape[0] - 1 apart. Maps weights[0, :] and weights[-1, :] to whatever TuningSystem uses
-- instrument: an Instrument.
+- tick_duration: float, from Song.tick_duration() after song is created
+- total_ticks: int, from Song.total_ticks()
+- ticks_per_note: int, duration of one note from this member in terms of ticks of the song. This project does not support one member playing notes of different lengths.
 - hp: a dict of string: any, hyperparameters for loss and optimization. Which hyperparameters exist depends on the exact member
 - - TODO: "hp: dict for hyperparameters is flexible but error-prone; consider a typed MemberHyperparameters base class"
-- ticks_per_note: int, duration of one note from this member in terms of ticks of the song. This project does not support one member playing notes of different lengths.
+- weights: torch.Tensor, has shape (keys, note_times)
+
+Weights can be passed in as initial_weights during init.
 
 - note_duration() -> float: Song.tick_duration() * ticks_per_note
 - total_notes() -> int: Song.total_ticks() / ticks_per_note
@@ -105,8 +111,8 @@ An Instrument has:
 - adsr: an ADSR
 - harmonic_adsrs: a dict of int: list of (multiple of the fundamental, amplitude). Used to provide per-harmonic envelope overrides
 
-- get_sound(duration: float, velocity: float) -> np.ndarray: Returns a (samples) ndarray where each value is the contribution this instrument makes to the sound. After np.sin.
-- mean_amplitudes(duration: float) -> list of (multiple of the fundamental, amplitude). Uses ADSR.mean_amplitude to provide mean amplitude for each harmonic.
+- get_sound(freq: float, velocity: float, duration: float, sample_rate: int) -> np.ndarray: Returns a (samples) ndarray where each value is the contribution this instrument makes to the sound. After np.sin.
+- mean_amplitudes(duration: float, sample_rate: int) -> list of (multiple of the fundamental, amplitude). Uses ADSR.mean_amplitude() to provide mean amplitude for each harmonic.
 
 ### ADSR
 An ADSR stores attack, decay, sustain, and release parameters and generates an envelope.
@@ -116,8 +122,8 @@ An ADSR has:
 - sustain: float, sustained amplitude after decay
 - release: float, seconds between key off and silence
 
-- get_envelope(duration: float) -> np.ndarray: Returns a (samples) ndarray where each value is the amplitude at that sample.
-- mean_amplitude(duration: float) -> float: get_envelope(duration).mean()
+- get_envelope(duration: float, sample_rate: float) -> np.ndarray: Returns a (samples) ndarray where each value is the amplitude at that sample.
+- mean_amplitude(duration: float, sample_rate: float) -> float: get_envelope(duration).mean()
 
 ### LossHandler
 A LossHandler calculates loss on a song.
@@ -201,21 +207,22 @@ TenmaSaki.weights.grad = torch.zeros_like(TenmaSaki.weights)
 
 TODO: consider how to display grad state in the Gradio UI
 
-### AudioHandler
-Turns the members of the song into audio.
-An AudioHandler has:
-- sample_rate: int, number of samples per second
+## Services
+These just exist. Their methods have @staticmethod.
 
-- render_member(member: Member) -> np.ndarray: Returns a (samples) ndarray where each value is the contribution this member makes to the song's audio. Loops over each weight in the member's weights.
-- render() -> np.ndarray: Returns a (samples) ndarray of every member added together
+### AudioService
+Turns the members of the song into audio.
+The AudioService has:
+- def apply_note(audio: np.ndarray, sample_rate: int, instrument: Instrument, start_sample: int, freq: float, velocity: float: note_duration: float): Applies a note to the audio ndarray.
+- render_member(song_duration: float, sample_rate: int, tick_duration: float, member: Member) -> np.ndarray: Returns a (samples) ndarray where each value is the contribution this member makes to the song's audio. Loops over each weight in the member's weights.
+- render(song: Song) -> np.ndarray: Returns a (samples) ndarray of every member added together
 
 v2 had some complicated mixing and level control but I don't think that's necessary to implement. If it's too quiet or clips the user will just adjust quietness_loss. Or export the generated weights and recreate them in FL studio, where they can stack all the soundgoodizers.
 
 ### ColorService
 Gives color to a weights graymap or a spectrogram graymap.
-It is not an object. It just exists.
 The ColorService has:
-- color_weights(weights: np.ndarray, tuning_system: TuningSystem) -> np.ndarray: Turns (num_keys, num_notes) (-inf, inf) into a (num_keys, num_notes, 3) [0.0, 1.0]
+- color_weights(member: Member) -> np.ndarray: Turns the member's weights (torch.Tensor) (num_keys, num_notes) (-inf, inf) into an (np.ndarray) (num_keys, num_notes, 3) [0.0, 1.0].
 - color_spectrogram(spectrogram: np.ndarray, sample_rate: int) -> np.ndarray: Turns (num_bins, num_times) [0, inf) into a (num_bins, num_times, 3) [0.0, 1.0]
 
 I suppose if this project ever gets a large following I'll add more visualization options (different color schemes, one scheme from 20 Hz to 20 kHz instead of repeating every 2x, etc.).
