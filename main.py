@@ -1,5 +1,3 @@
-# TODO: Make this do more than just a short test
-
 import numpy as np
 import os
 from matplotlib import pyplot as plt
@@ -11,6 +9,8 @@ from song import Song
 from members import get_member
 from audio_service import AudioService
 from color_service import ColorService
+from loss_handler import LossHandler
+from optim_handler import OptimHandler
 
 OUTPUT_FOLDER = "output"
 SAMPLE_RATE = 22050
@@ -31,8 +31,8 @@ def save_audio(
     audio_int16 = (audio * 32767).astype(np.int16)
     wavfile.write(filename, sample_rate, audio_int16)
 
-def plot_weights(song: Song):
-    fig, axs = plt.subplots(2, 2)
+def plot_weights(song: Song, title_suffix: str = ""):
+    fig, axs = plt.subplots(2, 2, figsize=(16, 10))
     for member_idx, (axx, axy) in enumerate([(0, 0), (0, 1), (1, 0), (1, 1)]):
         member = song.members[member_idx]
         this_ax = axs[axx, axy]
@@ -40,24 +40,29 @@ def plot_weights(song: Song):
         colormap = ColorService.color_weights(member)
 
         this_ax.imshow(colormap, aspect="auto")
-        this_ax.set_title(f"{member.name} Weights")
+        title = f"{member.name} Weights"
+        if title_suffix:
+            title += f" {title_suffix}"
+        this_ax.set_title(title)
         this_ax.set_xlabel("Note Index")
         this_ax.set_ylabel("Key Index")
     
     plt.tight_layout()
-    plt.savefig(f"{OUTPUT_FOLDER}/weights.png")
-    plt.show()
+    return fig
 
-def plot_spectrogram(audio: np.ndarray, sample_rate: int):
+def plot_spectrogram(audio: np.ndarray, sample_rate: int, title_suffix: str = ""):
     spectrogram = np.abs(librosa.stft(audio, n_fft=NUM_BINS))
 
-    fig, ax = plt.subplots(1, 1)
+    fig, ax = plt.subplots(1, 1, figsize=(16, 8))
 
     colormap = ColorService.color_spectrogram(spectrogram, sample_rate)
 
     # Spectrogram plot with Hz ticks
     ax.imshow(colormap, aspect='auto')
-    ax.set_title('Spectrogram')
+    title = 'Spectrogram'
+    if title_suffix:
+        title += f" {title_suffix}"
+    ax.set_title(title)
     ax.set_xlabel('Time Frames')
     ax.set_ylabel('Frequency (Hz)')
     ax.set_yscale('log')
@@ -71,15 +76,31 @@ def plot_spectrogram(audio: np.ndarray, sample_rate: int):
     ax.set_yticklabels([f"{hz}" for hz in hz_ticks])
 
     # Fix height
-    #print(axs[1].get_ylim())
-    # (11220.18454301963, 4.0)
     ax.set_ylim(bottom=hz_to_bin(hz_ticks[-1], num_bins, sample_rate), top=hz_to_bin(hz_ticks[0], num_bins, sample_rate))
-    #print(axs[1].get_ylim())
-    # (929.0, 4.0)
 
     plt.tight_layout()
-    plt.savefig(f"{OUTPUT_FOLDER}/spectrogram.png")
-    plt.show()
+    return fig
+
+def plot_loss_history(loss_history: list):
+    """Plot the loss components over optimization steps."""
+    if not loss_history:
+        return
+    
+    fig, ax = plt.subplots(1, 1, figsize=(12, 6))
+    
+    # Plot total loss
+    steps = [entry['step'] for entry in loss_history]
+    total_losses = [entry['total'] for entry in loss_history]
+    ax.plot(steps, total_losses, label='Total Loss', linewidth=2)
+    
+    ax.set_xlabel('Optimization Step')
+    ax.set_ylabel('Loss')
+    ax.set_title('Loss Over Optimization Steps')
+    ax.legend()
+    ax.grid(True, alpha=0.3)
+    
+    plt.tight_layout()
+    return fig
 
 def main():
     # Create a song
@@ -121,18 +142,102 @@ def main():
         )
     ])
 
-    # TODO: Create LossHandler and OptimHandler
-
-    # Render and play the audio
+    # Create LossHandler and OptimHandler
+    print("Initializing loss handler (computing dissonance matrices)...")
+    song.loss_handler = LossHandler(song)
+    
+    print("Initializing optimizer...")
+    song.optim_handler = OptimHandler(song, song.loss_handler)
+    
+    # Plot initial state
+    print("\nRendering initial audio and plots...")
     audio = AudioService.render(song)
-    save_audio(audio, f"{OUTPUT_FOLDER}/audio.wav", SAMPLE_RATE)
-    sounddevice.play(audio, SAMPLE_RATE)
-
-    # Plot the weights
-    plot_weights(song)
-
-    # Plot the spectrogram
-    plot_spectrogram(audio, SAMPLE_RATE)
+    save_audio(audio, f"{OUTPUT_FOLDER}/audio_initial.wav", SAMPLE_RATE)
+    
+    fig_weights = plot_weights(song, "(Initial)")
+    fig_weights.savefig(f"{OUTPUT_FOLDER}/weights_initial.png")
+    
+    fig_spectrogram = plot_spectrogram(audio, SAMPLE_RATE, "(Initial)")
+    fig_spectrogram.savefig(f"{OUTPUT_FOLDER}/spectrogram_initial.png")
+    
+    plt.show()
+    
+    # Optimization loop with user input
+    loss_history = []
+    
+    while True:
+        # Ask user for number of steps
+        print(f"\nCurrent optimization step: {song.optim_handler.steps}")
+        user_input = input("How many steps do you want to run? (0 to exit): ")
+        
+        try:
+            num_steps = int(user_input)
+        except ValueError:
+            print("Please enter a valid integer.")
+            continue
+        
+        if num_steps == 0:
+            print("Exiting optimization loop.")
+            break
+        
+        if num_steps < 0:
+            print("Please enter a positive integer.")
+            continue
+        
+        # Run optimization steps
+        print(f"Running {num_steps} optimization steps...")
+        step_history = song.optim_handler.do_steps(num_steps)
+        loss_history.extend(step_history)
+        
+        # Print loss summary
+        latest_loss = step_history[-1]
+        print(f"Step {latest_loss['step']}: Total Loss = {latest_loss['total']:.4f}")
+        
+        # Render and plot
+        print("Rendering audio and plots...")
+        audio = AudioService.render(song)
+        
+        # Save files with step number
+        step_str = f"step{song.optim_handler.steps:04d}"
+        save_audio(audio, f"{OUTPUT_FOLDER}/audio_{step_str}.wav", SAMPLE_RATE)
+        
+        fig_weights = plot_weights(song, f"({step_str})")
+        fig_weights.savefig(f"{OUTPUT_FOLDER}/weights_{step_str}.png")
+        
+        fig_spectrogram = plot_spectrogram(audio, SAMPLE_RATE, f"({step_str})")
+        fig_spectrogram.savefig(f"{OUTPUT_FOLDER}/spectrogram_{step_str}.png")
+        
+        # Plot loss history
+        if len(loss_history) > 1:
+            fig_loss = plot_loss_history(loss_history)
+            fig_loss.savefig(f"{OUTPUT_FOLDER}/loss_history.png")
+        
+        plt.show()
+        
+        # Optionally play audio
+        play_input = input("Play audio? (y/n): ").lower().strip()
+        if play_input == 'y':
+            sounddevice.play(audio, SAMPLE_RATE)
+            sounddevice.wait()
+    
+    # Save final outputs
+    print("\nSaving final outputs...")
+    audio = AudioService.render(song)
+    save_audio(audio, f"{OUTPUT_FOLDER}/audio_final.wav", SAMPLE_RATE)
+    
+    fig_weights = plot_weights(song, "(Final)")
+    fig_weights.savefig(f"{OUTPUT_FOLDER}/weights_final.png")
+    
+    fig_spectrogram = plot_spectrogram(audio, SAMPLE_RATE, "(Final)")
+    fig_spectrogram.savefig(f"{OUTPUT_FOLDER}/spectrogram_final.png")
+    
+    if loss_history:
+        fig_loss = plot_loss_history(loss_history)
+        fig_loss.savefig(f"{OUTPUT_FOLDER}/loss_history.png")
+    
+    plt.show()
+    
+    print(f"\nDone! All outputs saved to {OUTPUT_FOLDER}/")
 
 
 if __name__ == "__main__":
