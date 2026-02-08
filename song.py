@@ -1,10 +1,10 @@
 from typing import List
 
 from members import Member
+from audio_handler import AudioHandler
 # TODO
 #from loss_handler import LossHandler
 #from optim_handler import OptimHandler
-#from audio_handler import AudioHandler
 
 class Song:
     def __init__(
@@ -12,7 +12,7 @@ class Song:
         members: List[Member],
         #loss_handler: LossHandler,
         #optim_handler: OptimHandler,
-        #audio_handler: AudioHandler,
+        audio_handler: AudioHandler,
         measures: int,
         tempo: int,
         beats_per_measure: int,
@@ -21,7 +21,7 @@ class Song:
         self.members = members
         #self.loss_handler = loss_handler
         #self.optim_handler = optim_handler
-        #self.audio_handler = audio_handler
+        self.audio_handler = audio_handler
         self.measures = measures
         self.tempo = tempo
         self.beats_per_measure = beats_per_measure
