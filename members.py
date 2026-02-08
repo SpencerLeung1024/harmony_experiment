@@ -3,7 +3,7 @@ from typing import Any, Optional, Union, Tuple, List, Dict, Callable
 import torch
 
 from song import Song
-from instruments import Instrument
+from instruments import Instrument, get_instrument
 from tuning_systems import TuningSystem
 
 class Member(ABC):
@@ -149,7 +149,7 @@ def get_member(
 register_member("piano", lambda **kwargs: PolyphonicMember(
     # song
     name="piano",
-    instrument="piano",
+    instrument=get_instrument("piano"),
     tuning_system="12-TET",
     instrument_range=[21, 108],
     # num_notes
@@ -162,7 +162,7 @@ register_member("piano", lambda **kwargs: PolyphonicMember(
 register_member("guitar", lambda **kwargs: MonophonicMember(
     # song
     name="guitar",
-    instrument="guitar",
+    instrument=get_instrument("guitar"),
     tuning_system="12-TET",
     instrument_range=[40, 88],
     # num_notes
@@ -175,7 +175,7 @@ register_member("guitar", lambda **kwargs: MonophonicMember(
 register_member("bass", lambda **kwargs: MonophonicMember(
     # song
     name="bass",
-    instrument="bass",
+    instrument=get_instrument("bass"),
     tuning_system="12-TET",
     instrument_range=[28, 67],
     # num_notes
@@ -188,7 +188,7 @@ register_member("bass", lambda **kwargs: MonophonicMember(
 register_member("synth", lambda **kwargs: PolyphonicMember(
     # song
     name="synth",
-    instrument="synth",
+    instrument=get_instrument("synth"),
     tuning_system="12-TET",
     instrument_range=[0, 127],
     # num_notes
