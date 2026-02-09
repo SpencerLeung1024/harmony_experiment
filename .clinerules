@@ -98,3 +98,17 @@ Anything outside those two folders is work for v3
 - - Defaults: 12-TET
 - audio_service.py: AudioService
 - color_service.py: ColorService
+
+### State as of 2026-02-08
+- Kimi K2.5 implemented LossHandler and OptimHandler nicely
+- main.py:
+- - Now supports any number of members and plots their activations (argmax for MonophonicMember). You still need to edit the code though
+- - Now has a non-interactive mode by doing `python main.py 40 60 80 100` etc. Good for AI models in Roo Code to do experiments
+- - - You know you can use `read_file` on image paths in the output folder right?
+- Quietness and muddyness losses have been replaced with an ideal amplitude and amplitude loss while I think of a better loss function
+- - I want the optimizer to find chords with a few strong notes. You know, like what a keyboard member would play
+
+Current issues:
+- Synth overpowers everything. Piano overpowers guitar and bass
+- The optimum at ~300 steps for guitar and bass is to collapse to the midpoints of their range: E4 and C3 respectively
+- A quarter of all samples still clip. I think we might need the compressor from v2 back

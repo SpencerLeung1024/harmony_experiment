@@ -59,6 +59,11 @@ class Member(ABC):
     def initialize(self):
         pass
 
+    @abstractmethod
+    def forward(self, x: Any) -> torch.Tensor:
+        # x exists so this looks like a fake nn.Module but all Members are sources, not modules. x is not used
+        pass
+
 class PolyphonicMember(Member):
     def __init__(
         self,
@@ -92,6 +97,9 @@ class PolyphonicMember(Member):
         self.weights = torch.nn.Parameter(
             1.0 - torch.rand((self.num_keys, self.num_notes))
         )
+    
+    def forward(self, x: Any) -> torch.Tensor:
+        return torch.relu(self.weights)
 
 class MonophonicMember(Member):
     def __init__(
@@ -125,6 +133,27 @@ class MonophonicMember(Member):
         self.weights = torch.nn.Parameter(
             torch.randn((self.num_keys, self.num_notes))
         )
+    
+    def forward(self, x: Any) -> torch.Tensor:
+        # Gumbel-softmax (straight-through estimator)
+        # Forward: argmax, Backward: softmax with temperature
+        logits = self.weights  # (keys, notes)
+        
+        # During forward pass for loss computation, use soft probabilities
+        # Temperature can be adjusted - lower = more discrete
+        temperature = self.hp.get('gumbel_temperature', 0.5)
+        
+        # Apply softmax across keys dimension
+        probs = torch.softmax(logits / temperature, dim=0)
+        
+        # Straight-through estimator: forward uses hard, backward uses soft
+        hard = torch.zeros_like(logits)
+        max_indices = torch.argmax(logits, dim=0)
+        hard.scatter_(0, max_indices.unsqueeze(0), 1.0)
+        
+        # Use hard for forward, soft for backward
+        activation = hard + (probs - probs.detach())
+        return activation
 
 # Use a registry pattern to turn str into default objects
 _MEMBER_REGISTRY = {}
@@ -189,6 +218,18 @@ register_member("synth", lambda tick_duration, total_ticks, ticks_per_note, **kw
     instrument=get_instrument("synth"),
     tuning_system=get_tuning_system("12-TET"),
     instrument_range=[0, 127],
+    tick_duration=tick_duration,
+    total_ticks=total_ticks,
+    ticks_per_note=ticks_per_note,
+    **kwargs
+))
+
+# An 88 key synth that only plays one note at a time
+register_member("synth_lead", lambda tick_duration, total_ticks, ticks_per_note, **kwargs: MonophonicMember(
+    name="synth_lead",
+    instrument=get_instrument("synth"),
+    tuning_system=get_tuning_system("12-TET"),
+    instrument_range=[21, 108],
     tick_duration=tick_duration,
     total_ticks=total_ticks,
     ticks_per_note=ticks_per_note,

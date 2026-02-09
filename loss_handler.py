@@ -14,20 +14,21 @@ class LossHandler:
     DEFAULT_LOSS_FACTORS = {
         # All members
         'self_concurrent': 1.0,
-        'mate_concurrent': 0.16,
+        'mate_concurrent': 1.0,
         'self_temporal': 0.4,
-        'mate_temporal': 0.06,
-        'extreme_range': 1.2,
+        'mate_temporal': 0.4,
+        'extreme_range': 1.0,
 
         # Polyphonic members
-        'ideal_amplitude': 0.8, # Not a loss factor but determines where other losses are lowest
-        'amplitude': 2.0,
+        'ideal_amplitude': 0.5, # Not a loss factor but determines where other losses are lowest
+        'amplitude_below': 20.0, # Stronger to stop Adam from overshooting
+        'amplitude_above': 0.2, # Weaker since between steps 1 and 60 there is a lot of runway for Adam to gain speed
         #'quietness': 0.8,
         #'muddyness': 0.3,
         'hand_stretch': 2.4,
 
         # Monophonic members
-        'jump': 0.1,
+        'jump': 0.05,
         
     }
     
@@ -177,34 +178,6 @@ class LossHandler:
         
         return squashed
     
-    def _get_activation(self, member: Member) -> torch.Tensor:
-        """Get the activated weights for a member."""
-        if isinstance(member, PolyphonicMember):
-            # ReLU activation
-            return torch.relu(member.weights)
-        elif isinstance(member, MonophonicMember):
-            # Gumbel-softmax (straight-through estimator)
-            # Forward: argmax, Backward: softmax with temperature
-            logits = member.weights  # (keys, notes)
-            
-            # During forward pass for loss computation, use soft probabilities
-            # Temperature can be adjusted - lower = more discrete
-            temperature = member.hp.get('gumbel_temperature', 0.5)
-            
-            # Apply softmax across keys dimension
-            probs = F.softmax(logits / temperature, dim=0)
-            
-            # Straight-through estimator: forward uses hard, backward uses soft
-            hard = torch.zeros_like(logits)
-            max_indices = torch.argmax(logits, dim=0)
-            hard.scatter_(0, max_indices.unsqueeze(0), 1.0)
-            
-            # Use hard for forward, soft for backward
-            activation = hard + (probs - probs.detach())
-            return activation
-        else:
-            raise ValueError(f"Unknown member type: {type(member)}")
-    
     def calculate_loss(self) -> Tuple[torch.Tensor, Dict[str, float]]:
         """
         Calculate total loss and return loss components.
@@ -217,10 +190,10 @@ class LossHandler:
         loss_dict = {}
         
         for src_idx, src in enumerate(self.song.members):
-            src_activation = self._get_activation(src)
+            src_activation = src.forward(None) # (src_keys, src_notes)
             
             # Get loss factors from member hyperparameters or defaults
-            factors = {k: src.hp.get(f'loss_{k}', v) 
+            factors = {k: src.hp.get(k, v) 
                       for k, v in self.DEFAULT_LOSS_FACTORS.items()}
             
             # === Self-concurrent loss (polyphonic only) ===
@@ -250,7 +223,7 @@ class LossHandler:
                     continue
                 
                 D_mate = self.dissonance_matrices[(src_idx, dst_idx)]
-                dst_activation = self._get_activation(dst)
+                dst_activation = dst.forward(None) # (dst_keys, dst_notes)
                 
                 # Resample dst to src's time scale
                 dst_sampled = self.sample_like(dst_activation, src, dst, note_shift=0)
@@ -284,7 +257,7 @@ class LossHandler:
             mate_temporal = 0.0
             for dst_idx, dst in enumerate(self.song.members):
                 D_mate = self.dissonance_matrices[(src_idx, dst_idx)]
-                dst_activation = self._get_activation(dst)
+                dst_activation = dst.forward(None) # (dst_keys, dst_notes)
                 
                 # Resample dst with a shift of -1 (past note)
                 dst_sampled = self.sample_like(dst_activation, src, dst, note_shift=-1)
@@ -326,9 +299,13 @@ class LossHandler:
                 note_amplitude = torch.sum(src_activation, dim=0)
 
                 # Amplitude loss (encourage certain overall activity level)
-                amplitude_loss = torch.sum(torch.abs(note_amplitude - factors['ideal_amplitude']))
-                loss_component = factors['amplitude'] * amplitude_loss
-                total_loss = total_loss + loss_component
+                amplitude_loss = 0.0
+                for note in range(src.num_notes):
+                    if note_amplitude[note] < factors['ideal_amplitude']:
+                        amplitude_loss += (factors['ideal_amplitude'] - note_amplitude[note]) * factors['amplitude_below']
+                    else:
+                        amplitude_loss += (note_amplitude[note] - factors['ideal_amplitude']) * factors['amplitude_above']
+                total_loss = total_loss + amplitude_loss
                 loss_dict[f'{src.name}_amplitude'] = amplitude_loss.item()
 
                 # Currently disabled while I think of a more robust function

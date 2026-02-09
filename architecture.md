@@ -45,6 +45,7 @@ Weights can be passed in as initial_weights during init.
 
 - note_duration() -> float: Song.tick_duration() * ticks_per_note
 - total_notes() -> int: Song.total_ticks() / ticks_per_note
+- forward(x: Any) -> torch.Tensor: returns the activations.
 
 weights.shape[1] is total_notes().
 This means Song.total_ticks() must a common multiple of all Member.ticks_per_note.
@@ -226,6 +227,7 @@ v2 had some complicated mixing and level control but I don't think that's necess
 Gives color to a weights graymap or a spectrogram graymap.
 The ColorService has:
 - color_weights(member: Member) -> np.ndarray: Turns the member's weights (torch.Tensor) (num_keys, num_notes) (-inf, inf) into an (np.ndarray) (num_keys, num_notes, 3) [0.0, 1.0].
+- color_activations(member: Member) -> np.ndarray: Does the same thing but after Member.forward(). Shows argmax for MonophonicMember.
 - color_spectrogram(spectrogram: np.ndarray, sample_rate: int) -> np.ndarray: Turns (num_bins, num_times) [0, inf) into a (num_bins, num_times, 3) [0.0, 1.0]
 
 I suppose if this project ever gets a large following I'll add more visualization options (different color schemes, one scheme from 20 Hz to 20 kHz instead of repeating every 2x, etc.).

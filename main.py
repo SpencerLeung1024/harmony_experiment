@@ -1,5 +1,6 @@
 from typing import List
 import numpy as np
+import torch
 import sys
 import os
 from matplotlib import pyplot as plt
@@ -39,7 +40,7 @@ def save_audio(
     audio_int16 = audio_int.astype(np.int16)
     wavfile.write(filename, sample_rate, audio_int16)
 
-def plot_weights(song: Song, title_suffix: str = "", interactive: bool = True):
+def plot_activations(song: Song, title_suffix: str = "", interactive: bool = True):
     num_members = len(song.members)
     cols = int(np.ceil(np.sqrt(num_members)))
     rows = int(np.ceil(num_members / cols))
@@ -51,10 +52,10 @@ def plot_weights(song: Song, title_suffix: str = "", interactive: bool = True):
         member = song.members[member_idx]
         this_ax = axs[axx, axy]
 
-        colormap = ColorService.color_weights(member)
+        colormap = ColorService.color_activations(member)
 
         this_ax.imshow(colormap, aspect="auto")
-        title = f"{member.name} Weights"
+        title = f"{member.name} Activations"
         if title_suffix:
             title += f" {title_suffix}"
         this_ax.set_title(title)
@@ -166,12 +167,19 @@ def main(step_list: List[str]):
             ticks_per_note=6
         ),
         # get_member(
-        #     "synth",
+        #     "synth_lead",
         #     tick_duration=tick_duration,
         #     total_ticks=total_ticks,
         #     ticks_per_note=1
         # )
     ])
+
+    # Apply overrides to the piano
+    song.members[0].hp = { # If mate dissonance losses are above 0.2 the piano hides away in the 7th octave where the guitar and bass cannot touch it
+        'mate_concurrent': 0.0,
+        'mate_temporal': 0.0,
+        'extreme_range': 3.0 # Bonus to piano since it has a very wide range. The optimizer can settle on chords spanning multiple octaves
+    }
 
     # Create LossHandler and OptimHandler
     print("Initializing loss handler (computing dissonance matrices)...")
@@ -185,8 +193,8 @@ def main(step_list: List[str]):
     audio = AudioService.render(song)
     save_audio(audio, f"{OUTPUT_FOLDER}/audio_initial.wav", SAMPLE_RATE)
     
-    fig_weights = plot_weights(song, "(Initial)", interactive)
-    fig_weights.savefig(f"{OUTPUT_FOLDER}/weights_initial.png")
+    fig_activations = plot_activations(song, "(Initial)", interactive)
+    fig_activations.savefig(f"{OUTPUT_FOLDER}/activations_initial.png")
     
     fig_spectrogram = plot_spectrogram(audio, SAMPLE_RATE, "(Initial)", interactive)
     fig_spectrogram.savefig(f"{OUTPUT_FOLDER}/spectrogram_initial.png")
@@ -239,8 +247,8 @@ def main(step_list: List[str]):
         step_str = f"step{song.optim_handler.steps:04d}"
         save_audio(audio, f"{OUTPUT_FOLDER}/audio_{step_str}.wav", SAMPLE_RATE)
         
-        fig_weights = plot_weights(song, f"({step_str})", interactive)
-        fig_weights.savefig(f"{OUTPUT_FOLDER}/weights_{step_str}.png")
+        fig_activations = plot_activations(song, f"({step_str})", interactive)
+        fig_activations.savefig(f"{OUTPUT_FOLDER}/activations_{step_str}.png")
         
         fig_spectrogram = plot_spectrogram(audio, SAMPLE_RATE, f"({step_str})", interactive)
         fig_spectrogram.savefig(f"{OUTPUT_FOLDER}/spectrogram_{step_str}.png")
@@ -261,8 +269,8 @@ def main(step_list: List[str]):
     audio = AudioService.render(song)
     save_audio(audio, f"{OUTPUT_FOLDER}/audio_final.wav", SAMPLE_RATE)
     
-    fig_weights = plot_weights(song, "(Final)", interactive)
-    fig_weights.savefig(f"{OUTPUT_FOLDER}/weights_final.png")
+    fig_activations = plot_activations(song, "(Final)", interactive)
+    fig_activations.savefig(f"{OUTPUT_FOLDER}/activations_final.png")
     
     fig_spectrogram = plot_spectrogram(audio, SAMPLE_RATE, "(Final)", interactive)
     fig_spectrogram.savefig(f"{OUTPUT_FOLDER}/spectrogram_final.png")
@@ -280,8 +288,8 @@ def main(step_list: List[str]):
 if __name__ == "__main__":
     if len(sys.argv) > 1 and (sys.argv[1] == "-h" or sys.argv[1] == "--help"):
         print("Usage: python main.py [steps at which to save outputs, leave empty for interactive mode]")
-        print("Example: python main.py 50 70 90 110")
-        print("Will save outputs at initial, steps 50, 70, 90, and final at 110 steps.")
+        print("Example: python main.py 40 60 80 100")
+        print("Will save outputs at initial, steps 40, 60, 80, and final at 100 steps.")
     else:
         step_list = sys.argv[1:] # Ignore the script name
         main(step_list)

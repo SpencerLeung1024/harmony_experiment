@@ -39,6 +39,25 @@ class ColorService:
         return colormap
     
     @staticmethod
+    def color_activations(
+        member: Member,
+    ):
+        # Basically the same thing but use activations (argmax for MonophonicMember)
+        (num_keys, num_notes) = member.weights.shape
+        tuning_system = member.tuning_system
+        instrument_range_low = member.instrument_range[0]
+
+        color_stick = np.zeros((num_keys, 3))
+        for key in range(num_keys):
+            freq = tuning_system.key_to_freq(instrument_range_low + key)
+            hue = freq_to_hue(freq)
+            color_stick[key] = plt.cm.hsv(hue)[:3]
+        
+        # Element-wise multiply activations with color stick
+        colormap = np.reshape(member.forward(None).detach().numpy(), (num_keys, num_notes, 1)) * np.reshape(color_stick, (num_keys, 1, 3))
+        return colormap
+    
+    @staticmethod
     def color_spectrogram(
         spectrogram: np.ndarray,
         sample_rate: int
