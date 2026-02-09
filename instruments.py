@@ -86,7 +86,9 @@ def _cached_get_sound(
     # Find max release time
     max_release = max([adsr_release] + [h[4] for h in harmonic_adsrs_tuple])
     total_duration = duration + max_release
-    samples = int(total_duration * sample_rate)
+    #samples = int(total_duration * sample_rate)
+    # Pernicious off by one error
+    samples = int(duration * sample_rate) + int(max_release * sample_rate)
     
     t = np.linspace(0, total_duration, samples)
     sound = np.zeros(samples)
