@@ -46,7 +46,8 @@ class AudioService:
             # This is a PolyphonicMember and weights represent amplitudes
             if isinstance(member, PolyphonicMember):
                 for key in range(member.num_keys):
-                    freq = member.tuning_system.key_to_freq(key)
+                    actual_key = key + member.instrument_range[0] # Convert local key index to key in the tuning system
+                    freq = member.tuning_system.key_to_freq(actual_key)
                     velocity = activation[key, note].item()
                     if freq and velocity > 0.0:
                         AudioService.apply_note(audio, sample_rate, member.instrument, start_sample, freq, velocity, note_duration)
@@ -55,7 +56,8 @@ class AudioService:
             elif isinstance(member, MonophonicMember):
                 # When rendering, use argmax
                 key = torch.argmax(activation[:, note]).item()
-                freq = member.tuning_system.key_to_freq(key)
+                actual_key = key + member.instrument_range[0]
+                freq = member.tuning_system.key_to_freq(actual_key)
                 velocity = 0.5 # Ideally this should be a property of a MonophonicMember but for now just make all of them play at 50%
                 if freq and velocity > 0.0:
                     AudioService.apply_note(audio, sample_rate, member.instrument, start_sample, freq, velocity, note_duration)
