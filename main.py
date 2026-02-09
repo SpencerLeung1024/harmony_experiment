@@ -32,8 +32,14 @@ def save_audio(
     wavfile.write(filename, sample_rate, audio_int16)
 
 def plot_weights(song: Song, title_suffix: str = ""):
-    fig, axs = plt.subplots(2, 2, figsize=(16, 10))
-    for member_idx, (axx, axy) in enumerate([(0, 0), (0, 1), (1, 0), (1, 1)]):
+    num_members = len(song.members)
+    cols = int(np.ceil(np.sqrt(num_members)))
+    rows = int(np.ceil(num_members / cols))
+    positions = [(i // cols, i % cols) for i in range(num_members)]
+
+    # Always return a 2D array of axes even with 1 or 2 members so positions work
+    fig, axs = plt.subplots(rows, cols, squeeze=False, figsize=(16, 10))
+    for member_idx, (axx, axy) in enumerate(positions):
         member = song.members[member_idx]
         this_ax = axs[axx, axy]
 
@@ -134,12 +140,12 @@ def main():
             total_ticks=total_ticks,
             ticks_per_note=6
         ),
-        get_member(
-            "synth",
-            tick_duration=tick_duration,
-            total_ticks=total_ticks,
-            ticks_per_note=1
-        )
+        # get_member(
+        #     "synth",
+        #     tick_duration=tick_duration,
+        #     total_ticks=total_ticks,
+        #     ticks_per_note=1
+        # )
     ])
 
     # Create LossHandler and OptimHandler
@@ -212,13 +218,10 @@ def main():
             fig_loss = plot_loss_history(loss_history)
             fig_loss.savefig(f"{OUTPUT_FOLDER}/loss_history.png")
         
-        plt.show()
+        # Play audio (do this right before plt.show() because generating colormaps takes a long time)
+        sounddevice.play(audio, SAMPLE_RATE)
         
-        # Optionally play audio
-        play_input = input("Play audio? (y/n): ").lower().strip()
-        if play_input == 'y':
-            sounddevice.play(audio, SAMPLE_RATE)
-            sounddevice.wait()
+        plt.show()
     
     # Save final outputs
     print("\nSaving final outputs...")
