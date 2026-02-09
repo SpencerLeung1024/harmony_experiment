@@ -178,8 +178,11 @@ There are probably smart ways to reduce duplicated work but we'll get to that wh
 
 Besides these expensive dissonance sandwiches, a LossHandler also calculates auxiliary losses such as:
 - PolyphonicMember:
-- - quietness_loss (obviously you can have zero dissonance by not playing any notes, so encourage some activity)
-- - muddyness_loss (L1 loss, penalize small amplitudes across large numbers of keys and encourage sparse but strong notes)
+- - ideal_amplitude (torch.sum, determines a baseline where quietness and muddyness are lowest)
+- - amplitude_loss (general L1 with baseline loss)
+- - (currently disabled) quietness_loss (obviously you can have zero dissonance by not playing any notes, so encourage some activity)
+- - (currently disabled) muddyness_loss (penalize small amplitudes across large numbers of keys and encourage sparse but strong notes)
+- - - Currently disabled because I can't think of 
 - - hand_stretch_loss (play notes close together on the keyboard / close to their median)
 
 - MonophonicMember:

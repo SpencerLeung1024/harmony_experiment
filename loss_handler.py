@@ -20,8 +20,10 @@ class LossHandler:
         'extreme_range': 1.2,
 
         # Polyphonic members
-        'quietness': 0.8,
-        'muddyness': 0.3,
+        'ideal_amplitude': 0.8, # Not a loss factor but determines where other losses are lowest
+        'amplitude': 2.0,
+        #'quietness': 0.8,
+        #'muddyness': 0.3,
         'hand_stretch': 2.4,
 
         # Monophonic members
@@ -320,10 +322,19 @@ class LossHandler:
                 loss_dict[f'{src.name}_extreme_range'] = 0.0
             
             if isinstance(src, PolyphonicMember):
-                # Quietness loss (inverse L2, encourage some activity)
-                # use square so stronger notes contribute more gain
-                # But clamp it because too many notes near 1 causes clipping
-                quietness = 2.0 * -torch.sum(torch.square(torch.clamp(src_activation, min=0.0, max=0.5)))
+                # Calculate amplitude first
+                note_amplitude = torch.sum(src_activation, dim=0)
+
+                # Amplitude loss (encourage certain overall activity level)
+                amplitude_loss = torch.sum(torch.abs(note_amplitude - factors['ideal_amplitude']))
+                loss_component = factors['amplitude'] * amplitude_loss
+                total_loss = total_loss + loss_component
+                loss_dict[f'{src.name}_amplitude'] = amplitude_loss.item()
+
+                # Currently disabled while I think of a more robust function
+                '''
+                # Quietness loss (encourage some activity)
+                quietness = -torch.sum(src_activation)
                 loss_component = factors['quietness'] * quietness
                 total_loss = total_loss + loss_component
                 loss_dict[f'{src.name}_quietness'] = quietness.item()
@@ -333,6 +344,7 @@ class LossHandler:
                 loss_component = factors['muddyness'] * muddyness
                 total_loss = total_loss + loss_component
                 loss_dict[f'{src.name}_muddyness'] = muddyness.item()
+                '''
                 
                 # Hand stretch loss (encourage notes close together)
                 total_hand_stretch = 0.0
