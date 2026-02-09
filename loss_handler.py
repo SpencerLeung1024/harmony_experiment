@@ -20,9 +20,8 @@ class LossHandler:
         'extreme_range': 1.0,
 
         # Polyphonic members
-        'ideal_amplitude': 0.5, # Not a loss factor but determines where other losses are lowest
-        'amplitude_below': 20.0, # Stronger to stop Adam from overshooting
-        'amplitude_above': 0.2, # Weaker since between steps 1 and 60 there is a lot of runway for Adam to gain speed
+        'velocity_below': 20.0, # Stronger to stop Adam from overshooting
+        'velocity_above': 0.2, # Weaker since between steps 1 and 60 there is a lot of runway for Adam to gain speed
         #'quietness': 0.8,
         #'muddyness': 0.3,
         'hand_stretch': 2.4,
@@ -295,18 +294,19 @@ class LossHandler:
                 loss_dict[f'{src.name}_extreme_range'] = 0.0
             
             if isinstance(src, PolyphonicMember):
-                # Calculate amplitude first
-                note_amplitude = torch.sum(src_activation, dim=0)
+                # Calculate velocity first
+                ideal_velocity = src.velocity
+                note_sum_velocity = torch.sum(src_activation, dim=0)
 
-                # Amplitude loss (encourage certain overall activity level)
-                amplitude_loss = 0.0
+                # Velocity loss (encourage certain overall activity level)
+                velocity_loss = 0.0
                 for note in range(src.num_notes):
-                    if note_amplitude[note] < factors['ideal_amplitude']:
-                        amplitude_loss += (factors['ideal_amplitude'] - note_amplitude[note]) * factors['amplitude_below']
+                    if note_sum_velocity[note] < ideal_velocity:
+                        velocity_loss += (ideal_velocity - note_sum_velocity[note]) * factors['velocity_below']
                     else:
-                        amplitude_loss += (note_amplitude[note] - factors['ideal_amplitude']) * factors['amplitude_above']
-                total_loss = total_loss + amplitude_loss
-                loss_dict[f'{src.name}_amplitude'] = amplitude_loss.item()
+                        velocity_loss += (note_sum_velocity[note] - ideal_velocity) * factors['velocity_above']
+                total_loss = total_loss + velocity_loss
+                loss_dict[f'{src.name}_velocity'] = velocity_loss.item()
 
                 # Currently disabled while I think of a more robust function
                 '''

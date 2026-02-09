@@ -58,7 +58,7 @@ class AudioService:
                 key = torch.argmax(activation[:, note]).item()
                 actual_key = key + member.instrument_range[0]
                 freq = member.tuning_system.key_to_freq(actual_key)
-                velocity = 0.5 # Ideally this should be a property of a MonophonicMember but for now just make all of them play at 50%
+                velocity = member.velocity
                 if freq and velocity > 0.0:
                     AudioService.apply_note(audio, sample_rate, member.instrument, start_sample, freq, velocity, note_duration)
         

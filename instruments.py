@@ -218,8 +218,8 @@ register_instrument("bass", lambda: Instrument(
     # No harmonic ADSR overrides
 ))
 
-# Synth has simple harmonic content (similar to the original default instrument) with no envelope (instant on/off).
-register_instrument("synth", lambda: Instrument(
+# The default instrument from v1. I guess you could call it a synth but it's more of a beeper. Has no envelope (instant on/off).
+register_instrument("default", lambda: Instrument(
     harmonics=[
         (1.0, 1.00),
         (2.0, 0.50),
@@ -229,6 +229,15 @@ register_instrument("synth", lambda: Instrument(
         (6.0, 0.17)
     ],
     # No envelope (or instant on / off)
+    adsr=ADSR(attack=0.0, decay=0.0, sustain=1.0, release=0.0)
+    # No harmonic ADSR overrides
+))
+
+# Pure sine tone.
+register_instrument("sine", lambda: Instrument(
+    harmonics=[
+        (1.0, 1.00)
+    ],
     adsr=ADSR(attack=0.0, decay=0.0, sustain=1.0, release=0.0)
     # No harmonic ADSR overrides
 ))

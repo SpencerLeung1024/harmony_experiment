@@ -34,6 +34,7 @@ A Member has:
 - instrument: an Instrument.
 - tuning_system: a TuningSystem. Different Members of a Song can use different tuning systems
 - instrument_range: list of two ints, weights.shape[0] - 1 apart. Maps weights[0, :] and weights[-1, :] to whatever TuningSystem uses
+- velocity: float, for PolyphonicMembers is the ideal sum for loss calculations (they can render audio with higher or lower velocity sum), for MonophonicMembers is the actual velocity of the one note they play
 - tick_duration: float, from Song.tick_duration() after song is created
 - total_ticks: int, from Song.total_ticks()
 - ticks_per_note: int, duration of one note from this member in terms of ticks of the song. This project does not support one member playing notes of different lengths.
@@ -47,7 +48,8 @@ Weights can be passed in as initial_weights during init.
 
 - note_duration() -> float: Song.tick_duration() * ticks_per_note
 - total_notes() -> int: Song.total_ticks() / ticks_per_note
-- forward(x: Any) -> torch.Tensor: Returns the activations.
+- get_effective_weights() -> torch.Tensor: Overlays the user's painted note constraints onto the member's weights and presents a combined tensor.
+- forward(x: Any) -> torch.Tensor: Returns the activations using effective weights.
 - paint_weights(newly_painted_weights: torch.Tensor): For pixels that are not 0.0, paints those weights onto painted_weights, updates painted_mask, and updates weights
 
 weights.shape[1] is total_notes().
@@ -182,11 +184,10 @@ There are probably smart ways to reduce duplicated work but we'll get to that wh
 
 Besides these expensive dissonance sandwiches, a LossHandler also calculates auxiliary losses such as:
 - PolyphonicMember:
-- - ideal_amplitude (torch.sum, determines a baseline where quietness and muddyness are lowest)
-- - amplitude_loss (general L1 with baseline loss)
+- - velocity_loss (general L1 with Member.velocity subtracted, has two different loss factors: velocity_below and velocity_above because Adam keeps killing the weights)
 - - (currently disabled) quietness_loss (obviously you can have zero dissonance by not playing any notes, so encourage some activity)
 - - (currently disabled) muddyness_loss (penalize small amplitudes across large numbers of keys and encourage sparse but strong notes)
-- - - Currently disabled because I can't think of 
+- - - Currently disabled because I can't think of a good function that does what I want
 - - hand_stretch_loss (play notes close together on the keyboard / close to their median)
 
 - MonophonicMember:
@@ -204,13 +205,10 @@ An OptimHandler has:
 
 After the members are created and before the optimization loop runs, it explores the various members and their hyperparameters. Each member's weight is added to an optimizer with the specified hyperparameters.
 
-TODO: implementation details
+Entirely designed and implemented by Kimi K2.5. It seems to be a typical Adam with weight clipping.
 
-"Pixels" of user painted weights will not be optimized. A user may disable optimization on a member entirely. For example, if they manually wrote a chord progression on a synth and just want 🎸 Hoshino Ichika and 🍜 Hinomori Shiho to make something up on top of it.
-- Force 🎹 to use certain notes at certain amplitudes but allow adding random other notes:
-TenmaSaki.weights.grad[painted_notes_mask] = 0
-- Freeze 🎹 entirely:
-TenmaSaki.weights.grad = torch.zeros_like(TenmaSaki.weights)
+"Pixels" of user painted weights will not be optimized. A user may disable optimization on a member entirely. For example, if they manually wrote a chord progression on 🎹 Tenma Saki and just want 🎸 Hoshino Ichika and 🍜 Hinomori Shiho to make something up on top of it.
+The optimizer does not need to be aware of this. Each member's forward pass already uses its effective weights, including any note constraints.
 
 TODO: consider how to display grad state in the Gradio UI
 
@@ -224,10 +222,10 @@ The AudioService has:
 - render_member(song_duration: float, sample_rate: int, tick_duration: float, member: Member) -> np.ndarray: Returns a (samples) ndarray where each value is the contribution this member makes to the song's audio. Loops over each weight in the member's weights.
 - render(song: Song) -> np.ndarray: Returns a (samples) ndarray of every member added together
 
-v2 had some complicated mixing and level control but I don't think that's necessary to implement. If it's too quiet or clips the user will just adjust quietness_loss. Or export the generated weights and recreate them in FL studio, where they can stack all the soundgoodizers.
+v2 had some complicated mixing and level control but I don't think that's necessary to implement. If it's too quiet or clips the user will just adjust velocity. Or export the generated weights and recreate them in FL studio, where they can stack all the soundgoodizers.
 
 ### ColorService
-Gives color to a weights graymap or a spectrogram graymap.
+Gives color to a weights, activation, or spectrogram graymap.
 The ColorService has:
 - color_weights(member: Member) -> np.ndarray: Turns the member's weights (torch.Tensor) (num_keys, num_notes) (-inf, inf) into an (np.ndarray) (num_keys, num_notes, 3) [0.0, 1.0].
 - color_activations(member: Member) -> np.ndarray: Does the same thing but after Member.forward(). Shows argmax for MonophonicMember.

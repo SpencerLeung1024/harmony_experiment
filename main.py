@@ -44,15 +44,16 @@ def note_name_to_midi(note_name: str) -> int:
 
 # Awful function I made up in a few minutes
 # In the real implementation the user would paint in weights on the Gradio UI
-def note_names_to_weightsmap(weights_like: torch.Tensor, velocity: float, note_names: str) -> torch.Tensor:
-    weightsmap = torch.zeros_like(weights_like)
+def note_names_to_weightsmap(member: Member, velocity: float, note_names: str) -> torch.Tensor:
+    instrument_range_low = member.instrument_range[0]
+    weightsmap = torch.zeros_like(member.weights)
     lines = note_names.strip().split('\n')
     for note_idx, line in enumerate(lines):
         chord = line.strip()
         note_names = chord.split(' ')
         for note_name in note_names:
             midi_number = note_name_to_midi(note_name)
-            key_idx = midi_number - 21 # Assuming A0 is the lowest note (MIDI 21)
+            key_idx = midi_number - instrument_range_low
             if 0 <= key_idx < weightsmap.shape[0]:
                 weightsmap[key_idx, note_idx] = velocity
     return weightsmap
@@ -169,10 +170,10 @@ def main(step_list: List[str]):
 
     # Create a song
     song = Song(
-        measures=4,
-        tempo=50,
-        beats_per_measure=4,
-        ticks_per_beat=3,
+        measures=8,
+        tempo=120,
+        beats_per_measure=6,
+        ticks_per_beat=1,
         sample_rate=SAMPLE_RATE
     )
 
@@ -182,28 +183,55 @@ def main(step_list: List[str]):
     song.members.extend([
         get_member(
             "piano",
+            velocity=0.5,
             tick_duration=tick_duration,
             total_ticks=total_ticks,
-            ticks_per_note=3
+            ticks_per_note=6
         ),
         get_member(
             "guitar",
+            velocity=0.2,
             tick_duration=tick_duration,
             total_ticks=total_ticks,
             ticks_per_note=1
         ),
         get_member(
             "bass",
+            velocity=0.7, # Bring out the bass more my audio system is terrible
             tick_duration=tick_duration,
             total_ticks=total_ticks,
-            ticks_per_note=1
+            ticks_per_note=3
         ),
-        get_member(
-            "synth_lead",
-            tick_duration=tick_duration,
-            total_ticks=total_ticks,
-            ticks_per_note=1
-        )
+
+        # Who invited you guys?
+        # get_member(
+        #     "midi",
+        #     velocity=0.02,
+        #     tick_duration=tick_duration,
+        #     total_ticks=total_ticks,
+        #     ticks_per_note=1
+        # ),
+        # get_member(
+        #     "midi_lead",
+        #     velocity=0.02,
+        #     tick_duration=tick_duration,
+        #     total_ticks=total_ticks,
+        #     ticks_per_note=1
+        # ),
+        # get_member(
+        #     "synth",
+        #     velocity=0.02,
+        #     tick_duration=tick_duration,
+        #     total_ticks=total_ticks,
+        #     ticks_per_note=1
+        # ),
+        # get_member(
+        #     "synth_lead",
+        #     velocity=0.02, # Synth is kinda loud
+        #     tick_duration=tick_duration,
+        #     total_ticks=total_ticks,
+        #     ticks_per_note=1
+        # ),
     ])
 
     # Apply overrides to the piano
@@ -212,23 +240,37 @@ def main(step_list: List[str]):
         'mate_temporal': 0.0,
         'extreme_range': 3.0 # Bonus to piano since it has a very wide range. The optimizer can settle on chords spanning multiple octaves
     }
-    weightsmap = note_names_to_weightsmap(song.members[0].weights, 0.5, '''D3 F4 A3 D4
-A2 A4 C#3 E4
-D3 A4 D4 F4
-C3 C5 E4 G4
-F3 C5 F4 A4
-E3 G#4 B3 B4
-A2 A4 E4 C5
-G2 B4 G4 D5
-C3 C5 G4 D#5
-A#3 C5 G4 E5
-A3 C5 F4 F5
-C4 D#5 A4 F#5
-B3 D5 G4 G5
-A#3 F5 D5 G#5
-A3 F5 D5 A5
-A3 E5 C#5 A4''')
-    song.members[0].paint_weights(weightsmap)
+#     weightsmap = note_names_to_weightsmap(song.members[0], 0.125, '''D3 F4 A3 D4
+# A2 A4 C#3 E4
+# D3 A4 D4 F4
+# C3 C5 E4 G4
+# F3 C5 F4 A4
+# E3 G#4 B3 B4
+# A2 A4 E4 C5
+# G2 B4 G4 D5
+# C3 C5 G4 D#5
+# A#3 C5 G4 E5
+# A3 C5 F4 F5
+# C4 D#5 A4 F#5
+# B3 D5 G4 G5
+# A#3 F5 D5 G#5
+# A3 F5 D5 A5
+# A3 E5 C#5 A4''')
+#     song.members[0].paint_weights(weightsmap)
+    # When re-enabling, remember to make the piano have 16 notes throughout the song
+
+    # Guitar
+    song.members[1].hp = {
+        'mate_concurrent': 3.0, # Stronger following of whatever chord the piano is playing
+    }
+
+    # Bass
+    song.members[2].hp = {
+        'mate_concurrent': 3.0, # Is that supposed to be funny?
+    }
+    # Was it not?
+    # Sometimes the things you come out with are kind of bizarre!
+    # Bizarre...
 
     # Create LossHandler and OptimHandler
     print("Initializing loss handler (computing dissonance matrices)...")
