@@ -109,6 +109,7 @@ Anything outside those two folders is work for v3
 - - I want the optimizer to find chords with a few strong notes. You know, like what a keyboard member would play
 
 Current issues:
+- I can't figure out any way to modify weights or grad. I can't make user painted constraints work
 - Synth overpowers everything. Piano overpowers guitar and bass
 - The optimum at ~300 steps for guitar and bass is to collapse to the midpoints of their range: E4 and C3 respectively
 - A quarter of all samples still clip. I think we might need the compressor from v2 back

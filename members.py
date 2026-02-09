@@ -45,8 +45,14 @@ class Member(ABC):
                 raise ValueError(f"initial_weights must have shape ({num_keys}, {num_notes}). Got {initial_weights.shape}."
                 )
             self.weights = torch.nn.Parameter(initial_weights)
+            self.painted_weights = torch.zeros_like(self.weights)  # Track painted values
+            self.painted_mask = (self.painted_weights != 0.0)  # Mask for painted weights
         else:
             self.initialize()
+        
+        # Use register_post_accumulate_grad_hook to zero gradients of painted weights (they will not change)
+        # RuntimeError: Tensor post accumulate grad hooks should return None.
+        #self.handle = self.weights.register_post_accumulate_grad_hook(lambda p: p.grad.masked_fill_(self.painted_mask, 0.0))
     
     # Helpers for commonly used values
     def note_duration(self) -> float:
@@ -61,8 +67,15 @@ class Member(ABC):
 
     @abstractmethod
     def forward(self, x: Any) -> torch.Tensor:
-        # x exists so this looks like a fake nn.Module but all Members are sources, not modules. x is not used
+        # x exists so this looks like a fake nn.Module but x is not used
         pass
+
+    def paint_weights(self, newly_painted_weights: torch.Tensor):
+        new_mask = (newly_painted_weights != 0.0)
+        self.painted_weights[new_mask] = newly_painted_weights[new_mask]
+        self.painted_mask = (self.painted_weights != 0.0)
+        # RuntimeError: a leaf Variable that requires grad is being used in an in-place operation.
+        #self.weights[self.painted_mask] = self.painted_weights[self.painted_mask]
 
 class PolyphonicMember(Member):
     def __init__(
@@ -97,6 +110,8 @@ class PolyphonicMember(Member):
         self.weights = torch.nn.Parameter(
             1.0 - torch.rand((self.num_keys, self.num_notes))
         )
+        self.painted_weights = torch.zeros_like(self.weights)
+        self.painted_mask = (self.painted_weights != 0.0)
     
     def forward(self, x: Any) -> torch.Tensor:
         return torch.relu(self.weights)
@@ -133,6 +148,8 @@ class MonophonicMember(Member):
         self.weights = torch.nn.Parameter(
             torch.randn((self.num_keys, self.num_notes))
         )
+        self.painted_weights = torch.zeros_like(self.weights)
+        self.painted_mask = (self.painted_weights != 0.0)
     
     def forward(self, x: Any) -> torch.Tensor:
         # Gumbel-softmax (straight-through estimator)

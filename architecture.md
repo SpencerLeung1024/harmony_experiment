@@ -40,12 +40,15 @@ A Member has:
 - hp: a dict of string: any, hyperparameters for loss and optimization. Which hyperparameters exist depends on the exact member
 - - TODO: "hp: dict for hyperparameters is flexible but error-prone; consider a typed MemberHyperparameters base class"
 - weights: torch.Tensor, has shape (keys, note_times)
+- painted_weights: torch.Tensor, represents user-provided constraints. Has the same shape as weights. 0.0 is interpreted as pass-through.
+- painted_mask: torch.Tensor, mask of the above. Used in init for register_post_accumulate_grad_hook
 
 Weights can be passed in as initial_weights during init.
 
 - note_duration() -> float: Song.tick_duration() * ticks_per_note
 - total_notes() -> int: Song.total_ticks() / ticks_per_note
-- forward(x: Any) -> torch.Tensor: returns the activations.
+- forward(x: Any) -> torch.Tensor: Returns the activations.
+- paint_weights(newly_painted_weights: torch.Tensor): For pixels that are not 0.0, paints those weights onto painted_weights, updates painted_mask, and updates weights
 
 weights.shape[1] is total_notes().
 This means Song.total_ticks() must a common multiple of all Member.ticks_per_note.

@@ -9,7 +9,7 @@ import librosa
 import sounddevice
 
 from song import Song
-from members import get_member
+from members import Member, get_member
 from audio_service import AudioService
 from color_service import ColorService
 from loss_handler import LossHandler
@@ -24,6 +24,38 @@ os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 
 def hz_to_bin(freq: float, num_bins: int, sample_rate: int) -> int:
     return int((freq / (sample_rate / 2)) * num_bins)
+
+PITCH_CLASSES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
+
+def note_name_to_midi(note_name: str) -> int:
+    pitch_class = None
+    octave = None
+    # Handle octave -1
+    if note_name[-2] == '-':
+        pitch_class = note_name[:-2]
+        octave = -1
+    else:
+        pitch_class = note_name[:-1]
+        octave = int(note_name[-1])
+    
+    pitch_class_index = PITCH_CLASSES.index(pitch_class)
+    midi_number = (octave + 1) * 12 + pitch_class_index
+    return midi_number
+
+# Awful function I made up in a few minutes
+# In the real implementation the user would paint in weights on the Gradio UI
+def note_names_to_weightsmap(weights_like: torch.Tensor, velocity: float, note_names: str) -> torch.Tensor:
+    weightsmap = torch.zeros_like(weights_like)
+    lines = note_names.strip().split('\n')
+    for note_idx, line in enumerate(lines):
+        chord = line.strip()
+        note_names = chord.split(' ')
+        for note_name in note_names:
+            midi_number = note_name_to_midi(note_name)
+            key_idx = midi_number - 21 # Assuming A0 is the lowest note (MIDI 21)
+            if 0 <= key_idx < weightsmap.shape[0]:
+                weightsmap[key_idx, note_idx] = velocity
+    return weightsmap
 
 # from v2\harmony\visualization.py
 def save_audio(
@@ -137,10 +169,10 @@ def main(step_list: List[str]):
 
     # Create a song
     song = Song(
-        measures=8,
-        tempo=120,
+        measures=4,
+        tempo=50,
         beats_per_measure=4,
-        ticks_per_beat=6,
+        ticks_per_beat=3,
         sample_rate=SAMPLE_RATE
     )
 
@@ -152,26 +184,26 @@ def main(step_list: List[str]):
             "piano",
             tick_duration=tick_duration,
             total_ticks=total_ticks,
-            ticks_per_note=24
+            ticks_per_note=3
         ),
         get_member(
             "guitar",
             tick_duration=tick_duration,
             total_ticks=total_ticks,
-            ticks_per_note=2
+            ticks_per_note=1
         ),
         get_member(
             "bass",
             tick_duration=tick_duration,
             total_ticks=total_ticks,
-            ticks_per_note=6
+            ticks_per_note=1
         ),
-        # get_member(
-        #     "synth_lead",
-        #     tick_duration=tick_duration,
-        #     total_ticks=total_ticks,
-        #     ticks_per_note=1
-        # )
+        get_member(
+            "synth_lead",
+            tick_duration=tick_duration,
+            total_ticks=total_ticks,
+            ticks_per_note=1
+        )
     ])
 
     # Apply overrides to the piano
@@ -180,6 +212,23 @@ def main(step_list: List[str]):
         'mate_temporal': 0.0,
         'extreme_range': 3.0 # Bonus to piano since it has a very wide range. The optimizer can settle on chords spanning multiple octaves
     }
+    weightsmap = note_names_to_weightsmap(song.members[0].weights, 0.5, '''D3 F4 A3 D4
+A2 A4 C#3 E4
+D3 A4 D4 F4
+C3 C5 E4 G4
+F3 C5 F4 A4
+E3 G#4 B3 B4
+A2 A4 E4 C5
+G2 B4 G4 D5
+C3 C5 G4 D#5
+A#3 C5 G4 E5
+A3 C5 F4 F5
+C4 D#5 A4 F#5
+B3 D5 G4 G5
+A#3 F5 D5 G#5
+A3 F5 D5 A5
+A3 E5 C#5 A4''')
+    song.members[0].paint_weights(weightsmap)
 
     # Create LossHandler and OptimHandler
     print("Initializing loss handler (computing dissonance matrices)...")
