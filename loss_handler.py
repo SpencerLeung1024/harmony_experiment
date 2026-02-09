@@ -12,15 +12,21 @@ class LossHandler:
     
     # Default loss factors - can be overridden via hyperparameters
     DEFAULT_LOSS_FACTORS = {
+        # All members
         'self_concurrent': 1.0,
-        'mate_concurrent': 1.0,
-        'self_temporal': 0.5,
-        'mate_temporal': 0.5,
-        'quietness': 0.1,
-        'muddyness': 0.05,
-        'hand_stretch': 0.01,
+        'mate_concurrent': 0.16,
+        'self_temporal': 0.4,
+        'mate_temporal': 0.06,
+        'extreme_range': 1.2,
+
+        # Polyphonic members
+        'quietness': 0.8,
+        'muddyness': 0.3,
+        'hand_stretch': 2.4,
+
+        # Monophonic members
         'jump': 0.1,
-        'extreme_range': 0.01,
+        
     }
     
     def __init__(self, song: Song, max_hz: float = 11025):
@@ -218,11 +224,18 @@ class LossHandler:
             # === Self-concurrent loss (polyphonic only) ===
             if isinstance(src, PolyphonicMember):
                 D_self = self.dissonance_matrices[(src_idx, src_idx)]
-                # torch.sum(src.T @ D @ src) for each note
+                # torch.sum(src.T @ D @ src)
+                # Trace is dissonance at each note
+                # But since we're separating concurrent and temporal (off-trace), do a for loop over notes
                 self_concurrent = 0.0
                 for note in range(src.num_notes):
                     note_weights = src_activation[:, note]
                     self_concurrent += torch.sum(note_weights @ D_self @ note_weights)
+                    # Note that the first note is not the recipient of any temporal dissonance
+                    # To make things fair, double its concurrent dissonance
+                    # Awful workaround
+                    if note == 0:
+                        self_concurrent *= 2.0
                 
                 loss_component = factors['self_concurrent'] * self_concurrent
                 total_loss = total_loss + loss_component
@@ -288,12 +301,6 @@ class LossHandler:
             
             # === Auxiliary losses ===
             
-            # Quietness loss (encourage some activity)
-            quietness = -torch.sum(src_activation)
-            loss_component = factors['quietness'] * quietness
-            total_loss = total_loss + loss_component
-            loss_dict[f'{src.name}_quietness'] = quietness.item()
-            
             # Extreme range loss (prefer middle of range)
             key_indices = torch.arange(src.num_keys, dtype=torch.float32)
             middle_key = (src.num_keys - 1) / 2
@@ -313,6 +320,14 @@ class LossHandler:
                 loss_dict[f'{src.name}_extreme_range'] = 0.0
             
             if isinstance(src, PolyphonicMember):
+                # Quietness loss (inverse L2, encourage some activity)
+                # use square so stronger notes contribute more gain
+                # But clamp it because too many notes near 1 causes clipping
+                quietness = 2.0 * -torch.sum(torch.square(torch.clamp(src_activation, min=0.0, max=0.5)))
+                loss_component = factors['quietness'] * quietness
+                total_loss = total_loss + loss_component
+                loss_dict[f'{src.name}_quietness'] = quietness.item()
+
                 # Muddyness loss (L1 regularization to encourage sparsity)
                 muddyness = torch.sum(torch.abs(src_activation))
                 loss_component = factors['muddyness'] * muddyness
