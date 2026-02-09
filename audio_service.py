@@ -34,6 +34,7 @@ class AudioService:
         audio = np.zeros(int(samples))
 
         note_duration = member.note_duration()
+        activation = member.forward(None)
 
         for note in range(member.num_notes):
             start_tick = note * member.ticks_per_note
@@ -46,14 +47,14 @@ class AudioService:
             if isinstance(member, PolyphonicMember):
                 for key in range(member.num_keys):
                     freq = member.tuning_system.key_to_freq(key)
-                    velocity = member.weights[key, note].item()
+                    velocity = activation[key, note].item()
                     if freq and velocity > 0.0:
                         AudioService.apply_note(audio, sample_rate, member.instrument, start_sample, freq, velocity, note_duration)
                     
             # This is a MonophonicMember and weights represent probabilities
             elif isinstance(member, MonophonicMember):
                 # When rendering, use argmax
-                key = torch.argmax(member.weights[:, note]).item()
+                key = torch.argmax(activation[:, note]).item()
                 freq = member.tuning_system.key_to_freq(key)
                 velocity = 0.5 # Ideally this should be a property of a MonophonicMember but for now just make all of them play at 50%
                 if freq and velocity > 0.0:
