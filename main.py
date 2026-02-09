@@ -1,4 +1,6 @@
+from typing import List
 import numpy as np
+import sys
 import os
 from matplotlib import pyplot as plt
 from scipy.io import wavfile
@@ -16,6 +18,7 @@ OUTPUT_FOLDER = "output"
 SAMPLE_RATE = 22050
 NUM_BINS = 4096
 
+# I was gonna os.rmdir but for safety leave that as a manual decision in VSCode
 os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 
 def hz_to_bin(freq: float, num_bins: int, sample_rate: int) -> int:
@@ -28,10 +31,15 @@ def save_audio(
     sample_rate: int,
 ):
     # Normalize to int16 range
-    audio_int16 = (audio * 32767).astype(np.int16)
+    audio_int = (audio * 32767).astype(np.int32)
+    samples_clipping = np.sum(np.abs(audio_int) > 32767)
+    if samples_clipping > 0:
+        print(f"Warning: {samples_clipping} out of {len(audio_int)} samples are clipping.")
+        audio_int = np.clip(audio_int, -32767, 32767)
+    audio_int16 = audio_int.astype(np.int16)
     wavfile.write(filename, sample_rate, audio_int16)
 
-def plot_weights(song: Song, title_suffix: str = ""):
+def plot_weights(song: Song, title_suffix: str = "", interactive: bool = True):
     num_members = len(song.members)
     cols = int(np.ceil(np.sqrt(num_members)))
     rows = int(np.ceil(num_members / cols))
@@ -56,7 +64,7 @@ def plot_weights(song: Song, title_suffix: str = ""):
     plt.tight_layout()
     return fig
 
-def plot_spectrogram(audio: np.ndarray, sample_rate: int, title_suffix: str = ""):
+def plot_spectrogram(audio: np.ndarray, sample_rate: int, title_suffix: str = "", interactive: bool = True):
     spectrogram = np.abs(librosa.stft(audio, n_fft=NUM_BINS))
 
     fig, ax = plt.subplots(1, 1, figsize=(16, 8))
@@ -87,7 +95,7 @@ def plot_spectrogram(audio: np.ndarray, sample_rate: int, title_suffix: str = ""
     plt.tight_layout()
     return fig
 
-def plot_loss_history(loss_history: list):
+def plot_loss_history(loss_history: list, interactive: bool = True):
     """Plot the loss components over optimization steps."""
     if not loss_history:
         return
@@ -108,7 +116,24 @@ def plot_loss_history(loss_history: list):
     plt.tight_layout()
     return fig
 
-def main():
+def main(step_list: List[str]):
+    # Are we in interactive or straight through mode?
+    interactive = len(step_list) == 0
+
+    if not interactive:
+        # Convert step_list to integers
+        for i in range(len(step_list)):
+            try:
+                step_list[i] = int(step_list[i])
+            except ValueError:
+                print(f"Invalid step value: {step_list[i]}. Please enter integers for steps.")
+                return
+        
+        # Convert step_list from the step at which to stop, to the number of steps to advance
+        if len(step_list) > 1:
+            for i in range(len(step_list) - 1, 0, -1):
+                step_list[i] = step_list[i] - step_list[i-1]
+
     # Create a song
     song = Song(
         measures=8,
@@ -160,35 +185,42 @@ def main():
     audio = AudioService.render(song)
     save_audio(audio, f"{OUTPUT_FOLDER}/audio_initial.wav", SAMPLE_RATE)
     
-    fig_weights = plot_weights(song, "(Initial)")
+    fig_weights = plot_weights(song, "(Initial)", interactive)
     fig_weights.savefig(f"{OUTPUT_FOLDER}/weights_initial.png")
     
-    fig_spectrogram = plot_spectrogram(audio, SAMPLE_RATE, "(Initial)")
+    fig_spectrogram = plot_spectrogram(audio, SAMPLE_RATE, "(Initial)", interactive)
     fig_spectrogram.savefig(f"{OUTPUT_FOLDER}/spectrogram_initial.png")
     
-    plt.show()
+    if interactive:
+        plt.show()
     
     # Optimization loop with user input
     loss_history = []
     
     while True:
-        # Ask user for number of steps
-        print(f"\nCurrent optimization step: {song.optim_handler.steps}")
-        user_input = input("How many steps do you want to run? (0 to exit): ")
-        
-        try:
-            num_steps = int(user_input)
-        except ValueError:
-            print("Please enter a valid integer.")
-            continue
-        
-        if num_steps == 0:
-            print("Exiting optimization loop.")
-            break
-        
-        if num_steps < 0:
-            print("Please enter a positive integer.")
-            continue
+        if interactive:
+            # Ask user for number of steps
+            print(f"\nCurrent optimization step: {song.optim_handler.steps}")
+            user_input = input("How many steps do you want to run? (0 to exit): ")
+
+            try:
+                num_steps = int(user_input)
+            except ValueError:
+                print("Please enter a valid integer.")
+                continue
+            
+            if num_steps == 0:
+                print("Exiting optimization loop.")
+                break
+            
+            if num_steps < 0:
+                print("Please enter a positive integer.")
+                continue
+        else:
+            # In non-interactive mode, just run through the specified steps
+            if len(step_list) == 0:
+                break
+            num_steps = step_list.pop(0)
         
         # Run optimization steps
         print(f"Running {num_steps} optimization steps...")
@@ -207,41 +239,50 @@ def main():
         step_str = f"step{song.optim_handler.steps:04d}"
         save_audio(audio, f"{OUTPUT_FOLDER}/audio_{step_str}.wav", SAMPLE_RATE)
         
-        fig_weights = plot_weights(song, f"({step_str})")
+        fig_weights = plot_weights(song, f"({step_str})", interactive)
         fig_weights.savefig(f"{OUTPUT_FOLDER}/weights_{step_str}.png")
         
-        fig_spectrogram = plot_spectrogram(audio, SAMPLE_RATE, f"({step_str})")
+        fig_spectrogram = plot_spectrogram(audio, SAMPLE_RATE, f"({step_str})", interactive)
         fig_spectrogram.savefig(f"{OUTPUT_FOLDER}/spectrogram_{step_str}.png")
         
         # Plot loss history
         if len(loss_history) > 1:
-            fig_loss = plot_loss_history(loss_history)
+            fig_loss = plot_loss_history(loss_history, interactive)
             fig_loss.savefig(f"{OUTPUT_FOLDER}/loss_history.png")
         
-        # Play audio (do this right before plt.show() because generating colormaps takes a long time)
-        sounddevice.play(audio, SAMPLE_RATE)
-        
-        plt.show()
+        if interactive:
+            # Play audio (do this right before plt.show() because generating colormaps takes a long time)
+            sounddevice.play(audio, SAMPLE_RATE)
+            
+            plt.show()
     
     # Save final outputs
     print("\nSaving final outputs...")
     audio = AudioService.render(song)
     save_audio(audio, f"{OUTPUT_FOLDER}/audio_final.wav", SAMPLE_RATE)
     
-    fig_weights = plot_weights(song, "(Final)")
+    fig_weights = plot_weights(song, "(Final)", interactive)
     fig_weights.savefig(f"{OUTPUT_FOLDER}/weights_final.png")
     
-    fig_spectrogram = plot_spectrogram(audio, SAMPLE_RATE, "(Final)")
+    fig_spectrogram = plot_spectrogram(audio, SAMPLE_RATE, "(Final)", interactive)
     fig_spectrogram.savefig(f"{OUTPUT_FOLDER}/spectrogram_final.png")
     
     if loss_history:
-        fig_loss = plot_loss_history(loss_history)
+        fig_loss = plot_loss_history(loss_history, interactive)
         fig_loss.savefig(f"{OUTPUT_FOLDER}/loss_history.png")
     
-    plt.show()
+    if interactive:
+        plt.show()
     
     print(f"\nDone! All outputs saved to {OUTPUT_FOLDER}/")
 
 
 if __name__ == "__main__":
-    main()
+    if len(sys.argv) > 1 and (sys.argv[1] == "-h" or sys.argv[1] == "--help"):
+        print("Usage: python main.py [steps at which to save outputs, leave empty for interactive mode]")
+        print("Example: python main.py 50 70 90 110")
+        print("Will save outputs at initial, steps 50, 70, 90, and final at 110 steps.")
+    else:
+        step_list = sys.argv[1:] # Ignore the script name
+        main(step_list)
+
