@@ -87,7 +87,7 @@ v1 (2026-02-02) contains files from the initial implementation: solo synth-like 
 v2 (2026-02-05) contains Kimi K2.5's implementation
 Anything outside those two folders is work for v3
 
-### State as of 2026-02-07
+### 2026-02-07
 - main.py: does a simple test that creates a song with a piano, guitar, bass, and synth and renders the audio. Obviously it is random noise and produces awful clipping
 - song.py: Song
 - members.py: Member, PolyphonicMember, MonophonicMember
@@ -99,7 +99,7 @@ Anything outside those two folders is work for v3
 - audio_service.py: AudioService
 - color_service.py: ColorService
 
-### State as of 2026-02-08
+### 2026-02-08
 - Kimi K2.5 implemented LossHandler and OptimHandler nicely
 - main.py:
 - - Now supports any number of members and plots their activations (argmax for MonophonicMember). You still need to edit the code though
@@ -108,8 +108,10 @@ Anything outside those two folders is work for v3
 - Quietness and muddyness losses have been replaced with an ideal amplitude and amplitude loss while I think of a better loss function
 - - I want the optimizer to find chords with a few strong notes. You know, like what a keyboard member would play
 
+### State as of 2026-02-09
+- Kimi K2.5 fixed the weight painting bugs (the correct PyTorch pattern is to use torch.where to combine weights and painted during the forward pass)
+
 Current issues:
-- I can't figure out any way to modify weights or grad. I can't make user painted constraints work
 - Synth overpowers everything. Piano overpowers guitar and bass
 - The optimum at ~300 steps for guitar and bass is to collapse to the midpoints of their range: E4 and C3 respectively
 - A quarter of all samples still clip. I think we might need the compressor from v2 back

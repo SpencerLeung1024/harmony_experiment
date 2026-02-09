@@ -45,14 +45,12 @@ class Member(ABC):
                 raise ValueError(f"initial_weights must have shape ({num_keys}, {num_notes}). Got {initial_weights.shape}."
                 )
             self.weights = torch.nn.Parameter(initial_weights)
-            self.painted_weights = torch.zeros_like(self.weights)  # Track painted values
-            self.painted_mask = (self.painted_weights != 0.0)  # Mask for painted weights
         else:
             self.initialize()
         
-        # Use register_post_accumulate_grad_hook to zero gradients of painted weights (they will not change)
-        # RuntimeError: Tensor post accumulate grad hooks should return None.
-        #self.handle = self.weights.register_post_accumulate_grad_hook(lambda p: p.grad.masked_fill_(self.painted_mask, 0.0))
+        # Keep painted constraints out of nn.Parameter
+        self.painted_weights = torch.zeros((num_keys, num_notes))
+        self.painted_mask = torch.zeros((num_keys, num_notes), dtype=torch.bool)
     
     # Helpers for commonly used values
     def note_duration(self) -> float:
@@ -70,12 +68,46 @@ class Member(ABC):
         # x exists so this looks like a fake nn.Module but x is not used
         pass
 
-    def paint_weights(self, newly_painted_weights: torch.Tensor):
-        new_mask = (newly_painted_weights != 0.0)
-        self.painted_weights[new_mask] = newly_painted_weights[new_mask]
-        self.painted_mask = (self.painted_weights != 0.0)
-        # RuntimeError: a leaf Variable that requires grad is being used in an in-place operation.
-        #self.weights[self.painted_mask] = self.painted_weights[self.painted_mask]
+    def get_effective_weights(self) -> torch.Tensor:
+        """
+        Get effective weights combining optimizable weights and painted constraints.
+        
+        Returns a tensor where painted positions have the user-specified values,
+        and unpainted positions have the learned weights. Painted values are
+        detached so gradients only flow to the optimizable weights.
+        
+        Returns:
+            Tensor of shape (num_keys, num_notes)
+        """
+        # Painted weights are buffers (not Parameters), so they're naturally detached
+        # Use torch.where for a differentiable selection
+        # For painted positions: use painted_weights (detached)
+        # For unpainted positions: use self.weights (gets gradients)
+        effective = torch.where(
+            self.painted_mask,
+            self.painted_weights, # This is a buffer, no gradients
+            self.weights          # This is a Parameter, gradients flow here
+        )
+        return effective
+
+    def paint_weights(self, newly_painted: torch.Tensor):
+        """
+        Paint fixed constraint values at specific positions.
+        
+        Args:
+            newly_painted: Tensor of shape (num_keys, num_notes) with values to fix.
+                          Non-zero values will be painted (fixed during optimization).
+        """
+        with torch.no_grad():
+            new_mask = (newly_painted != 0.0)
+            self.painted_weights[new_mask] = newly_painted[new_mask]
+            self.painted_mask[new_mask] = True
+
+    def clear_paint(self):
+        """Clear all painted constraints."""
+        with torch.no_grad():
+            self.painted_weights.zero_()
+            self.painted_mask.zero_()
 
 class PolyphonicMember(Member):
     def __init__(
@@ -110,11 +142,10 @@ class PolyphonicMember(Member):
         self.weights = torch.nn.Parameter(
             1.0 - torch.rand((self.num_keys, self.num_notes))
         )
-        self.painted_weights = torch.zeros_like(self.weights)
-        self.painted_mask = (self.painted_weights != 0.0)
     
     def forward(self, x: Any) -> torch.Tensor:
-        return torch.relu(self.weights)
+        # Apply ReLU to effective weights (combines optimizable + painted constraints)
+        return torch.relu(self.get_effective_weights())
 
 class MonophonicMember(Member):
     def __init__(
@@ -148,13 +179,12 @@ class MonophonicMember(Member):
         self.weights = torch.nn.Parameter(
             torch.randn((self.num_keys, self.num_notes))
         )
-        self.painted_weights = torch.zeros_like(self.weights)
-        self.painted_mask = (self.painted_weights != 0.0)
     
     def forward(self, x: Any) -> torch.Tensor:
         # Gumbel-softmax (straight-through estimator)
         # Forward: argmax, Backward: softmax with temperature
-        logits = self.weights  # (keys, notes)
+        # Use effective weights (combines optimizable + painted constraints)
+        logits = self.get_effective_weights()  # (keys, notes)
         
         # During forward pass for loss computation, use soft probabilities
         # Temperature can be adjusted - lower = more discrete
