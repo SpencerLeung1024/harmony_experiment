@@ -42,7 +42,7 @@ A Member has:
 - - TODO: "hp: dict for hyperparameters is flexible but error-prone; consider a typed MemberHyperparameters base class"
 - weights: torch.Tensor, has shape (keys, note_times)
 - painted_weights: torch.Tensor, represents user-provided constraints. Has the same shape as weights. 0.0 is interpreted as pass-through.
-- painted_mask: torch.Tensor, mask of the above. Used in init for register_post_accumulate_grad_hook
+- painted_mask: torch.Tensor, mask of the above.
 
 Weights can be passed in as initial_weights during init.
 
@@ -71,13 +71,13 @@ You can, as a contrived example, have:
 This is basically a 10:9 polyrhythm. It is completely nonsensical since measures and beats are meaningless but the code will accept it.
 
 ### PolyphonicMember(Member)
-A PolyphonicMember represents a band member that can play zero to all notes at zero to unbounded amplitude every note_time.
+A PolyphonicMember represents a band member that can play zero to all notes at zero to unbounded velocity every note_time.
 Piano, synth, etc.
-Its weights[key, note_time] is the amplitude of key at note_time.
+Its weights[key, note_time] is the velocity of key at note_time.
 It uses ReLU. Due to problems with sigmoid dying we will not be using sigmoid.
 
 ### MonophonicMember(Member)
-A MonophonicMember represents a band member that must play one note at a given amplitude every note_time.
+A MonophonicMember represents a band member that must play one note at a given velocity every note_time.
 Lead guitar, bass, etc.
 Its weights[key, note_time] is the logit of playing key at note_time.
 It uses Gumbel-softmax.
@@ -205,7 +205,7 @@ An OptimHandler has:
 
 After the members are created and before the optimization loop runs, it explores the various members and their hyperparameters. Each member's weight is added to an optimizer with the specified hyperparameters.
 
-Entirely designed and implemented by Kimi K2.5. It seems to be a typical Adam with weight clipping.
+Entirely designed and implemented by Kimi K2.5. It seems to be a typical Adam with grad clipping.
 
 "Pixels" of user painted weights will not be optimized. A user may disable optimization on a member entirely. For example, if they manually wrote a chord progression on 🎹 Tenma Saki and just want 🎸 Hoshino Ichika and 🍜 Hinomori Shiho to make something up on top of it.
 The optimizer does not need to be aware of this. Each member's forward pass already uses its effective weights, including any note constraints.

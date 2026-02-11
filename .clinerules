@@ -108,7 +108,7 @@ Anything outside those two folders is work for v3
 - Quietness and muddyness losses have been replaced with an ideal amplitude and amplitude loss while I think of a better loss function
 - - I want the optimizer to find chords with a few strong notes. You know, like what a keyboard member would play
 
-### State as of 2026-02-09
+### 2026-02-09
 - Kimi K2.5 fixed the weight painting bugs (the correct PyTorch pattern is to use torch.where to combine weights and painted during the forward pass)
 - Band members each have a velocity now. Finally, the synth won't be overpowering everything
 
