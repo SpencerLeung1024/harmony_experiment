@@ -114,7 +114,7 @@ Anything outside those two folders is work for v3
 
 ### State as of 2026-02-11
 - A tanh compressor (based on v2) has been added to AudioService
-- Pythagorean and meantone tuning systems (I think)
+- Pythagorean and meantone tuning systems, and a tuning demo GUI for comparison
 
 Current issues:
 - TODO: reimplement the various tuning systems from v2
