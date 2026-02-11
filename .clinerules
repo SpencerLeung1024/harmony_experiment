@@ -112,9 +112,11 @@ Anything outside those two folders is work for v3
 - Kimi K2.5 fixed the weight painting bugs (the correct PyTorch pattern is to use torch.where to combine weights and painted during the forward pass)
 - Band members each have a velocity now. Finally, the synth won't be overpowering everything
 
+### State as of 2026-02-11
+- A tanh compressor (based on v2) has been added to AudioService
+
 Current issues:
-- A quarter of all samples still clip. I think we might need the compressor from v2 back
-- Can we get more instruments? I know only having lists of partials is limiting. Strings section, monophonic string, maybe brass and woodwind instruments too, organ, music box, however they make that saw lead in rhythm game music, etc.
+- Can we get more instruments? I know only having lists of partials is limiting. Strings section, various string instruments, maybe brass and woodwind instruments too, choir or voice, organ, music box, however they make that saw lead in rhythm game music, etc.
 - TODO: reimplement the various tuning systems from v2
 - Subjective issues with solutions the optimizer finds (not sure if these are solvable)
 - - Chords and progressions are, uh, interesting

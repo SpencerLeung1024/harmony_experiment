@@ -65,12 +65,16 @@ def save_audio(
     sample_rate: int,
 ):
     # Normalize to int16 range
+    '''
     audio_int = (audio * 32767).astype(np.int32)
     samples_clipping = np.sum(np.abs(audio_int) > 32767)
     if samples_clipping > 0:
         print(f"Warning: {samples_clipping} out of {len(audio_int)} samples are clipping.")
         audio_int = np.clip(audio_int, -32767, 32767)
     audio_int16 = audio_int.astype(np.int16)
+    '''
+    # Now that AudioService.apply_limiter is used there should be no more clipping
+    audio_int16 = (audio * 32767).astype(np.int16)
     wavfile.write(filename, sample_rate, audio_int16)
 
 def plot_activations(song: Song, title_suffix: str = "", interactive: bool = True):
@@ -282,6 +286,7 @@ def main(step_list: List[str]):
     # Plot initial state
     print("\nRendering initial audio and plots...")
     audio = AudioService.render(song)
+    audio = AudioService.apply_limiter(audio)
     save_audio(audio, f"{OUTPUT_FOLDER}/audio_initial.wav", SAMPLE_RATE)
     
     fig_activations = plot_activations(song, "(Initial)", interactive)
@@ -333,6 +338,7 @@ def main(step_list: List[str]):
         # Render and plot
         print("Rendering audio and plots...")
         audio = AudioService.render(song)
+        audio = AudioService.apply_limiter(audio)
         
         # Save files with step number
         step_str = f"step{song.optim_handler.steps:04d}"
@@ -358,6 +364,7 @@ def main(step_list: List[str]):
     # Save final outputs
     print("\nSaving final outputs...")
     audio = AudioService.render(song)
+    audio = AudioService.apply_limiter(audio)
     save_audio(audio, f"{OUTPUT_FOLDER}/audio_final.wav", SAMPLE_RATE)
     
     fig_activations = plot_activations(song, "(Final)", interactive)

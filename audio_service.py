@@ -79,3 +79,45 @@ class AudioService:
             )
             audio[:len(member_audio)] += member_audio
         return audio
+    
+    # Helper functions for audio processing
+    @staticmethod
+    def ratio_to_db(ratio: float) -> float:
+        return 20 * np.log10(ratio)
+    
+    @staticmethod
+    def db_to_ratio(db: float) -> float:
+        return 10 ** (db / 20)
+    
+    @staticmethod
+    def apply_limiter(
+        audio: np.ndarray,
+        headroom_db: float = -6.0,
+        limit_value: float = 0.95
+    ) -> np.ndarray:
+        threshold_value = AudioService.db_to_ratio(headroom_db)
+
+        # These samples should be compressed
+        compression_mask = np.abs(audio) > threshold_value
+
+        # Cool logging
+        # Find the current peak of the audio
+        current_peak_value = np.max(np.abs(audio))
+        current_peak_db = AudioService.ratio_to_db(current_peak_value)
+        print(f"{np.sum(compression_mask)} / {len(audio)} samples above threshold ({headroom_db:.2f} dB = {threshold_value:.4f})")
+        print(f"Current peak: ({current_peak_db:.2f} dB = {current_peak_value:.4f})")
+
+        # If current audio is entirely in the linear regime, do nothing
+        if current_peak_value <= threshold_value:
+            return audio.copy()
+        
+        # Otherwise do compression
+        # This is a tanh scaled horizontally and vertically
+        # Its horizontal center is at the threshold value
+        # Its asymptotic value is the limit value
+        # It has slope 1 at the threshold value and is continuous with the linear regime
+        compressed_abs = threshold_value + np.tanh((np.abs(audio) - threshold_value) / (limit_value - threshold_value)) * (limit_value - threshold_value)
+        compressed = np.sign(audio) * compressed_abs
+        # Combine linear and nonlinear regimes
+        new_audio = np.where(compression_mask, compressed, audio)
+        return new_audio

@@ -220,9 +220,10 @@ Turns the members of the song into audio.
 The AudioService has:
 - def apply_note(audio: np.ndarray, sample_rate: int, instrument: Instrument, start_sample: int, freq: float, velocity: float: note_duration: float): Applies a note to the audio ndarray.
 - render_member(song_duration: float, sample_rate: int, tick_duration: float, member: Member) -> np.ndarray: Returns a (samples) ndarray where each value is the contribution this member makes to the song's audio. Loops over each weight in the member's weights.
-- render(song: Song) -> np.ndarray: Returns a (samples) ndarray of every member added together
+- render(song: Song) -> np.ndarray: Returns a (samples) ndarray of every member added together.
+- apply_limiter(audio: np.ndarray, headroom_db: float = -6.0, peak_value: float = 0.95) -> np.ndarray: Returns an ndarray after compression. Values below headroom_db are passed through and values above go through np.tanh so they asymptotically approach peak_value.
 
-v2 had some complicated mixing and level control but I don't think that's necessary to implement. If it's too quiet or clips the user will just adjust velocity. Or export the generated weights and recreate them in FL studio, where they can stack all the soundgoodizers.
+Don't forget to use apply_limiter() after render()!
 
 ### ColorService
 Gives color to a weights, activation, or spectrogram graymap.
