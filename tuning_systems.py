@@ -154,13 +154,118 @@ register_tuning_system("Meantone", lambda reference_key=60, reference_freq=261.6
 
 # Uses the octave, does not have 12 notes per octave
 # These cannot work with MIDI
-# I have arbitrarily used C-1 = 8.1758 Hz as note 0, and G9 = 12544 Hz as the max frequency
+# I have arbitrarily used C-1 = 8.1758 Hz as the min frequency, and G9 = 12544 Hz as the max frequency
 
 # EDO system
 
+MIDI_FREQ_LOW = 8.1757 # The full precision of C-1 is 8.175798915643707 Hz but 8.1758 will exclude the actual C-1, so we need to round down to expand our range
+MIDI_FREQ_HIGH = 12544 # The full precision of G9 is 12543.853951415975 Hz
+
+# This does not support reference_key since it is no longer compatible with MIDI
+# It still has a reference_freq though. The keys extend downwards to freq_low and upwards to freq_high from reference_freq
+def step_ratio_to_keys(step_ratio: float, divisions: int, reference_freq: float, freq_low: float, freq_high: float) -> np.ndarray:
+    # Helper function
+    # Returns a negative value if f2 is below f1, and a positive value if f2 is above f1
+    def get_float_steps_to(f1: float, f2: float) -> float:
+        return divisions * (np.log(f2 / f1) / np.log(step_ratio))
+    
+    # Figure out how many steps to the key_low and key_high such that they remain in freq_low and freq_high
+    steps_to_low = int(np.ceil(get_float_steps_to(reference_freq, freq_low))) # Will be negative like -15.6, so we round up to -15
+    steps_to_high = int(np.floor(get_float_steps_to(reference_freq, freq_high))) # Will be positive like 23.3, so we round down to 23
+
+    # Helper function
+    def get_ratio_for_steps(steps: int) -> float:
+        return step_ratio ** (steps / divisions)
+    
+    num_keys = steps_to_high - steps_to_low + 1 # Gotta include the reference key itself
+    keys = np.zeros(num_keys)
+    for key in range(num_keys):
+        steps_from_reference = key + steps_to_low
+        keys[key] = reference_freq * get_ratio_for_steps(steps_from_reference)
+
+    return keys
+
+# All of these use "A4"=440 Hz, in line with the v2 implementation
+# Personally I prefer my octaves starting at C but the full precision of C4 is 261.6255653005986 Hz which is awful to work with
+# (it no longer makes sense to talk about *the* A4, but it sounds like an A4)
+
+# Near-just thirds and sixths, distinct major/minor whole tones
+register_tuning_system("19-EDO", lambda: TuningSystem(
+    name="19-EDO",
+    keys=step_ratio_to_keys(2.0, 19, 440.0, MIDI_FREQ_LOW, MIDI_FREQ_HIGH)
+))
+
+# Quarter-tone system used in some contemporary Arabic music
+register_tuning_system("24-EDO", lambda: TuningSystem(
+    name="24-EDO",
+    keys=step_ratio_to_keys(2.0, 24, 440.0, MIDI_FREQ_LOW, MIDI_FREQ_HIGH)
+))
+
+# Excellent approximation to meantone temperament
+register_tuning_system("31-EDO", lambda: TuningSystem(
+    name="31-EDO",
+    keys=step_ratio_to_keys(2.0, 31, 440.0, MIDI_FREQ_LOW, MIDI_FREQ_HIGH)
+))
+
+# Very accurate just intonation approximations
+register_tuning_system("41-EDO", lambda: TuningSystem(
+    name="41-EDO",
+    keys=step_ratio_to_keys(2.0, 41, 440.0, MIDI_FREQ_LOW, MIDI_FREQ_HIGH)
+))
+
+# Close approximation to Pythagorean and just intonation
+register_tuning_system("53-EDO", lambda: TuningSystem(
+    name="53-EDO",
+    keys=step_ratio_to_keys(2.0, 53, 440.0, MIDI_FREQ_LOW, MIDI_FREQ_HIGH)
+))
+
+# For the generic EDO system below, the default parameters is equivalent to standard Western tuning (12-TET)
+register_tuning_system("EDO", lambda divisions=12, reference_freq=440.0, freq_low=MIDI_FREQ_LOW, freq_high=MIDI_FREQ_HIGH: TuningSystem(
+    name="EDO",
+    keys=step_ratio_to_keys(2.0, divisions, reference_freq, freq_low, freq_high)
+))
+
 # Uses a non-octave step ratio
-# Like above, C-1 = 8.1758 Hz is note 0, and G9 = 12544 Hz is the max frequency
 
 # Non-octave system
+
+# Wendy Carlos's Alpha, Beta, and Gamma scales calculate a step size in cents that is good at representing perfect fifths, major thirds, and minor thirds
+# The actual values used in Beauty in the Beast are approximately:
+# Alpha: 9 = P5, 5 = M3, 4 = m3: 77.964989544 cents = 1.046063785206031 ratio
+# Beta: 11 = P5, 6 = M3, 5 = m3: 63.832932576 cents = 1.037559527833274 ratio
+# Gamma: 20 = P5, 11 = M3, 9 = m3: 35.0985422804 cents = 1.020480620635678 ratio
+# In this code the scales are approximated only by dividing the fifth
+
+# 701.9550008653874 cents / 9 = 77.99500009615416 cents
+register_tuning_system("Alpha", lambda: TuningSystem(
+    name="Alpha",
+    keys=step_ratio_to_keys(3/2, 9, 440.0, MIDI_FREQ_LOW, MIDI_FREQ_HIGH)
+))
+
+# 701.9550008653874 cents / 11 = 63.8140909877625 cents
+register_tuning_system("Beta", lambda: TuningSystem(
+    name="Beta",
+    keys=step_ratio_to_keys(3/2, 11, 440.0, MIDI_FREQ_LOW, MIDI_FREQ_HIGH)
+))
+
+# 701.9550008653874 cents / 20 = 35.09775004326937 cents
+register_tuning_system("Gamma", lambda: TuningSystem(
+    name="Gamma",
+    keys=step_ratio_to_keys(3/2, 20, 440.0, MIDI_FREQ_LOW, MIDI_FREQ_HIGH)
+))
+
+# The Bohlen-Pierce scale uses the tritave (3:1) instead of the octave (2:1)
+# It divides this into 13 steps
+# 1901.9550008653875 cents / 13 = 146.30423083579905 cents
+register_tuning_system("Bohlen-Pierce", lambda: TuningSystem(
+    name="Bohlen-Pierce",
+    keys=step_ratio_to_keys(3.0, 13, 440.0, MIDI_FREQ_LOW, MIDI_FREQ_HIGH)
+))
+
+# Despite being named "Non-Octave System", the generic non-octave system below with default parameters is equivalent to standard Western tuning (12-TET)
+register_tuning_system("Non-Octave System", lambda step_ratio=2.0, divisions=12, reference_freq=440.0, freq_low=MIDI_FREQ_LOW, freq_high=MIDI_FREQ_HIGH: TuningSystem(
+    name="Non-Octave System",
+    keys=step_ratio_to_keys(step_ratio, divisions, reference_freq, freq_low, freq_high)
+))
 
 # Lastly, the least rigid tuning system is arbitrary frequencies provided by the user
