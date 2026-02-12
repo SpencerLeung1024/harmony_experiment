@@ -119,10 +119,10 @@ def ratio_to_keys(ratios: np.ndarray, reference_key: int, reference_freq: float)
     octave = reference_key // 12
 
     keys = np.zeros(128)
-    for this_octave in range(-1, 9): # C-1 to G9
+    for this_octave in range(-1, 10): # C-1 to G9
         # Apply the 12 ratios to this octave
         for pitch_class in range(12):
-            this_key = (this_octave * 12) + pitch_class
+            this_key = ((this_octave+1) * 12) + pitch_class
             if this_key > 127:
                 break
             keys[this_key] = reference_freq * ratios[pitch_class] * (2 ** (this_octave - octave))
@@ -192,31 +192,31 @@ def step_ratio_to_keys(step_ratio: float, divisions: int, reference_freq: float,
 # Near-just thirds and sixths, distinct major/minor whole tones
 register_tuning_system("19-EDO", lambda: TuningSystem(
     name="19-EDO",
-    keys=step_ratio_to_keys(2.0, 19, 440.0, MIDI_FREQ_LOW, MIDI_FREQ_HIGH)
+    keys=step_ratio_to_keys(2.0, 19, 440.0, MIDI_FREQ_LOW, MIDI_FREQ_HIGH) # 201 keys
 ))
 
 # Quarter-tone system used in some contemporary Arabic music
 register_tuning_system("24-EDO", lambda: TuningSystem(
     name="24-EDO",
-    keys=step_ratio_to_keys(2.0, 24, 440.0, MIDI_FREQ_LOW, MIDI_FREQ_HIGH)
+    keys=step_ratio_to_keys(2.0, 24, 440.0, MIDI_FREQ_LOW, MIDI_FREQ_HIGH) # 255 keys
 ))
 
 # Excellent approximation to meantone temperament
 register_tuning_system("31-EDO", lambda: TuningSystem(
     name="31-EDO",
-    keys=step_ratio_to_keys(2.0, 31, 440.0, MIDI_FREQ_LOW, MIDI_FREQ_HIGH)
+    keys=step_ratio_to_keys(2.0, 31, 440.0, MIDI_FREQ_LOW, MIDI_FREQ_HIGH) # 328 keys
 ))
 
 # Very accurate just intonation approximations
 register_tuning_system("41-EDO", lambda: TuningSystem(
     name="41-EDO",
-    keys=step_ratio_to_keys(2.0, 41, 440.0, MIDI_FREQ_LOW, MIDI_FREQ_HIGH)
+    keys=step_ratio_to_keys(2.0, 41, 440.0, MIDI_FREQ_LOW, MIDI_FREQ_HIGH) # 434 keys
 ))
 
 # Close approximation to Pythagorean and just intonation
 register_tuning_system("53-EDO", lambda: TuningSystem(
     name="53-EDO",
-    keys=step_ratio_to_keys(2.0, 53, 440.0, MIDI_FREQ_LOW, MIDI_FREQ_HIGH)
+    keys=step_ratio_to_keys(2.0, 53, 440.0, MIDI_FREQ_LOW, MIDI_FREQ_HIGH) # 561 keys
 ))
 
 # For the generic EDO system below, the default parameters is equivalent to standard Western tuning (12-TET)
@@ -239,19 +239,19 @@ register_tuning_system("EDO", lambda divisions=12, reference_freq=440.0, freq_lo
 # 701.9550008653874 cents / 9 = 77.99500009615416 cents
 register_tuning_system("Alpha", lambda: TuningSystem(
     name="Alpha",
-    keys=step_ratio_to_keys(3/2, 9, 440.0, MIDI_FREQ_LOW, MIDI_FREQ_HIGH)
+    keys=step_ratio_to_keys(3/2, 9, 440.0, MIDI_FREQ_LOW, MIDI_FREQ_HIGH) # 163 keys
 ))
 
 # 701.9550008653874 cents / 11 = 63.8140909877625 cents
 register_tuning_system("Beta", lambda: TuningSystem(
     name="Beta",
-    keys=step_ratio_to_keys(3/2, 11, 440.0, MIDI_FREQ_LOW, MIDI_FREQ_HIGH)
+    keys=step_ratio_to_keys(3/2, 11, 440.0, MIDI_FREQ_LOW, MIDI_FREQ_HIGH) # 199 keys
 ))
 
 # 701.9550008653874 cents / 20 = 35.09775004326937 cents
 register_tuning_system("Gamma", lambda: TuningSystem(
     name="Gamma",
-    keys=step_ratio_to_keys(3/2, 20, 440.0, MIDI_FREQ_LOW, MIDI_FREQ_HIGH)
+    keys=step_ratio_to_keys(3/2, 20, 440.0, MIDI_FREQ_LOW, MIDI_FREQ_HIGH) # 362 keys
 ))
 
 # The Bohlen-Pierce scale uses the tritave (3:1) instead of the octave (2:1)
@@ -259,7 +259,7 @@ register_tuning_system("Gamma", lambda: TuningSystem(
 # 1901.9550008653875 cents / 13 = 146.30423083579905 cents
 register_tuning_system("Bohlen-Pierce", lambda: TuningSystem(
     name="Bohlen-Pierce",
-    keys=step_ratio_to_keys(3.0, 13, 440.0, MIDI_FREQ_LOW, MIDI_FREQ_HIGH)
+    keys=step_ratio_to_keys(3.0, 13, 440.0, MIDI_FREQ_LOW, MIDI_FREQ_HIGH) # 87 keys
 ))
 
 # Despite being named "Non-Octave System", the generic non-octave system below with default parameters is equivalent to standard Western tuning (12-TET)

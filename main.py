@@ -9,11 +9,13 @@ import librosa
 import sounddevice
 
 from song import Song
-from members import Member, get_member
-from audio_service import AudioService
-from color_service import ColorService
+from members import Member, PolyphonicMember, MonophonicMember, get_member
+from instruments import Instrument, get_instrument
+from tuning_systems import TuningSystem, get_tuning_system
 from loss_handler import LossHandler
 from optim_handler import OptimHandler
+from audio_service import AudioService
+from color_service import ColorService
 
 OUTPUT_FOLDER = "output"
 SAMPLE_RATE = 22050
@@ -175,8 +177,8 @@ def main(step_list: List[str]):
     # Create a song
     song = Song(
         measures=8,
-        tempo=120,
-        beats_per_measure=6,
+        tempo=60,
+        beats_per_measure=1,
         ticks_per_beat=1,
         sample_rate=SAMPLE_RATE
     )
@@ -184,28 +186,48 @@ def main(step_list: List[str]):
     # Create members
     tick_duration = song.tick_duration()
     total_ticks = song.total_ticks()
+
+    # Use other tuning systems
+    test_tuning_system = get_tuning_system("Non-Octave System", step_ratio=2.0**(1/12), divisions=1, reference_freq=440.0)
+    print(f"{test_tuning_system.keys.shape[0]} keys")
+
+    test_piano = PolyphonicMember(
+        name="piano",
+        instrument=get_instrument("piano"),
+        tuning_system=test_tuning_system,
+        instrument_range=[0,test_tuning_system.keys.shape[0]-1],
+        velocity=0.5,
+        tick_duration=tick_duration,
+        total_ticks=total_ticks,
+        ticks_per_note=1,
+        # hp
+        # initial_weights
+    )
+
     song.members.extend([
-        get_member(
-            "piano",
-            velocity=0.5,
-            tick_duration=tick_duration,
-            total_ticks=total_ticks,
-            ticks_per_note=6
-        ),
-        get_member(
-            "guitar",
-            velocity=0.2,
-            tick_duration=tick_duration,
-            total_ticks=total_ticks,
-            ticks_per_note=1
-        ),
-        get_member(
-            "bass",
-            velocity=0.7, # Bring out the bass more my audio system is terrible
-            tick_duration=tick_duration,
-            total_ticks=total_ticks,
-            ticks_per_note=3
-        ),
+        test_piano
+        
+        # get_member(
+        #     "piano",
+        #     velocity=0.5,
+        #     tick_duration=tick_duration,
+        #     total_ticks=total_ticks,
+        #     ticks_per_note=6
+        # ),
+        # get_member(
+        #     "guitar",
+        #     velocity=0.2,
+        #     tick_duration=tick_duration,
+        #     total_ticks=total_ticks,
+        #     ticks_per_note=1
+        # ),
+        # get_member(
+        #     "bass",
+        #     velocity=0.7, # Bring out the bass more my audio system is terrible
+        #     tick_duration=tick_duration,
+        #     total_ticks=total_ticks,
+        #     ticks_per_note=3
+        # ),
 
         # Who invited you guys?
         # get_member(
@@ -239,11 +261,11 @@ def main(step_list: List[str]):
     ])
 
     # Apply overrides to the piano
-    song.members[0].hp = { # If mate dissonance losses are above 0.2 the piano hides away in the 7th octave where the guitar and bass cannot touch it
-        'mate_concurrent': 0.0,
-        'mate_temporal': 0.0,
-        'extreme_range': 3.0 # Bonus to piano since it has a very wide range. The optimizer can settle on chords spanning multiple octaves
-    }
+    # song.members[0].hp = { # If mate dissonance losses are above 0.2 the piano hides away in the 7th octave where the guitar and bass cannot touch it
+    #     'mate_concurrent': 0.0,
+    #     'mate_temporal': 0.0,
+    #     'extreme_range': 3.0 # Bonus to piano since it has a very wide range. The optimizer can settle on chords spanning multiple octaves
+    # }
 #     weightsmap = note_names_to_weightsmap(song.members[0], 0.125, '''D3 F4 A3 D4
 # A2 A4 C#3 E4
 # D3 A4 D4 F4
@@ -264,14 +286,14 @@ def main(step_list: List[str]):
     # When re-enabling, remember to make the piano have 16 notes throughout the song
 
     # Guitar
-    song.members[1].hp = {
-        'mate_concurrent': 3.0, # Stronger following of whatever chord the piano is playing
-    }
+    # song.members[1].hp = {
+    #     'mate_concurrent': 3.0, # Stronger following of whatever chord the piano is playing
+    # }
 
     # Bass
-    song.members[2].hp = {
-        'mate_concurrent': 3.0, # Is that supposed to be funny?
-    }
+    # song.members[2].hp = {
+    #     'mate_concurrent': 3.0, # Is that supposed to be funny?
+    # }
     # Was it not?
     # Sometimes the things you come out with are kind of bizarre!
     # Bizarre...
