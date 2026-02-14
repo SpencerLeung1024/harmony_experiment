@@ -205,8 +205,8 @@ def main(step_list: List[str]):
     song = Song(
         measures=8,
         tempo=120,
-        beats_per_measure=4,
-        ticks_per_beat=2,
+        beats_per_measure=6,
+        ticks_per_beat=1,
         sample_rate=SAMPLE_RATE
     )
 
