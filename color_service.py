@@ -1,7 +1,7 @@
 import numpy as np
 from matplotlib import pyplot as plt
 
-from members import Member
+from members import Member, MonophonicMember
 
 MIDDLE_C = 261.626 # Hz, MIDI key 60
 
@@ -54,7 +54,10 @@ class ColorService:
             color_stick[key] = plt.cm.hsv(hue)[:3]
         
         # Element-wise multiply activations with color stick
-        colormap = np.reshape(member.forward(None).detach().numpy(), (num_keys, num_notes, 1)) * np.reshape(color_stick, (num_keys, 1, 3))
+        activations = member.forward(None).detach().numpy()
+        if isinstance(member, MonophonicMember): # A MonophonicMember's activations are argmax and always have values 1.0.
+            activations *= member.velocity # Multiply by the actual velocity so they're visually comparable to a PolyphonicMember's activations
+        colormap = np.reshape(activations, (num_keys, num_notes, 1)) * np.reshape(color_stick, (num_keys, 1, 3))
         return colormap
     
     @staticmethod
