@@ -241,3 +241,248 @@ register_instrument("sine", lambda: Instrument(
     adsr=ADSR(attack=0.0, decay=0.0, sustain=1.0, release=0.0)
     # No harmonic ADSR overrides
 ))
+
+# ==================== BOWED STRINGS ====================
+
+# Violin - bowed string with sustained envelope and rich harmonics
+register_instrument("violin", lambda: Instrument(
+    harmonics=[
+        (1.0, 1.00),   # Fundamental (strong)
+        (2.0, 0.60),   # 2nd harmonic
+        (3.0, 0.40),   # 3rd harmonic
+        (4.0, 0.28),   # 4th harmonic
+        (5.0, 0.18),   # 5th harmonic
+        (6.0, 0.12),   # 6th harmonic
+    ],
+    adsr=ADSR(attack=0.15, decay=0.1, sustain=0.85, release=0.4),
+    # Bowed strings have gradual attack (bow engagement), long sustain
+    harmonic_adsrs={
+        0: ADSR(attack=0.15, decay=0.1, sustain=0.85, release=0.4),
+        1: ADSR(attack=0.12, decay=0.1, sustain=0.75, release=0.35),
+        2: ADSR(attack=0.10, decay=0.08, sustain=0.65, release=0.3),
+        3: ADSR(attack=0.08, decay=0.06, sustain=0.55, release=0.25),
+        4: ADSR(attack=0.06, decay=0.05, sustain=0.45, release=0.2),
+        5: ADSR(attack=0.05, decay=0.04, sustain=0.35, release=0.15),
+    }
+))
+
+# Cello - warm bowed string with emphasis on fundamental
+register_instrument("cello", lambda: Instrument(
+    harmonics=[
+        (1.0, 1.00),   # Fundamental (very strong - warm sound)
+        (2.0, 0.55),   # 2nd harmonic
+        (3.0, 0.30),   # 3rd harmonic
+        (4.0, 0.15),   # 4th harmonic
+        (5.0, 0.08),   # 5th harmonic
+    ],
+    adsr=ADSR(attack=0.18, decay=0.12, sustain=0.88, release=0.5),
+    # Slower attack than violin, very long sustain
+    harmonic_adsrs={
+        0: ADSR(attack=0.18, decay=0.12, sustain=0.88, release=0.5),
+        1: ADSR(attack=0.15, decay=0.1, sustain=0.78, release=0.45),
+        2: ADSR(attack=0.12, decay=0.08, sustain=0.68, release=0.4),
+        3: ADSR(attack=0.10, decay=0.06, sustain=0.58, release=0.35),
+        4: ADSR(attack=0.08, decay=0.05, sustain=0.48, release=0.3),
+    }
+))
+
+# ==================== KEYBOARDS ====================
+
+# Rhodes/Electric Piano - tine-based with bell-like attack
+register_instrument("rhodes", lambda: Instrument(
+    harmonics=[
+        (1.00, 1.00),   # Fundamental
+        (2.00, 0.40),   # 2nd harmonic
+        (3.00, 0.15),   # 3rd harmonic
+        (4.50, 0.10),   # Inharmonic overtone (characteristic of tines)
+        (5.50, 0.08),   # Inharmonic overtone
+    ],
+    adsr=ADSR(attack=0.005, decay=0.6, sustain=0.35, release=0.8),
+    # Quick attack (tine strike), long decay with sustain
+    harmonic_adsrs={
+        0: ADSR(attack=0.005, decay=0.6, sustain=0.35, release=0.8),
+        1: ADSR(attack=0.003, decay=0.45, sustain=0.25, release=0.6),
+        2: ADSR(attack=0.002, decay=0.3, sustain=0.15, release=0.4),
+        3: ADSR(attack=0.001, decay=0.2, sustain=0.10, release=0.3),
+        4: ADSR(attack=0.001, decay=0.15, sustain=0.05, release=0.2),
+    }
+))
+
+# Organ - pipe organ with rich harmonic ranks (8', 4', 2 2/3', 2', etc.)
+register_instrument("organ", lambda: Instrument(
+    harmonics=[
+        (1.00, 1.00),   # 8' stop (fundamental)
+        (2.00, 0.70),   # 4' stop (octave)
+        (3.00, 0.50),   # 2 2/3' stop (twelfth)
+        (4.00, 0.40),   # 2' stop (fifteenth)
+        (5.00, 0.25),   # 1 3/5' stop (seventeenth)
+        (6.00, 0.15),   # 1 1/3' stop (nineteenth)
+    ],
+    adsr=ADSR(attack=0.03, decay=0.0, sustain=1.0, release=0.08),
+    # Instant full sustain (air flow), quick release when key released
+    harmonic_adsrs={
+        0: ADSR(attack=0.03, decay=0.0, sustain=1.0, release=0.08),
+        1: ADSR(attack=0.025, decay=0.0, sustain=0.95, release=0.07),
+        2: ADSR(attack=0.02, decay=0.0, sustain=0.90, release=0.06),
+        3: ADSR(attack=0.02, decay=0.0, sustain=0.85, release=0.06),
+        4: ADSR(attack=0.015, decay=0.0, sustain=0.80, release=0.05),
+        5: ADSR(attack=0.015, decay=0.0, sustain=0.75, release=0.05),
+    }
+))
+
+# ==================== BRASS ====================
+
+# Trumpet - bright brass with strong upper harmonics
+register_instrument("trumpet", lambda: Instrument(
+    harmonics=[
+        (1.0, 1.00),   # Fundamental
+        (2.0, 0.80),   # 2nd harmonic (strong - characteristic of brass)
+        (3.0, 0.65),   # 3rd harmonic
+        (4.0, 0.50),   # 4th harmonic
+        (5.0, 0.35),   # 5th harmonic
+        (6.0, 0.20),   # 6th harmonic
+    ],
+    adsr=ADSR(attack=0.08, decay=0.15, sustain=0.75, release=0.3),
+    # Moderate attack (lip buzzing starts), good sustain
+    harmonic_adsrs={
+        0: ADSR(attack=0.08, decay=0.15, sustain=0.75, release=0.3),
+        1: ADSR(attack=0.06, decay=0.12, sustain=0.70, release=0.28),
+        2: ADSR(attack=0.05, decay=0.10, sustain=0.65, release=0.25),
+        3: ADSR(attack=0.04, decay=0.08, sustain=0.60, release=0.22),
+        4: ADSR(attack=0.03, decay=0.06, sustain=0.55, release=0.20),
+        5: ADSR(attack=0.03, decay=0.05, sustain=0.50, release=0.18),
+    }
+))
+
+# ==================== WOODWINDS ====================
+
+# Flute - breathy, mostly fundamental with odd harmonics
+register_instrument("flute", lambda: Instrument(
+    harmonics=[
+        (1.0, 1.00),   # Fundamental (very strong)
+        (2.0, 0.25),   # 2nd harmonic (weak in flute)
+        (3.0, 0.35),   # 3rd harmonic
+        (4.0, 0.10),   # 4th harmonic
+        (5.0, 0.15),   # 5th harmonic
+    ],
+    adsr=ADSR(attack=0.06, decay=0.1, sustain=0.80, release=0.25),
+    # Moderate attack (air flow), breathy sustain
+    harmonic_adsrs={
+        0: ADSR(attack=0.06, decay=0.1, sustain=0.80, release=0.25),
+        1: ADSR(attack=0.05, decay=0.08, sustain=0.60, release=0.20),
+        2: ADSR(attack=0.04, decay=0.06, sustain=0.55, release=0.18),
+        3: ADSR(attack=0.03, decay=0.05, sustain=0.50, release=0.15),
+        4: ADSR(attack=0.03, decay=0.04, sustain=0.45, release=0.12),
+    }
+))
+
+# Clarinet - hollow sound, strong odd harmonics only
+register_instrument("clarinet", lambda: Instrument(
+    harmonics=[
+        (1.0, 1.00),   # Fundamental (strong)
+        (3.0, 0.55),   # 3rd harmonic (strong - cylindrical bore)
+        (5.0, 0.30),   # 5th harmonic
+        (7.0, 0.15),   # 7th harmonic
+        (9.0, 0.08),   # 9th harmonic
+    ],
+    adsr=ADSR(attack=0.05, decay=0.12, sustain=0.78, release=0.2),
+    # Quick attack (reed), good sustain
+    harmonic_adsrs={
+        0: ADSR(attack=0.05, decay=0.12, sustain=0.78, release=0.2),
+        1: ADSR(attack=0.04, decay=0.10, sustain=0.68, release=0.18),
+        2: ADSR(attack=0.03, decay=0.08, sustain=0.58, release=0.15),
+        3: ADSR(attack=0.03, decay=0.06, sustain=0.48, release=0.12),
+        4: ADSR(attack=0.02, decay=0.05, sustain=0.38, release=0.10),
+    }
+))
+
+# Saxophone - bright reed instrument with full spectrum
+register_instrument("saxophone", lambda: Instrument(
+    harmonics=[
+        (1.0, 1.00),   # Fundamental
+        (2.0, 0.70),   # 2nd harmonic
+        (3.0, 0.50),   # 3rd harmonic
+        (4.0, 0.35),   # 4th harmonic
+        (5.0, 0.22),   # 5th harmonic
+        (6.0, 0.12),   # 6th harmonic
+    ],
+    adsr=ADSR(attack=0.04, decay=0.1, sustain=0.82, release=0.25),
+    # Fast attack (reed), bright sustain
+    harmonic_adsrs={
+        0: ADSR(attack=0.04, decay=0.1, sustain=0.82, release=0.25),
+        1: ADSR(attack=0.03, decay=0.08, sustain=0.75, release=0.22),
+        2: ADSR(attack=0.03, decay=0.07, sustain=0.68, release=0.20),
+        3: ADSR(attack=0.025, decay=0.06, sustain=0.60, release=0.18),
+        4: ADSR(attack=0.02, decay=0.05, sustain=0.52, release=0.15),
+        5: ADSR(attack=0.02, decay=0.04, sustain=0.45, release=0.12),
+    }
+))
+
+# ==================== SYNTH/ELECTRONIC ====================
+
+# Saw Lead - sawtooth wave with all harmonics (1/n amplitude)
+register_instrument("saw_lead", lambda: Instrument(
+    harmonics=[
+        (1.0, 1.00),    # 1/1
+        (2.0, 0.50),    # 1/2
+        (3.0, 0.333),   # 1/3
+        (4.0, 0.25),    # 1/4
+        (5.0, 0.20),    # 1/5
+        (6.0, 0.167),   # 1/6
+        (7.0, 0.143),   # 1/7
+        (8.0, 0.125),   # 1/8
+    ],
+    adsr=ADSR(attack=0.01, decay=0.2, sustain=0.7, release=0.4),
+    # Classic synth envelope
+))
+
+# Square Lead - square wave with odd harmonics only (1/n amplitude)
+register_instrument("square_lead", lambda: Instrument(
+    harmonics=[
+        (1.0, 1.00),    # 1/1
+        (3.0, 0.333),   # 1/3
+        (5.0, 0.20),    # 1/5
+        (7.0, 0.143),   # 1/7
+        (9.0, 0.111),   # 1/9
+    ],
+    adsr=ADSR(attack=0.01, decay=0.2, sustain=0.7, release=0.4),
+    # Classic chiptune/synth envelope
+))
+
+# ==================== IDIOPHONES/PERCUSSION ====================
+
+# Music Box - clear bell-like tones with distinct harmonics
+register_instrument("music_box", lambda: Instrument(
+    harmonics=[
+        (1.00, 1.00),   # Fundamental
+        (2.76, 0.35),   # Inharmonic overtone (characteristic of music boxes)
+        (5.40, 0.18),   # Another inharmonic overtone
+        (8.93, 0.08),   # Higher overtone
+    ],
+    adsr=ADSR(attack=0.001, decay=0.8, sustain=0.0, release=0.6),
+    # Instant attack, long decay, no sustain (plucked metal)
+    harmonic_adsrs={
+        0: ADSR(attack=0.001, decay=0.8, sustain=0.0, release=0.6),
+        1: ADSR(attack=0.001, decay=0.5, sustain=0.0, release=0.4),
+        2: ADSR(attack=0.001, decay=0.3, sustain=0.0, release=0.25),
+        3: ADSR(attack=0.001, decay=0.15, sustain=0.0, release=0.15),
+    }
+))
+
+# Vibraphone - struck metal bars with tremolo
+register_instrument("vibraphone", lambda: Instrument(
+    harmonics=[
+        (1.00, 1.00),   # Fundamental
+        (4.00, 0.45),   # 4th harmonic (strong in vibraphone)
+        (10.0, 0.25),   # 10th harmonic
+        (6.25, 0.15),   # Inharmonic overtone
+    ],
+    adsr=ADSR(attack=0.005, decay=0.4, sustain=0.6, release=1.0),
+    # Sharp attack, long sustain with motor-driven tremolo
+    harmonic_adsrs={
+        0: ADSR(attack=0.005, decay=0.4, sustain=0.6, release=1.0),
+        1: ADSR(attack=0.003, decay=0.3, sustain=0.5, release=0.8),
+        2: ADSR(attack=0.002, decay=0.2, sustain=0.4, release=0.6),
+        3: ADSR(attack=0.002, decay=0.15, sustain=0.3, release=0.4),
+    }
+))

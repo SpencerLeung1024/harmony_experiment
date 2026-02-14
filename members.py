@@ -314,3 +314,219 @@ register_member("synth_lead", lambda velocity, tick_duration, total_ticks, ticks
     ticks_per_note=ticks_per_note,
     **kwargs
 ))
+
+# ==================== BOWED STRINGS ====================
+
+# Violin - can be polyphonic (string section) or monophonic (solo)
+register_member("violin", lambda velocity, tick_duration, total_ticks, ticks_per_note, **kwargs: MonophonicMember(
+    name="violin",
+    instrument=get_instrument("violin"),
+    tuning_system=get_tuning_system("12-TET"),
+    instrument_range=[55, 103],  # G3 to E7 (standard violin range)
+    velocity=velocity,
+    tick_duration=tick_duration,
+    total_ticks=total_ticks,
+    ticks_per_note=ticks_per_note,
+    **kwargs
+))
+
+register_member("violin_section", lambda velocity, tick_duration, total_ticks, ticks_per_note, **kwargs: PolyphonicMember(
+    name="violin_section",
+    instrument=get_instrument("violin"),
+    tuning_system=get_tuning_system("12-TET"),
+    instrument_range=[55, 103],  # G3 to E7
+    velocity=velocity,
+    tick_duration=tick_duration,
+    total_ticks=total_ticks,
+    ticks_per_note=ticks_per_note,
+    **kwargs
+))
+
+# Cello - warm lower range
+register_member("cello", lambda velocity, tick_duration, total_ticks, ticks_per_note, **kwargs: MonophonicMember(
+    name="cello",
+    instrument=get_instrument("cello"),
+    tuning_system=get_tuning_system("12-TET"),
+    instrument_range=[36, 76],  # C2 to E5 (standard cello range)
+    velocity=velocity,
+    tick_duration=tick_duration,
+    total_ticks=total_ticks,
+    ticks_per_note=ticks_per_note,
+    **kwargs
+))
+
+register_member("cello_section", lambda velocity, tick_duration, total_ticks, ticks_per_note, **kwargs: PolyphonicMember(
+    name="cello_section",
+    instrument=get_instrument("cello"),
+    tuning_system=get_tuning_system("12-TET"),
+    instrument_range=[36, 76],  # C2 to E5
+    velocity=velocity,
+    tick_duration=tick_duration,
+    total_ticks=total_ticks,
+    ticks_per_note=ticks_per_note,
+    **kwargs
+))
+
+# ==================== KEYBOARDS ====================
+
+# Rhodes/Electric Piano - jazz/funk/soul keyboard
+register_member("rhodes", lambda velocity, tick_duration, total_ticks, ticks_per_note, **kwargs: PolyphonicMember(
+    name="rhodes",
+    instrument=get_instrument("rhodes"),
+    tuning_system=get_tuning_system("12-TET"),
+    instrument_range=[28, 88],  # E1 to E6 (full 5-octave Rhodes range)
+    velocity=velocity,
+    tick_duration=tick_duration,
+    total_ticks=total_ticks,
+    ticks_per_note=ticks_per_note,
+    **kwargs
+))
+
+# Organ - classical/rock/gospel keyboard with multiple ranks
+register_member("organ", lambda velocity, tick_duration, total_ticks, ticks_per_note, **kwargs: PolyphonicMember(
+    name="organ",
+    instrument=get_instrument("organ"),
+    tuning_system=get_tuning_system("12-TET"),
+    instrument_range=[36, 96],  # C2 to C7 (standard organ keyboard)
+    velocity=velocity,
+    tick_duration=tick_duration,
+    total_ticks=total_ticks,
+    ticks_per_note=ticks_per_note,
+    **kwargs
+))
+
+# ==================== BRASS ====================
+
+# Trumpet - bright brass instrument
+register_member("trumpet", lambda velocity, tick_duration, total_ticks, ticks_per_note, **kwargs: MonophonicMember(
+    name="trumpet",
+    instrument=get_instrument("trumpet"),
+    tuning_system=get_tuning_system("12-TET"),
+    instrument_range=[54, 86],  # F#3 to D6 (standard trumpet range)
+    velocity=velocity,
+    tick_duration=tick_duration,
+    total_ticks=total_ticks,
+    ticks_per_note=ticks_per_note,
+    **kwargs
+))
+
+# ==================== WOODWINDS ====================
+
+# Flute - breathy woodwind
+register_member("flute", lambda velocity, tick_duration, total_ticks, ticks_per_note, **kwargs: MonophonicMember(
+    name="flute",
+    instrument=get_instrument("flute"),
+    tuning_system=get_tuning_system("12-TET"),
+    instrument_range=[60, 96],  # C4 to C7 (standard flute range)
+    velocity=velocity,
+    tick_duration=tick_duration,
+    total_ticks=total_ticks,
+    ticks_per_note=ticks_per_note,
+    **kwargs
+))
+
+# Clarinet - hollow-sounding woodwind
+register_member("clarinet", lambda velocity, tick_duration, total_ticks, ticks_per_note, **kwargs: MonophonicMember(
+    name="clarinet",
+    instrument=get_instrument("clarinet"),
+    tuning_system=get_tuning_system("12-TET"),
+    instrument_range=[50, 91],  # D3 to G6 (standard clarinet range)
+    velocity=velocity,
+    tick_duration=tick_duration,
+    total_ticks=total_ticks,
+    ticks_per_note=ticks_per_note,
+    **kwargs
+))
+
+# Saxophone - bright reed instrument
+register_member("saxophone", lambda velocity, tick_duration, total_ticks, ticks_per_note, **kwargs: MonophonicMember(
+    name="saxophone",
+    instrument=get_instrument("saxophone"),
+    tuning_system=get_tuning_system("12-TET"),
+    instrument_range=[49, 87],  # Bb3 to D6 (alto sax range, transposed to concert pitch)
+    velocity=velocity,
+    tick_duration=tick_duration,
+    total_ticks=total_ticks,
+    ticks_per_note=ticks_per_note,
+    **kwargs
+))
+
+# ==================== SYNTH/ELECTRONIC ====================
+
+# Saw Lead - classic subtractive synthesis
+register_member("saw_pad", lambda velocity, tick_duration, total_ticks, ticks_per_note, **kwargs: PolyphonicMember(
+    name="saw_pad",
+    instrument=get_instrument("saw_lead"),
+    tuning_system=get_tuning_system("12-TET"),
+    instrument_range=[21, 108],  # Full MIDI range
+    velocity=velocity,
+    tick_duration=tick_duration,
+    total_ticks=total_ticks,
+    ticks_per_note=ticks_per_note,
+    **kwargs
+))
+
+register_member("saw_lead", lambda velocity, tick_duration, total_ticks, ticks_per_note, **kwargs: MonophonicMember(
+    name="saw_lead",
+    instrument=get_instrument("saw_lead"),
+    tuning_system=get_tuning_system("12-TET"),
+    instrument_range=[21, 108],
+    velocity=velocity,
+    tick_duration=tick_duration,
+    total_ticks=total_ticks,
+    ticks_per_note=ticks_per_note,
+    **kwargs
+))
+
+# Square Lead - chiptune/8-bit style
+register_member("square_pad", lambda velocity, tick_duration, total_ticks, ticks_per_note, **kwargs: PolyphonicMember(
+    name="square_pad",
+    instrument=get_instrument("square_lead"),
+    tuning_system=get_tuning_system("12-TET"),
+    instrument_range=[21, 108],
+    velocity=velocity,
+    tick_duration=tick_duration,
+    total_ticks=total_ticks,
+    ticks_per_note=ticks_per_note,
+    **kwargs
+))
+
+register_member("square_lead", lambda velocity, tick_duration, total_ticks, ticks_per_note, **kwargs: MonophonicMember(
+    name="square_lead",
+    instrument=get_instrument("square_lead"),
+    tuning_system=get_tuning_system("12-TET"),
+    instrument_range=[21, 108],
+    velocity=velocity,
+    tick_duration=tick_duration,
+    total_ticks=total_ticks,
+    ticks_per_note=ticks_per_note,
+    **kwargs
+))
+
+# ==================== IDIOPHONES/PERCUSSION ====================
+
+# Music Box - clear bell-like tones
+register_member("music_box", lambda velocity, tick_duration, total_ticks, ticks_per_note, **kwargs: PolyphonicMember(
+    name="music_box",
+    instrument=get_instrument("music_box"),
+    tuning_system=get_tuning_system("12-TET"),
+    instrument_range=[60, 96],  # C4 to C7 (typical music box range)
+    velocity=velocity,
+    tick_duration=tick_duration,
+    total_ticks=total_ticks,
+    ticks_per_note=ticks_per_note,
+    **kwargs
+))
+
+# Vibraphone - struck metal bars with tremolo
+register_member("vibraphone", lambda velocity, tick_duration, total_ticks, ticks_per_note, **kwargs: PolyphonicMember(
+    name="vibraphone",
+    instrument=get_instrument("vibraphone"),
+    tuning_system=get_tuning_system("12-TET"),
+    instrument_range=[53, 89],  # F3 to F6 (standard vibraphone range)
+    velocity=velocity,
+    tick_duration=tick_duration,
+    total_ticks=total_ticks,
+    ticks_per_note=ticks_per_note,
+    **kwargs
+))
