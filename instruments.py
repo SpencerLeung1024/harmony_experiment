@@ -290,7 +290,7 @@ class PercussionInstrument(Instrument):
     def __init__(
         self,
         drum_profiles: Dict[int, List[Tuple[float, float]]],
-        adsr: ADSR,
+        adsr_profiles: Dict[int, ADSR],
         tuning_system  # TuningSystem for freq <-> note conversion
     ):
         """Initialize percussion instrument with drum profiles.
@@ -299,19 +299,23 @@ class PercussionInstrument(Instrument):
             drum_profiles: Dict mapping MIDI note numbers to lists of
                           (frequency_hz, amplitude) tuples. These are
                           ABSOLUTE frequencies, not ratios.
-            adsr: Default ADSR envelope
+            adsr_profiles: Dict mapping MIDI note numbers to ADSR envelopes
             tuning_system: TuningSystem for converting frequencies to MIDI notes
         """
         self.drum_profiles = drum_profiles
+        self._adsr_profiles = adsr_profiles
         self._tuning_system = tuning_system
         
         # Create dummy harmonics for base class compatibility
         # Real harmonics come from drum_profiles lookup
         dummy_harmonics = [(1.0, 1.0)]
+
+        # Create dummy ADSR for base class compatibility
+        dummy_adsr = ADSR(attack=0.001, decay=0.1, sustain=0.0, release=0.05)
         
         super().__init__(
             harmonics=dummy_harmonics,
-            adsr=adsr,
+            adsr=dummy_adsr,
             harmonic_adsrs={}
         )
     
@@ -352,18 +356,24 @@ class PercussionInstrument(Instrument):
         
         return ratio_partials
     
+    def _get_drum_adsr(self, freq: float) -> ADSR:
+        """Get the ADSR envelope for a drum given the frequency parameter."""
+        note = self._freq_to_note(freq)
+        return self._adsr_profiles.get(note, self.adsr) # Use the dummy ADSR if no specific profile is defined
+    
     def get_sound(self, freq: float, velocity: float, duration: float, sample_rate: int) -> np.ndarray:
         """Generate drum sound with fixed-frequency partials."""
         partials = self._get_drum_partials(freq)
+        adsr = self._get_drum_adsr(freq)
         
-        max_release = self.adsr.release
+        max_release = adsr.release
         total_duration = duration + max_release
         samples = int(duration * sample_rate) + int(max_release * sample_rate)
         
         t = np.linspace(0, total_duration, samples)
         sound = np.zeros(samples)
         
-        envelope = self.adsr.get_envelope(duration, sample_rate)
+        envelope = adsr.get_envelope(duration, sample_rate)
         envelope_end = envelope.shape[0]
         
         # Add each partial at its fixed frequency
@@ -381,7 +391,8 @@ class PercussionInstrument(Instrument):
     def mean_amplitudes(self, freq: float, duration: float, sample_rate: int) -> List[Tuple[float, float]]:
         """Return drum partials as ratios for dissonance calculation."""
         partials = self._get_drum_partials(freq)
-        mean_amp_factor = self.adsr.mean_amplitude(duration, sample_rate)
+        adsr = self._get_drum_adsr(freq)
+        mean_amp_factor = adsr.mean_amplitude(duration, sample_rate)
         
         return [(ratio, amp * mean_amp_factor) for ratio, amp in partials]
 
@@ -758,19 +769,33 @@ register_instrument("choir_aah", lambda: VoiceInstrument(
 register_instrument("percussion", lambda: PercussionInstrument(
     drum_profiles={
         35: [  # Acoustic Bass Drum (B1 = 61.375 Hz in 12-TET, but these are arbitrary)
-            (60, 1.0),     # Fundamental "boom"
-            (120, 0.5),    # First overtone
-            (180, 0.3),    # Body resonance
-            (240, 0.2),    # Higher partial
+            (60.0, 1.00), # Fundamental "boom"
+            (90.0, 0.30), # Inharmonic click
+            (132.0, 0.20), # Body resonance
+            (210.0, 0.15), # Click/harmonics
         ],
-        38: [  # Acoustic Snare (D2 = 146.832 Hz in 12-TET, but these are arbitrary)
-            (200, 0.8),    # Drum body
-            (280, 0.6),    # Inharmonic partial
-            (400, 0.4),    # Shell resonance
-            (520, 0.3),    # Higher partial
-            (800, 0.2),    # Snare wire buzz
+        38: [  # Acoustic Snare (D2) These are approximate - snare is more noise than tones
+            (200.0, 0.80), # Fundamental (drum body)
+            (282.0, 0.60),
+            (346.0, 0.50),
+            (446.0, 0.40),
+            (566.0, 0.35),
+            (692.0, 0.30),
+        ],
+        42: [ # Closed Hi Hat (F#2) Modeled as many closely-spaced high harmonics
+            (185.0, 0.50), # Higher relative to fundamental
+            (277.5, 0.60),
+            (370.0, 0.55),
+            (462.5, 0.50),
+            (555.0, 0.45),
+            (647.5, 0.40),
+            (740.0, 0.35),
         ],
     },
-    adsr=ADSR(attack=0.001, decay=0.1, sustain=0.0, release=0.05),
+    adsr_profiles={
+        35: ADSR(attack=0.001, decay=0.15, sustain=0.0, release=0.05),
+        38: ADSR(attack=0.001, decay=0.12, sustain=0.0, release=0.08),
+        42: ADSR(attack=0.001, decay=0.05, sustain=0.0, release=0.02),
+    },
     tuning_system=get_tuning_system("12-TET")
 ))

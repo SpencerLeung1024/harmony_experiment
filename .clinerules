@@ -119,6 +119,8 @@ Anything outside those two folders is work for v3
 
 ### 2026-02-12
 - A whole bunch of new instruments
+
+### 2026-02-13
 - VoiceInstrument: choir oohs and aahs, accepts formants, actual harmonics change depending on fundamental frequency (required updating loss_handler)
 - PercussionInstrument: currently only supports 35 (Acoustic Bass Drum) and 38 (Acoustic Snare)
 - - Patch notes: added Mochizuki Honami

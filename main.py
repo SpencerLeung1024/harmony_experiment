@@ -1,4 +1,4 @@
-from typing import List
+from typing import Tuple, List
 import numpy as np
 import torch
 import sys
@@ -58,6 +58,15 @@ def note_names_to_weightsmap(member: Member, velocity: float, note_names: str) -
             key_idx = midi_number - instrument_range_low
             if 0 <= key_idx < weightsmap.shape[0]:
                 weightsmap[key_idx, note_idx] = velocity
+    return weightsmap
+
+def get_drum_weightsmap(member: Member, pattern: List[Tuple[int]]):
+    weightsmap = torch.fill(torch.zeros_like(member.weights), 0.001) # *Someone* had the bright idea of using 0.0 as the "pass-through" value so all "silent" pixels need to be filled with a small positive value instead
+    for note_idx in range(member.weights.shape[1]):
+        for drum_note in pattern[note_idx % len(pattern)]:
+            key_idx = drum_note - member.instrument_range[0]
+            if 0 <= key_idx < weightsmap.shape[0]:
+                weightsmap[key_idx, note_idx] = member.velocity
     return weightsmap
 
 # from v2\harmony\visualization.py
@@ -203,9 +212,9 @@ def main(step_list: List[str]):
 
     # Create a song
     song = Song(
-        measures=8,
-        tempo=120,
-        beats_per_measure=6,
+        measures=4,
+        tempo=50,
+        beats_per_measure=4,
         ticks_per_beat=1,
         sample_rate=SAMPLE_RATE
     )
@@ -234,48 +243,58 @@ def main(step_list: List[str]):
     song.members.extend([
         # test_instrument,
         
-        get_member(
-            "piano",
+        # get_member(
+        #     "piano",
+        #     velocity=0.5,
+        #     tick_duration=tick_duration,
+        #     total_ticks=total_ticks,
+        #     ticks_per_note=6
+        # ),
+        PolyphonicMember(
+            name="choir_aah",
+            instrument=get_instrument("choir_aah"),
+            tuning_system=get_tuning_system("12-TET"),
+            instrument_range=[43, 81], # G2 to A5
             velocity=0.5,
             tick_duration=tick_duration,
             total_ticks=total_ticks,
-            ticks_per_note=6
+            ticks_per_note=1
         ),
         get_member(
             "guitar",
-            velocity=0.2,
+            velocity=0.001,
             tick_duration=tick_duration,
             total_ticks=total_ticks,
             ticks_per_note=1
         ),
         get_member(
             "bass",
-            velocity=0.7, # Bring out the bass more my audio system is terrible
+            velocity=0.001, # Bring out the bass more my audio system is terrible
             tick_duration=tick_duration,
             total_ticks=total_ticks,
-            ticks_per_note=3
+            ticks_per_note=1
         ),
         get_member(
             "drums",
-            velocity=0.4,
+            velocity=0.6,
             tick_duration=tick_duration,
             total_ticks=total_ticks,
             ticks_per_note=1
         ),
-        get_member( # Unfortunately, due to poor Q1 performance, we have had to let go of the entire set of vocalists from Leo/need. At the same time, we are proud to announce massive cost savings through integrating Leo/needGPT
-            "choir_ooh",
-            velocity=0.4,
-            tick_duration=tick_duration,
-            total_ticks=total_ticks,
-            ticks_per_note=1
-        ),
-        get_member(
-            "choir_aah",
-            velocity=0.4,
-            tick_duration=tick_duration,
-            total_ticks=total_ticks,
-            ticks_per_note=1
-        )
+        # get_member( # Unfortunately, due to poor Q1 performance, we have had to let go of the entire set of vocalists from Leo/need. At the same time, we are proud to announce massive cost savings through integrating Leo/needGPT
+        #     "choir_ooh",
+        #     velocity=0.4,
+        #     tick_duration=tick_duration,
+        #     total_ticks=total_ticks,
+        #     ticks_per_note=1
+        # ),
+        # get_member(
+        #     "choir_aah",
+        #     velocity=0.4,
+        #     tick_duration=tick_duration,
+        #     total_ticks=total_ticks,
+        #     ticks_per_note=1
+        # )
     ])
 
     # Apply overrides to the piano
@@ -284,23 +303,23 @@ def main(step_list: List[str]):
         'mate_temporal': 0.0,
         'extreme_range': 3.0 # Bonus to piano since it has a very wide range. The optimizer can settle on chords spanning multiple octaves
     }
-#     weightsmap = note_names_to_weightsmap(song.members[0], 0.125, '''D3 F4 A3 D4
-# A2 A4 C#3 E4
-# D3 A4 D4 F4
-# C3 C5 E4 G4
-# F3 C5 F4 A4
-# E3 G#4 B3 B4
-# A2 A4 E4 C5
-# G2 B4 G4 D5
-# C3 C5 G4 D#5
-# A#3 C5 G4 E5
-# A3 C5 F4 F5
-# C4 D#5 A4 F#5
-# B3 D5 G4 G5
-# A#3 F5 D5 G#5
-# A3 F5 D5 A5
-# A3 E5 C#5 A4''')
-#     song.members[0].paint_weights(weightsmap)
+    weightsmap = note_names_to_weightsmap(song.members[0], 0.125, '''D3 F4 A3 D4
+A2 A4 C#3 E4
+D3 A4 D4 F4
+C3 C5 E4 G4
+F3 C5 F4 A4
+E3 G#4 B3 B4
+A2 A4 E4 C5
+G2 B4 G4 D5
+C3 C5 G4 D#5
+A#3 C5 G4 E5
+A3 C5 F4 F5
+C4 D#5 A4 F#5
+B3 D5 G4 G5
+A#3 F5 D5 G#5
+A3 F5 D5 A5
+A3 E5 C#5 A4''')
+    song.members[0].paint_weights(weightsmap)
     # When re-enabling, remember to make the piano have 16 notes throughout the song
 
     # Guitar
@@ -315,6 +334,10 @@ def main(step_list: List[str]):
     # Was it not?
     # Sometimes the things you come out with are kind of bizarre!
     # Bizarre...
+
+    # Drums
+    song.members[3].paint_weights(get_drum_weightsmap(song.members[3], [(35, 42), (42,), (38, 42), (42,)]))
+    #[(35, 42), (42,), (42,), (38, 42), (42,), (42,)]))
 
     # Create LossHandler and OptimHandler
     print("Initializing loss handler (computing dissonance matrices)...")

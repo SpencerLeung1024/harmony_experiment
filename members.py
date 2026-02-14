@@ -567,7 +567,7 @@ register_member("drums", lambda velocity, tick_duration, total_ticks, ticks_per_
     name="drums",
     instrument=get_instrument("percussion"),
     tuning_system=get_tuning_system("12-TET"),
-    instrument_range=[35, 38],  # Only notes 35 (kick) and 38 (snare)
+    instrument_range=[35, 42],  # 35 (Acoustic Bass Drum), 38 (Acoustic Snare), 42 (Closed Hi Hat)
     velocity=velocity,
     tick_duration=tick_duration,
     total_ticks=total_ticks,
