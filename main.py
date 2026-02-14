@@ -240,6 +240,8 @@ def main(step_list: List[str]):
     #     # initial_weights
     # )
 
+    # The order is 🎹🎸🍜🥁 which signifies a fake Leo/need fan
+    # On the other hand having 0 always be polyphonic, 1 and 2 always monophonic, and 3 drums allows for quick edits
     song.members.extend([
         # test_instrument,
         
@@ -252,7 +254,7 @@ def main(step_list: List[str]):
         # ),
         PolyphonicMember(
             name="choir_aah",
-            instrument=get_instrument("choir_aah"),
+            instrument=get_instrument("voice_aah"),
             tuning_system=get_tuning_system("12-TET"),
             instrument_range=[43, 81], # G2 to A5
             velocity=0.5,
@@ -281,20 +283,6 @@ def main(step_list: List[str]):
             total_ticks=total_ticks,
             ticks_per_note=1
         ),
-        # get_member( # Unfortunately, due to poor Q1 performance, we have had to let go of the entire set of vocalists from Leo/need. At the same time, we are proud to announce massive cost savings through integrating Leo/needGPT
-        #     "choir_ooh",
-        #     velocity=0.4,
-        #     tick_duration=tick_duration,
-        #     total_ticks=total_ticks,
-        #     ticks_per_note=1
-        # ),
-        # get_member(
-        #     "choir_aah",
-        #     velocity=0.4,
-        #     tick_duration=tick_duration,
-        #     total_ticks=total_ticks,
-        #     ticks_per_note=1
-        # )
     ])
 
     # Apply overrides to the piano
@@ -336,7 +324,8 @@ A3 E5 C#5 A4''')
     # Bizarre...
 
     # Drums
-    song.members[3].paint_weights(get_drum_weightsmap(song.members[3], [(35, 42), (42,), (38, 42), (42,)]))
+    song.members[3].paint_weights(get_drum_weightsmap(song.members[3], [(39,), (39,), (39,), (39,)])) # silence the drums for now
+    # [(35, 42), (42,), (38, 42), (42,)]))
     #[(35, 42), (42,), (42,), (38, 42), (42,), (42,)]))
 
     # Create LossHandler and OptimHandler

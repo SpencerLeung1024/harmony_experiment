@@ -122,10 +122,12 @@ Anything outside those two folders is work for v3
 
 ### 2026-02-13
 - VoiceInstrument: choir oohs and aahs, accepts formants, actual harmonics change depending on fundamental frequency (required updating loss_handler)
-- PercussionInstrument: currently only supports 35 (Acoustic Bass Drum) and 38 (Acoustic Snare)
+- PercussionInstrument: currently only supports 35 (Acoustic Bass Drum), 38 (Acoustic Snare), and 42 (Closed Hi Hat)
 - - Patch notes: added Mochizuki Honami
 
 Current issues:
+- The formant shaping in VoiceInstrument is very strong. I recorded my own oohs and aahs and a lot more harmonics are visible in the spectrogram
+- The kick is alright I guess. The snare and hi hat sound too low pitched
 - Subjective issues with solutions the optimizer finds (not sure if these are solvable)
 - - Chords and progressions are, uh, interesting
 - - Optimum at ~300 steps for guitar and bass is to collapse to the midpoints of their range: E4 and C3 respectively
