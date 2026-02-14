@@ -156,6 +156,33 @@ def plot_loss_history(loss_history: list, interactive: bool = True):
     plt.tight_layout()
     return fig
 
+# Refactored out of the main function
+def output_results(song: Song, step_str: str, interactive: bool):
+    # Try to get the actual integer step, or None if step_str is "initial" or "final"
+    step = None
+    if step_str.startswith("step"):
+        try:
+            step = int(step_str[4:])
+        except ValueError:
+            pass
+    
+    print(f"Rendering audio and plots for {step_str}...")
+
+    audio = AudioService.render(song)
+    audio = AudioService.apply_limiter(audio)
+    save_audio(audio, f"{OUTPUT_FOLDER}/audio_{step_str}.wav", SAMPLE_RATE)
+    
+    fig_activations = plot_activations(song, f"({step_str})", interactive)
+    fig_activations.savefig(f"{OUTPUT_FOLDER}/activations_{step_str}.png")
+    
+    fig_spectrogram = plot_spectrogram(audio, SAMPLE_RATE, f"({step_str})", interactive)
+    fig_spectrogram.savefig(f"{OUTPUT_FOLDER}/spectrogram_{step_str}.png")
+    
+    if interactive:
+        if step is not None:
+            sounddevice.play(audio, SAMPLE_RATE)
+        plt.show()
+
 def main(step_list: List[str]):
     # Are we in interactive or straight through mode?
     interactive = len(step_list) == 0
@@ -177,9 +204,9 @@ def main(step_list: List[str]):
     # Create a song
     song = Song(
         measures=8,
-        tempo=60,
-        beats_per_measure=1,
-        ticks_per_beat=1,
+        tempo=120,
+        beats_per_measure=4,
+        ticks_per_beat=2,
         sample_rate=SAMPLE_RATE
     )
 
@@ -188,84 +215,54 @@ def main(step_list: List[str]):
     total_ticks = song.total_ticks()
 
     # Use other tuning systems
-    test_tuning_system = get_tuning_system("Non-Octave System", step_ratio=2.0**(1/12), divisions=1, reference_freq=440.0)
-    print(f"{test_tuning_system.keys.shape[0]} keys")
+    # test_tuning_system = get_tuning_system("Non-Octave System", step_ratio=2.0**(1/12), divisions=1, reference_freq=440.0)
+    # print(f"{test_tuning_system.keys.shape[0]} keys")
 
-    test_piano = PolyphonicMember(
-        name="piano",
-        instrument=get_instrument("piano"),
-        tuning_system=test_tuning_system,
-        instrument_range=[0,test_tuning_system.keys.shape[0]-1],
-        velocity=0.5,
-        tick_duration=tick_duration,
-        total_ticks=total_ticks,
-        ticks_per_note=1,
-        # hp
-        # initial_weights
-    )
+    # test_instrument = PolyphonicMember(
+    #     name="piano",
+    #     instrument=get_instrument("piano"),
+    #     tuning_system=test_tuning_system,
+    #     instrument_range=[0,test_tuning_system.keys.shape[0]-1],
+    #     velocity=0.5,
+    #     tick_duration=tick_duration,
+    #     total_ticks=total_ticks,
+    #     ticks_per_note=1,
+    #     # hp
+    #     # initial_weights
+    # )
 
     song.members.extend([
-        test_piano
+        # test_instrument,
         
-        # get_member(
-        #     "piano",
-        #     velocity=0.5,
-        #     tick_duration=tick_duration,
-        #     total_ticks=total_ticks,
-        #     ticks_per_note=6
-        # ),
-        # get_member(
-        #     "guitar",
-        #     velocity=0.2,
-        #     tick_duration=tick_duration,
-        #     total_ticks=total_ticks,
-        #     ticks_per_note=1
-        # ),
-        # get_member(
-        #     "bass",
-        #     velocity=0.7, # Bring out the bass more my audio system is terrible
-        #     tick_duration=tick_duration,
-        #     total_ticks=total_ticks,
-        #     ticks_per_note=3
-        # ),
-
-        # Who invited you guys?
-        # get_member(
-        #     "midi",
-        #     velocity=0.02,
-        #     tick_duration=tick_duration,
-        #     total_ticks=total_ticks,
-        #     ticks_per_note=1
-        # ),
-        # get_member(
-        #     "midi_lead",
-        #     velocity=0.02,
-        #     tick_duration=tick_duration,
-        #     total_ticks=total_ticks,
-        #     ticks_per_note=1
-        # ),
-        # get_member(
-        #     "synth",
-        #     velocity=0.02,
-        #     tick_duration=tick_duration,
-        #     total_ticks=total_ticks,
-        #     ticks_per_note=1
-        # ),
-        # get_member(
-        #     "synth_lead",
-        #     velocity=0.02, # Synth is kinda loud
-        #     tick_duration=tick_duration,
-        #     total_ticks=total_ticks,
-        #     ticks_per_note=1
-        # ),
+        get_member(
+            "piano",
+            velocity=0.5,
+            tick_duration=tick_duration,
+            total_ticks=total_ticks,
+            ticks_per_note=6
+        ),
+        get_member(
+            "guitar",
+            velocity=0.2,
+            tick_duration=tick_duration,
+            total_ticks=total_ticks,
+            ticks_per_note=1
+        ),
+        get_member(
+            "bass",
+            velocity=0.7, # Bring out the bass more my audio system is terrible
+            tick_duration=tick_duration,
+            total_ticks=total_ticks,
+            ticks_per_note=3
+        ),
     ])
 
     # Apply overrides to the piano
-    # song.members[0].hp = { # If mate dissonance losses are above 0.2 the piano hides away in the 7th octave where the guitar and bass cannot touch it
-    #     'mate_concurrent': 0.0,
-    #     'mate_temporal': 0.0,
-    #     'extreme_range': 3.0 # Bonus to piano since it has a very wide range. The optimizer can settle on chords spanning multiple octaves
-    # }
+    song.members[0].hp = { # If mate dissonance losses are above 0.2 the piano hides away in the 7th octave where the guitar and bass cannot touch it
+        'mate_concurrent': 0.0,
+        'mate_temporal': 0.0,
+        'extreme_range': 3.0 # Bonus to piano since it has a very wide range. The optimizer can settle on chords spanning multiple octaves
+    }
 #     weightsmap = note_names_to_weightsmap(song.members[0], 0.125, '''D3 F4 A3 D4
 # A2 A4 C#3 E4
 # D3 A4 D4 F4
@@ -286,14 +283,14 @@ def main(step_list: List[str]):
     # When re-enabling, remember to make the piano have 16 notes throughout the song
 
     # Guitar
-    # song.members[1].hp = {
-    #     'mate_concurrent': 3.0, # Stronger following of whatever chord the piano is playing
-    # }
+    song.members[1].hp = {
+        'mate_concurrent': 3.0, # Stronger following of whatever chord the piano is playing
+    }
 
     # Bass
-    # song.members[2].hp = {
-    #     'mate_concurrent': 3.0, # Is that supposed to be funny?
-    # }
+    song.members[2].hp = {
+        'mate_concurrent': 3.0, # Is that supposed to be funny?
+    }
     # Was it not?
     # Sometimes the things you come out with are kind of bizarre!
     # Bizarre...
@@ -306,19 +303,7 @@ def main(step_list: List[str]):
     song.optim_handler = OptimHandler(song, song.loss_handler)
     
     # Plot initial state
-    print("\nRendering initial audio and plots...")
-    audio = AudioService.render(song)
-    audio = AudioService.apply_limiter(audio)
-    save_audio(audio, f"{OUTPUT_FOLDER}/audio_initial.wav", SAMPLE_RATE)
-    
-    fig_activations = plot_activations(song, "(Initial)", interactive)
-    fig_activations.savefig(f"{OUTPUT_FOLDER}/activations_initial.png")
-    
-    fig_spectrogram = plot_spectrogram(audio, SAMPLE_RATE, "(Initial)", interactive)
-    fig_spectrogram.savefig(f"{OUTPUT_FOLDER}/spectrogram_initial.png")
-    
-    if interactive:
-        plt.show()
+    output_results(song, "initial", interactive)
     
     # Optimization loop with user input
     loss_history = []
@@ -356,51 +341,13 @@ def main(step_list: List[str]):
         # Print loss summary
         latest_loss = step_history[-1]
         print(f"Step {latest_loss['step']}: Total Loss = {latest_loss['total']:.4f}")
-        
-        # Render and plot
-        print("Rendering audio and plots...")
-        audio = AudioService.render(song)
-        audio = AudioService.apply_limiter(audio)
-        
-        # Save files with step number
+
+        # Plot this step
         step_str = f"step{song.optim_handler.steps:04d}"
-        save_audio(audio, f"{OUTPUT_FOLDER}/audio_{step_str}.wav", SAMPLE_RATE)
-        
-        fig_activations = plot_activations(song, f"({step_str})", interactive)
-        fig_activations.savefig(f"{OUTPUT_FOLDER}/activations_{step_str}.png")
-        
-        fig_spectrogram = plot_spectrogram(audio, SAMPLE_RATE, f"({step_str})", interactive)
-        fig_spectrogram.savefig(f"{OUTPUT_FOLDER}/spectrogram_{step_str}.png")
-        
-        # Plot loss history
-        if len(loss_history) > 1:
-            fig_loss = plot_loss_history(loss_history, interactive)
-            fig_loss.savefig(f"{OUTPUT_FOLDER}/loss_history.png")
-        
-        if interactive:
-            # Play audio (do this right before plt.show() because generating colormaps takes a long time)
-            sounddevice.play(audio, SAMPLE_RATE)
-            
-            plt.show()
+        output_results(song, step_str, interactive)
     
-    # Save final outputs
-    print("\nSaving final outputs...")
-    audio = AudioService.render(song)
-    audio = AudioService.apply_limiter(audio)
-    save_audio(audio, f"{OUTPUT_FOLDER}/audio_final.wav", SAMPLE_RATE)
-    
-    fig_activations = plot_activations(song, "(Final)", interactive)
-    fig_activations.savefig(f"{OUTPUT_FOLDER}/activations_final.png")
-    
-    fig_spectrogram = plot_spectrogram(audio, SAMPLE_RATE, "(Final)", interactive)
-    fig_spectrogram.savefig(f"{OUTPUT_FOLDER}/spectrogram_final.png")
-    
-    if loss_history:
-        fig_loss = plot_loss_history(loss_history, interactive)
-        fig_loss.savefig(f"{OUTPUT_FOLDER}/loss_history.png")
-    
-    if interactive:
-        plt.show()
+    # Plot final state
+    output_results(song, "final", interactive)
     
     print(f"\nDone! All outputs saved to {OUTPUT_FOLDER}/")
 
@@ -413,4 +360,3 @@ if __name__ == "__main__":
     else:
         step_list = sys.argv[1:] # Ignore the script name
         main(step_list)
-
