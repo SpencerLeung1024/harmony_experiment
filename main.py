@@ -170,17 +170,17 @@ def output_results(song: Song, step_str: str, interactive: bool):
 
     audio = AudioService.render(song)
     audio = AudioService.apply_limiter(audio)
-    save_audio(audio, f"{OUTPUT_FOLDER}/audio_{step_str}.wav", SAMPLE_RATE)
+    save_audio(audio, f"{OUTPUT_FOLDER}/audio_{step_str}.wav", song.sample_rate)
     
     fig_activations = plot_activations(song, f"({step_str})", interactive)
     fig_activations.savefig(f"{OUTPUT_FOLDER}/activations_{step_str}.png")
     
-    fig_spectrogram = plot_spectrogram(audio, SAMPLE_RATE, f"({step_str})", interactive)
+    fig_spectrogram = plot_spectrogram(audio, song.sample_rate, f"({step_str})", interactive)
     fig_spectrogram.savefig(f"{OUTPUT_FOLDER}/spectrogram_{step_str}.png")
     
     if interactive:
         if step is not None:
-            sounddevice.play(audio, SAMPLE_RATE)
+            sounddevice.play(audio, song.sample_rate)
         plt.show()
 
 def main(step_list: List[str]):
