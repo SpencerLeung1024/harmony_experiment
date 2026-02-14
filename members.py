@@ -530,3 +530,47 @@ register_member("vibraphone", lambda velocity, tick_duration, total_ticks, ticks
     ticks_per_note=ticks_per_note,
     **kwargs
 ))
+
+# ==================== VOICE/CHOIR ====================
+
+# Choir "ooh" - rounded vowel sound, polyphonic
+register_member("choir_ooh", lambda velocity, tick_duration, total_ticks, ticks_per_note, **kwargs: PolyphonicMember(
+    name="choir_ooh",
+    instrument=get_instrument("choir_ooh"),
+    tuning_system=get_tuning_system("12-TET"),
+    instrument_range=[48, 72],  # C3 to C5. The lowest bass can go to E2 and the highest soprano can go to C6, but 1) the optimizer doesn't handle instruments with massive ranges well and 2) don't expect a trained choir
+    velocity=velocity,
+    tick_duration=tick_duration,
+    total_ticks=total_ticks,
+    ticks_per_note=ticks_per_note,
+    **kwargs
+))
+
+# Choir "aah" - open vowel sound, polyphonic
+register_member("choir_aah", lambda velocity, tick_duration, total_ticks, ticks_per_note, **kwargs: PolyphonicMember(
+    name="choir_aah",
+    instrument=get_instrument("choir_aah"),
+    tuning_system=get_tuning_system("12-TET"),
+    instrument_range=[48, 72],
+    velocity=velocity,
+    tick_duration=tick_duration,
+    total_ticks=total_ticks,
+    ticks_per_note=ticks_per_note,
+    **kwargs
+))
+
+# ==================== DRUMS (MIDI Channel 10) ====================
+
+# Drum kit - uses MIDI note numbers 35 (kick) and 38 (snare)
+# This is a special member that uses PercussionInstrument
+register_member("drums", lambda velocity, tick_duration, total_ticks, ticks_per_note, **kwargs: PolyphonicMember(
+    name="drums",
+    instrument=get_instrument("percussion"),
+    tuning_system=get_tuning_system("12-TET"),
+    instrument_range=[35, 38],  # Only notes 35 (kick) and 38 (snare)
+    velocity=velocity,
+    tick_duration=tick_duration,
+    total_ticks=total_ticks,
+    ticks_per_note=ticks_per_note,
+    **kwargs
+))

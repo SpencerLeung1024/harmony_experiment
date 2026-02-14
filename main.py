@@ -255,6 +255,27 @@ def main(step_list: List[str]):
             total_ticks=total_ticks,
             ticks_per_note=3
         ),
+        get_member(
+            "drums",
+            velocity=0.4,
+            tick_duration=tick_duration,
+            total_ticks=total_ticks,
+            ticks_per_note=1
+        ),
+        get_member( # Unfortunately, due to poor Q1 performance, we have had to let go of the entire set of vocalists from Leo/need. At the same time, we are proud to announce massive cost savings through integrating Leo/needGPT
+            "choir_ooh",
+            velocity=0.4,
+            tick_duration=tick_duration,
+            total_ticks=total_ticks,
+            ticks_per_note=1
+        ),
+        get_member(
+            "choir_aah",
+            velocity=0.4,
+            tick_duration=tick_duration,
+            total_ticks=total_ticks,
+            ticks_per_note=1
+        )
     ])
 
     # Apply overrides to the piano

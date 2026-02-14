@@ -63,22 +63,19 @@ class LossHandler:
         dst_keys = dst_member.num_keys
         D = torch.zeros((src_keys, dst_keys))
         
-        # Get mean amplitudes for each harmonic of each member
-        src_mean_amps = src_member.instrument.mean_amplitudes(
-            src_member.note_duration(), 
-            self.song.sample_rate
-        )
-        dst_mean_amps = dst_member.instrument.mean_amplitudes(
-            dst_member.note_duration(),
-            self.song.sample_rate
-        )
-        
         for src_key in range(src_keys):
             src_base_freq = src_member.tuning_system.key_to_freq(
                 src_member.instrument_range[0] + src_key
             )
             if src_base_freq is None:
                 continue
+            
+            # Get mean amplitudes for this specific frequency (needed for VoiceInstrument formants)
+            src_mean_amps = src_member.instrument.mean_amplitudes(
+                src_base_freq,
+                src_member.note_duration(),
+                self.song.sample_rate
+            )
                 
             for dst_key in range(dst_keys):
                 dst_base_freq = dst_member.tuning_system.key_to_freq(
@@ -86,6 +83,13 @@ class LossHandler:
                 )
                 if dst_base_freq is None:
                     continue
+                
+                # Get mean amplitudes for this specific frequency
+                dst_mean_amps = dst_member.instrument.mean_amplitudes(
+                    dst_base_freq,
+                    dst_member.note_duration(),
+                    self.song.sample_rate
+                )
                 
                 total_d = 0.0
                 
