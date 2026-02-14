@@ -160,39 +160,63 @@ class Instrument:
 
 
 class VoiceInstrument(Instrument):
-    """Voice/choral instrument with formant-based synthesis.
+    """Enhanced voice/choral instrument with formant-based synthesis.
     
     Unlike regular instruments where harmonics are integer multiples,
-    voices use formants - resonant frequency bands that stay fixed
-    regardless of pitch. This creates the characteristic vowel sounds
-    (ooh, aah, ee, etc.).
+    voices use formants - resonant frequency bands. This creates the
+    characteristic vowel sounds (ooh, aah, ee, etc.).
+    
+    This enhanced version includes:
+    1. Pitch-dependent formant shifting (formants move slightly with pitch)
+    2. Vibrato (natural pitch modulation)
+    3. Breath noise component (aspiration at note attacks)
+    4. Inharmonicity (slight detuning of higher harmonics)
+    5. More realistic formant shapes
     
     The synthesis works by:
-    1. Generate a rich harmonic source (sawtooth-like: 1/n amplitudes)
-    2. Apply a spectral envelope based on formant frequencies
-    3. Each harmonic's amplitude is weighted by formant proximity
+    1. Generate a rich harmonic source with slight inharmonicity
+    2. Apply pitch-dependent formant envelope
+    3. Add breath noise (filtered noise during attack)
+    4. Apply vibrato modulation to the fundamental
     """
     
     def __init__(
         self,
         formants: List[Tuple[float, float, float]],
         adsr: ADSR,
-        num_harmonics: int = 16
+        num_harmonics: int = 24,
+        vibrato_rate: float = 5.5,      # Hz, typical vibrato rate
+        vibrato_depth: float = 0.03,     # +/- 3% pitch variation
+        breath_amount: float = 0.15,     # Amount of breath noise
+        inharmonicity: float = 0.001,    # Higher harmonics slightly sharp
+        formant_shift_rate: float = 0.15  # Formants shift 15% per octave
     ):
-        """Initialize voice instrument with formants.
+        """Initialize voice instrument with enhanced synthesis.
         
         Args:
             formants: List of (frequency_hz, amplitude, bandwidth_hz) tuples
-                     These are FIXED frequencies that don't scale with pitch
+                     These are BASE frequencies; they shift with pitch
             adsr: ADSR envelope for the voice
-            num_harmonics: Number of harmonics to generate (default 16)
+            num_harmonics: Number of harmonics to generate (default 24)
+            vibrato_rate: Vibrato frequency in Hz (default 5.5)
+            vibrato_depth: Pitch modulation depth as ratio (default 0.03 = +/-3%)
+            breath_amount: Amount of breath noise 0-1 (default 0.15)
+            inharmonicity: Coefficient for harmonic stretch (default 0.001)
+            formant_shift_rate: How much formants shift per octave (default 0.15)
         """
-        # Store formants and create dummy harmonics for base class
-        self.formants = formants
+        # Store formants and synthesis parameters
+        self.base_formants = formants  # Base formant frequencies
         self.num_harmonics = num_harmonics
+        self.vibrato_rate = vibrato_rate
+        self.vibrato_depth = vibrato_depth
+        self.breath_amount = breath_amount
+        self.inharmonicity = inharmonicity
+        self.formant_shift_rate = formant_shift_rate
+        
+        # Reference pitch for formant scaling (A3 = 220 Hz)
+        self.reference_freq = 220.0
         
         # Base class needs harmonics - we'll override mean_amplitudes
-        # Use dummy harmonics that get replaced in mean_amplitudes
         dummy_harmonics = [(float(i), 1.0 / i) for i in range(1, num_harmonics + 1)]
         
         super().__init__(
@@ -201,11 +225,55 @@ class VoiceInstrument(Instrument):
             harmonic_adsrs={}
         )
     
-    def _compute_formant_envelope(self, freq: float) -> List[Tuple[float, float]]:
-        """Compute effective harmonics with formant weighting.
+    def _get_shifted_formants(self, freq: float) -> List[Tuple[float, float, float]]:
+        """Get formant frequencies shifted based on pitch.
         
-        For a given fundamental frequency, compute the amplitude of each
-        harmonic based on proximity to formant frequencies.
+        Real voices shift formants as pitch changes (the "whoop" effect).
+        Higher pitches = higher formants, but less than proportionally.
+        
+        Args:
+            freq: Fundamental frequency in Hz
+            
+        Returns:
+            List of (shifted_freq, amplitude, bandwidth) tuples
+        """
+        # Calculate how many octaves above reference
+        octaves = np.log2(freq / self.reference_freq)
+        
+        shifted_formants = []
+        for formant_freq, formant_amp, bandwidth in self.base_formants:
+            # Formants shift with pitch but less than proportionally
+            # The shift_rate controls how much (0.15 = 15% per octave)
+            shift_factor = 1.0 + self.formant_shift_rate * octaves
+            shifted_freq = formant_freq * shift_factor
+            
+            # Bandwidth also increases slightly with frequency
+            shifted_bandwidth = bandwidth * (1.0 + 0.1 * octaves)
+            
+            shifted_formants.append((shifted_freq, formant_amp, shifted_bandwidth))
+        
+        return shifted_formants
+    
+    def _compute_harmonic_frequency(self, n: int, fundamental: float) -> float:
+        """Compute the frequency of the nth harmonic with inharmonicity.
+        
+        Real voices have slightly stretched harmonics due to vocal fold
+        tension. Higher harmonics are slightly sharp.
+        
+        Args:
+            n: Harmonic number (1 = fundamental)
+            fundamental: Fundamental frequency
+            
+        Returns:
+            Frequency of the nth harmonic with inharmonicity applied
+        """
+        # Inharmonicity formula: f_n = n * f0 * sqrt(1 + B * n^2)
+        # where B is the inharmonicity coefficient
+        stretch = np.sqrt(1.0 + self.inharmonicity * n * n)
+        return fundamental * n * stretch
+    
+    def _compute_formant_envelope(self, freq: float) -> List[Tuple[float, float]]:
+        """Compute effective harmonics with pitch-dependent formant weighting.
         
         Args:
             freq: Fundamental frequency in Hz
@@ -214,22 +282,36 @@ class VoiceInstrument(Instrument):
             List of (frequency_ratio, effective_amplitude) tuples
         """
         effective_harmonics = []
+        shifted_formants = self._get_shifted_formants(freq)
         
         for n in range(1, self.num_harmonics + 1):
-            harmonic_freq = freq * n
-            base_amp = 1.0 / n  # Sawtooth-like 1/n falloff
+            harmonic_freq = self._compute_harmonic_frequency(n, freq)
             
-            # Apply formant envelope
+            # Source spectrum: 1/n falloff but with slight rolloff at very high freqs
+            base_amp = 1.0 / n
+            
+            # Additional rolloff above ~4kHz (vocal tract can't support high freqs well)
+            if harmonic_freq > 4000:
+                base_amp *= np.exp(-(harmonic_freq - 4000) / 2000)
+            
+            # Apply formant envelope using more realistic shape
             formant_weight = 0.0
-            for formant_freq, formant_amp, bandwidth in self.formants:
-                # Gaussian formant shape
+            for formant_freq, formant_amp, bandwidth in shifted_formants:
+                # Use a combination of Gaussian and Lorentzian for more realistic shape
                 distance = abs(harmonic_freq - formant_freq)
-                # bandwidth is standard deviation-ish, use Gaussian
-                weight = formant_amp * np.exp(-0.5 * (distance / bandwidth) ** 2)
-                formant_weight += weight
+                
+                # Gaussian component (smooth peak)
+                gauss_weight = np.exp(-0.5 * (distance / bandwidth) ** 2)
+                
+                # Lorentzian component (broader tails like real resonances)
+                lorentz_weight = (bandwidth ** 2) / (distance ** 2 + bandwidth ** 2)
+                
+                # Combine them (70% Gaussian, 30% Lorentzian for natural sound)
+                combined_weight = 0.7 * gauss_weight + 0.3 * lorentz_weight
+                formant_weight += formant_amp * combined_weight
             
             # Ensure some minimum amplitude so voice isn't silent
-            formant_weight = max(formant_weight, 0.1)
+            formant_weight = max(formant_weight, 0.05)
             effective_amp = base_amp * formant_weight
             
             effective_harmonics.append((float(n), effective_amp))
@@ -237,15 +319,7 @@ class VoiceInstrument(Instrument):
         return effective_harmonics
     
     def get_sound(self, freq: float, velocity: float, duration: float, sample_rate: int) -> np.ndarray:
-        """Generate voice sound with formant filtering."""
-        # Get effective harmonics with formant weighting
-        effective_harmonics = self._compute_formant_envelope(freq)
-        
-        # Convert to the format expected by cached sound generation
-        harmonics_tuple = tuple(effective_harmonics)
-        
-        # Use base class sound generation with formant-weighted harmonics
-        # We need a custom sound generation since base class expects harmonics at init
+        """Generate enhanced voice sound with vibrato, noise, and formants."""
         max_release = self.adsr.release
         total_duration = duration + max_release
         samples = int(duration * sample_rate) + int(max_release * sample_rate)
@@ -256,18 +330,58 @@ class VoiceInstrument(Instrument):
         envelope = self.adsr.get_envelope(duration, sample_rate)
         envelope_end = envelope.shape[0]
         
-        # Add each formant-weighted harmonic
-        for h_ratio, h_amp in effective_harmonics:
-            this_freq = freq * h_ratio
+        # Generate vibrato modulation
+        vibrato_phase = 2 * np.pi * self.vibrato_rate * t
+        vibrato_factor = 1.0 + self.vibrato_depth * np.sin(vibrato_phase)
+        
+        # Generate breath noise (filtered white noise)
+        # More breath during attack, less during sustain
+        noise = np.random.randn(samples) * self.breath_amount * velocity
+        
+        # Breath envelope: strongest at attack, decays quickly
+        breath_attack = int(0.08 * sample_rate)  # 80ms breath burst
+        breath_envelope = np.zeros(samples)
+        if breath_attack > 0:
+            breath_envelope[:min(breath_attack, samples)] = np.linspace(1.0, 0.0, min(breath_attack, samples))
+        # Also modulate by main envelope but with faster decay
+        breath_envelope *= np.exp(-t / 0.15)  # 150ms decay
+        
+        # Filter breath noise to be high-frequency (simulating aspiration)
+        # Simple high-pass characteristic: emphasize frequencies above 1kHz
+        breath_filtered = noise * breath_envelope
+        
+        # Get effective harmonics with formant weighting
+        effective_harmonics = self._compute_formant_envelope(freq)
+        
+        # Add each formant-weighted harmonic with vibrato
+        for n, (h_ratio, h_amp) in enumerate(effective_harmonics, 1):
+            # Compute actual harmonic frequency with inharmonicity
+            base_harmonic_freq = self._compute_harmonic_frequency(n, freq)
+            
+            # Apply vibrato to each harmonic (more vibrato on higher harmonics)
+            # Real voices have more vibrato excursion on higher harmonics
+            harmonic_vibrato = 1.0 + (self.vibrato_depth * (1.0 + 0.1 * n)) * np.sin(vibrato_phase)
+            modulated_freq = base_harmonic_freq * harmonic_vibrato
+            
+            # Integrate frequency for phase (FM synthesis)
+            phase = 2 * np.pi * np.cumsum(modulated_freq / sample_rate) * (1.0 / sample_rate) * sample_rate
+            phase = phase % (2 * np.pi)
+            
+            sin_pattern = np.sin(phase)
             this_amp = velocity * h_amp
             
-            sin_pattern = np.sin(2 * np.pi * this_freq * t)
             sound[:envelope_end] += this_amp * sin_pattern[:envelope_end] * envelope
+        
+        # Add breath noise (mostly during attack)
+        sound[:envelope_end] += breath_filtered[:envelope_end] * envelope
         
         return sound
     
     def mean_amplitudes(self, freq: float, duration: float, sample_rate: int) -> List[Tuple[float, float]]:
-        """Return formant-weighted harmonics for dissonance calculation."""
+        """Return formant-weighted harmonics for dissonance calculation.
+        
+        For loss calculation, we use the average (non-vibrato) state.
+        """
         effective_harmonics = self._compute_formant_envelope(freq)
         mean_amp_factor = self.adsr.mean_amplitude(duration, sample_rate)
         
@@ -779,24 +893,60 @@ register_instrument("vibraphone", lambda: Instrument(
 
 # Choir / Voice
 
+# Enhanced formant values based on vocal research
+# Format: (frequency_hz, amplitude, bandwidth_hz)
+# F1, F2, F3, F4 are the main formants that define vowel quality
+
 # Choir "ooh" - rounded vowel with low first formant
+# Typical formants for /u/ (oo) vowel: F1~300, F2~700, F3~2300, F4~3200
 register_instrument("voice_ooh", lambda: VoiceInstrument(
     formants=[
-        (300, 1.0, 50),    # F1: low frequency, creates "ooh" darkness
-        (700, 0.6, 70),    # F2: mid frequency
-        (2500, 0.3, 150),  # F3: high frequency
+        (300, 1.00, 60),    # F1: low frequency, creates "ooh" darkness
+        (700, 0.55, 90),    # F2: mid frequency, close to F1
+        (2300, 0.30, 140),  # F3: high frequency
+        (3200, 0.15, 200),  # F4: very high, adds "brightness"
     ],
-    adsr=ADSR(attack=0.15, decay=0.1, sustain=0.85, release=0.5),
-    num_harmonics=16
+    adsr=ADSR(attack=0.18, decay=0.12, sustain=0.82, release=0.55),
+    num_harmonics=24,
+    vibrato_rate=5.2,
+    vibrato_depth=0.025,
+    breath_amount=0.12,
+    inharmonicity=0.0008,
+    formant_shift_rate=0.12
 ))
 
 # Choir "aah" - open vowel with higher first formant
+# Typical formants for /a/ (ah) vowel: F1~750, F2~1200, F3~2600, F4~3500
 register_instrument("voice_aah", lambda: VoiceInstrument(
     formants=[
-        (700, 1.0, 80),    # F1: higher frequency, creates "aah" brightness
-        (1200, 0.7, 100),  # F2: higher than "ooh"
-        (2600, 0.4, 150),  # F3: similar to "ooh"
+        (750, 1.00, 85),    # F1: higher frequency, creates "aah" brightness
+        (1150, 0.70, 110),  # F2: mid-high, well separated from F1
+        (2650, 0.35, 160),  # F3: high frequency
+        (3500, 0.18, 220),  # F4: very high
     ],
-    adsr=ADSR(attack=0.12, decay=0.1, sustain=0.88, release=0.45),
-    num_harmonics=16
+    adsr=ADSR(attack=0.15, decay=0.10, sustain=0.85, release=0.50),
+    num_harmonics=24,
+    vibrato_rate=5.5,
+    vibrato_depth=0.030,
+    breath_amount=0.15,
+    inharmonicity=0.0010,
+    formant_shift_rate=0.15
+))
+
+# Choir "eeh" - bright vowel with very high F2
+# Typical formants for /i/ (ee) vowel: F1~280, F2~2200, F3~3000, F4~3500
+register_instrument("voice_eeh", lambda: VoiceInstrument(
+    formants=[
+        (280, 1.00, 55),    # F1: very low
+        (2200, 0.80, 130),  # F2: very high, creates "eeh" brightness
+        (3000, 0.40, 170),  # F3: high
+        (3600, 0.20, 230),  # F4: very high
+    ],
+    adsr=ADSR(attack=0.12, decay=0.08, sustain=0.87, release=0.45),
+    num_harmonics=24,
+    vibrato_rate=5.8,
+    vibrato_depth=0.035,
+    breath_amount=0.10,
+    inharmonicity=0.0012,
+    formant_shift_rate=0.18
 ))
