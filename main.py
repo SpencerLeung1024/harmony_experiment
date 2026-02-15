@@ -216,122 +216,156 @@ def main(step_list: List[str]):
                 step_list[i] = step_list[i] - step_list[i-1]
 
     # Create a song
+    
+    # 4=1
+    # The "standard" piano, guitar, bass, drums
+    # The order is 🎹🎸🍜🥁 which signifies a fake Leo/need fan
+    # On the other hand having 0 always be polyphonic, 1 and 2 always monophonic, and 3 drums allows for quick edits
+
     song = Song(
-        measures=4,
-        tempo=50,
-        beats_per_measure=4,
+        measures=8,
+        tempo=120,
+        beats_per_measure=6,
         ticks_per_beat=1,
         sample_rate=SAMPLE_RATE
     )
 
-    # Create members
-    tick_duration = song.tick_duration()
-    total_ticks = song.total_ticks()
+    saki = get_member(
+        "piano",
+        velocity=0.0,#0.5,
+        tick_duration=song.tick_duration(),
+        total_ticks=song.total_ticks(),
+        ticks_per_note=6,
+        hp={ # If mate dissonance losses are above 0.2 the piano hides away in the 7th octave where the guitar and bass cannot touch it
+            'mate_concurrent': 0.0,
+            'mate_temporal': 0.0,
+            'extreme_range': 3.0 # Bonus to piano since it has a very wide range. The optimizer can settle on chords spanning multiple octaves
+        }
+    )
 
-    # Use other tuning systems
+    ichika = get_member(
+        "guitar",
+        velocity=0.0,#0.3,
+        tick_duration=song.tick_duration(),
+        total_ticks=song.total_ticks(),
+        ticks_per_note=1,
+        hp={
+            'mate_concurrent': 3.0 # Stronger following of whatever chord the piano is playing
+        }
+    )
+
+    shiho = get_member(
+        "bass",
+        velocity=0.0,#0.7, # You're so down to earth, Shiho. Or should I say, down to play bass.
+        tick_duration=song.tick_duration(),
+        total_ticks=song.total_ticks(),
+        ticks_per_note=3,
+        hp={
+            'mate_concurrent': 3.0 # Is that supposed to be funny?
+        }
+    )
+    # Was it not?
+    # Sometimes the things you come out with are kind of bizarre!
+    # Bizarre...
+
+    honami = get_member(
+        "drums",
+        velocity=0.5,
+        tick_duration=song.tick_duration(),
+        total_ticks=song.total_ticks(),
+        ticks_per_note=1,
+        hp={ # The drums should not be optimized, and should not cause dissonance to other members
+            'grad': False
+        }
+    )
+    # The default song is in 6/8 time
+    # Kick on 1, snare on 4, hi hat on all
+    weightsmap = get_drum_weightsmap(honami, [(35,), (42,), (42,), (38,), (42,), (42,)])#[(35, 42), (42,), (42,), (38, 42), (42,), (42,)])
+    honami.paint_weights(weightsmap)
+
+    song.members.extend([
+        saki,
+        ichika,
+        shiho,
+        honami
+    ])
+
+    # Test other tuning systems
+
     # test_tuning_system = get_tuning_system("Non-Octave System", step_ratio=2.0**(1/12), divisions=1, reference_freq=440.0)
     # print(f"{test_tuning_system.keys.shape[0]} keys")
 
-    # test_instrument = PolyphonicMember(
+    # song = Song(
+    #     measures=8,
+    #     tempo=120,
+    #     beats_per_measure=1,
+    #     ticks_per_beat=1,
+    #     sample_rate=SAMPLE_RATE
+    # )
+
+    # xeno_piano = PolyphonicMember(
     #     name="piano",
     #     instrument=get_instrument("piano"),
     #     tuning_system=test_tuning_system,
     #     instrument_range=[0,test_tuning_system.keys.shape[0]-1],
     #     velocity=0.5,
-    #     tick_duration=tick_duration,
-    #     total_ticks=total_ticks,
+    #     tick_duration=song.tick_duration(),
+    #     total_ticks=song.total_ticks(),
     #     ticks_per_note=1,
     #     # hp
     #     # initial_weights
     # )
 
-    # The order is 🎹🎸🍜🥁 which signifies a fake Leo/need fan
-    # On the other hand having 0 always be polyphonic, 1 and 2 always monophonic, and 3 drums allows for quick edits
-    song.members.extend([
-        # test_instrument,
-        
-        # get_member(
-        #     "piano",
-        #     velocity=0.5,
-        #     tick_duration=tick_duration,
-        #     total_ticks=total_ticks,
-        #     ticks_per_note=6
-        # ),
-        PolyphonicMember(
-            name="choir_aah",
-            instrument=get_instrument("voice_aah"),
-            tuning_system=get_tuning_system("12-TET"),
-            instrument_range=[43, 81], # G2 to A5
-            velocity=0.5,
-            tick_duration=tick_duration,
-            total_ticks=total_ticks,
-            ticks_per_note=1
-        ),
-        get_member(
-            "guitar",
-            velocity=0.001,
-            tick_duration=tick_duration,
-            total_ticks=total_ticks,
-            ticks_per_note=1
-        ),
-        get_member(
-            "bass",
-            velocity=0.001, # Bring out the bass more my audio system is terrible
-            tick_duration=tick_duration,
-            total_ticks=total_ticks,
-            ticks_per_note=1
-        ),
-        get_member(
-            "drums",
-            velocity=0.6,
-            tick_duration=tick_duration,
-            total_ticks=total_ticks,
-            ticks_per_note=1
-        ),
-    ])
+    # song.members.extend([
+    #     xeno_piano
+    # ])
 
-    # Apply overrides to the piano
-    song.members[0].hp = { # If mate dissonance losses are above 0.2 the piano hides away in the 7th octave where the guitar and bass cannot touch it
-        'mate_concurrent': 0.0,
-        'mate_temporal': 0.0,
-        'extreme_range': 3.0 # Bonus to piano since it has a very wide range. The optimizer can settle on chords spanning multiple octaves
-    }
-    weightsmap = note_names_to_weightsmap(song.members[0], 0.125, '''D3 F4 A3 D4
-A2 A4 C#3 E4
-D3 A4 D4 F4
-C3 C5 E4 G4
-F3 C5 F4 A4
-E3 G#4 B3 B4
-A2 A4 E4 C5
-G2 B4 G4 D5
-C3 C5 G4 D#5
-A#3 C5 G4 E5
-A3 C5 F4 F5
-C4 D#5 A4 F#5
-B3 D5 G4 G5
-A#3 F5 D5 G#5
-A3 F5 D5 A5
-A3 E5 C#5 A4''')
-    song.members[0].paint_weights(weightsmap)
-    # When re-enabling, remember to make the piano have 16 notes throughout the song
+    # Lacrimosa from Mozart's Requiem
+    # Test how the choir sounds
+    
+#     song = Song(
+#         measures=4,
+#         tempo=50,
+#         beats_per_measure=4,
+#         ticks_per_beat=1,
+#         sample_rate=SAMPLE_RATE
+#     )
 
-    # Guitar
-    song.members[1].hp = {
-        'mate_concurrent': 3.0, # Stronger following of whatever chord the piano is playing
-    }
+#     choir = PolyphonicMember(
+#         name="choir_aah",
+#         instrument=get_instrument("voice_aah"),
+#         tuning_system=get_tuning_system("12-TET"),
+#         instrument_range=[43, 81], # G2 to A5. We need to bump the range up from the default C3 to C5.
+#         velocity=0.5,
+#         tick_duration=song.tick_duration(),
+#         total_ticks=song.total_ticks(),
+#         ticks_per_note=1
+#         # hp
+#         # initial_weights
+#     )
+#     weightsmap = note_names_to_weightsmap(choir, 0.125, '''D3 F4 A3 D4
+# A2 A4 C#3 E4
+# D3 A4 D4 F4
+# C3 C5 E4 G4
+# F3 C5 F4 A4
+# E3 G#4 B3 B4
+# A2 A4 E4 C5
+# G2 B4 G4 D5
+# C3 C5 G4 D#5
+# A#3 C5 G4 E5
+# A3 C5 F4 F5
+# C4 D#5 A4 F#5
+# B3 D5 G4 G5
+# A#3 F5 D5 G#5
+# A3 F5 D5 A5
+# A3 E5 C#5 A4''')
+#     choir.paint_weights(weightsmap)
 
-    # Bass
-    song.members[2].hp = {
-        'mate_concurrent': 3.0, # Is that supposed to be funny?
-    }
-    # Was it not?
-    # Sometimes the things you come out with are kind of bizarre!
-    # Bizarre...
+#     song.members.extend([
+#         choir
+#     ])
 
-    # Drums
-    song.members[3].paint_weights(get_drum_weightsmap(song.members[3], [(39,), (39,), (39,), (39,)])) # silence the drums for now
-    # [(35, 42), (42,), (38, 42), (42,)]))
-    #[(35, 42), (42,), (42,), (38, 42), (42,), (42,)]))
+    # End song select
 
     # Create LossHandler and OptimHandler
     print("Initializing loss handler (computing dissonance matrices)...")

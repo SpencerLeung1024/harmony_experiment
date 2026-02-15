@@ -39,6 +39,14 @@ class LossHandler:
         # Precompute all dissonance matrices
         self._compute_dissonance_matrices()
     
+    def _get_active_members(self) -> List[Tuple[int, Member]]:
+        """Equivalent to enumerate(self.song.members) but only for members with grad=True. Can skip indices."""
+        result = []
+        for idx, member in enumerate(self.song.members):
+            if member.hp.get('grad', True): # None -> True
+                result.append((idx, member))
+        return result
+    
     def _dissonance_function(self, f1: float, f2: float) -> float:
         """
         Calculate dissonance between two frequencies.
@@ -118,9 +126,11 @@ class LossHandler:
         return D
     
     def _compute_dissonance_matrices(self):
-        """Precompute all pairwise dissonance matrices between members."""
-        for src_idx, src_member in enumerate(self.song.members):
-            for dst_idx, dst_member in enumerate(self.song.members):
+        """
+        Precompute all pairwise dissonance matrices between active members.
+        """
+        for src_idx, src_member in self._get_active_members():
+            for dst_idx, dst_member in self._get_active_members():
                 D = self._compute_dissonance_matrix(src_member, dst_member)
                 self.dissonance_matrices[(src_idx, dst_idx)] = D
     
@@ -192,7 +202,7 @@ class LossHandler:
         total_loss = torch.tensor(0.0)
         loss_dict = {}
         
-        for src_idx, src in enumerate(self.song.members):
+        for src_idx, src in self._get_active_members():
             src_activation = src.forward(None) # (src_keys, src_notes)
             
             # Get loss factors from member hyperparameters or defaults
@@ -221,7 +231,7 @@ class LossHandler:
             
             # === Mate-concurrent loss ===
             mate_concurrent = 0.0
-            for dst_idx, dst in enumerate(self.song.members):
+            for dst_idx, dst in self._get_active_members():
                 if src_idx == dst_idx:
                     continue
                 
@@ -258,7 +268,7 @@ class LossHandler:
             
             # === Mate-temporal loss ===
             mate_temporal = 0.0
-            for dst_idx, dst in enumerate(self.song.members):
+            for dst_idx, dst in self._get_active_members():
                 D_mate = self.dissonance_matrices[(src_idx, dst_idx)]
                 dst_activation = dst.forward(None) # (dst_keys, dst_notes)
                 
