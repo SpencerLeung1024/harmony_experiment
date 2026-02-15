@@ -232,7 +232,7 @@ def main(step_list: List[str]):
 
     saki = get_member(
         "piano",
-        velocity=0.0,#0.5,
+        velocity=0.5,
         tick_duration=song.tick_duration(),
         total_ticks=song.total_ticks(),
         ticks_per_note=6,
@@ -245,7 +245,7 @@ def main(step_list: List[str]):
 
     ichika = get_member(
         "guitar",
-        velocity=0.0,#0.3,
+        velocity=0.2,
         tick_duration=song.tick_duration(),
         total_ticks=song.total_ticks(),
         ticks_per_note=1,
@@ -256,7 +256,7 @@ def main(step_list: List[str]):
 
     shiho = get_member(
         "bass",
-        velocity=0.0,#0.7, # You're so down to earth, Shiho. Or should I say, down to play bass.
+        velocity=0.7, # You're so down to earth, Shiho. Or should I say, down to play bass.
         tick_duration=song.tick_duration(),
         total_ticks=song.total_ticks(),
         ticks_per_note=3,
@@ -280,7 +280,7 @@ def main(step_list: List[str]):
     )
     # The default song is in 6/8 time
     # Kick on 1, snare on 4, hi hat on all
-    weightsmap = get_drum_weightsmap(honami, [(35,), (42,), (42,), (38,), (42,), (42,)])#[(35, 42), (42,), (42,), (38, 42), (42,), (42,)])
+    weightsmap = get_drum_weightsmap(honami, [(35, 42), (42,), (42,), (38, 42), (42,), (42,)])
     honami.paint_weights(weightsmap)
 
     song.members.extend([

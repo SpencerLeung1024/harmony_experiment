@@ -1,5 +1,7 @@
 from typing import Optional, Union, Tuple, List, Dict, Callable
 from functools import lru_cache
+from dataclasses import dataclass
+from abc import ABC, abstractmethod
 import numpy as np
 import torch
 
@@ -67,6 +69,226 @@ class ADSR:
     def mean_amplitude(self, duration: float, sample_rate: int) -> float:
         """Get mean amplitude using static cache."""
         return _cached_mean_amplitude(self.attack, self.decay, self.sustain, self.release, duration, sample_rate)
+
+# =============================================================================
+# Drum Components for PercussionInstrument
+# =============================================================================
+
+@dataclass
+class DrumComponent(ABC):
+    """Base class for a drum sound primitive."""
+    amplitude: float  # Relative amplitude within this drum voice (0.0-1.0)
+    
+    @abstractmethod
+    def render(self, sample_rate: int) -> np.ndarray:
+        """Generate this component's contribution to the sound.
+        
+        Returns audio at velocity=1.0. Caller scales by actual velocity.
+        """
+        pass
+    
+    def _generate_envelope(self, attack: float, decay: float, sustain: float, release: float,
+                          sample_rate: int) -> np.ndarray:
+        """Generate ADSR envelope. Drums typically have sustain=0."""
+        # For drums with sustain=0, we calculate the natural duration from attack+decay+release
+        # The cached function expects a note duration, but drums have no sustain phase
+        # We pass the decay time as the "duration" and let release happen after
+        effective_duration = attack + decay
+        return _cached_get_envelope(attack, decay, sustain, release, effective_duration, sample_rate)
+
+
+@dataclass
+class ToneComponent(DrumComponent):
+    """A tonal/inharmonic partial - sine wave at fixed or sweeping frequency."""
+    frequency: float  # Hz, or start frequency if sweep is used
+    # ADSR parameters
+    attack: float = 0.001
+    decay: float = 0.1
+    sustain: float = 0.0
+    release: float = 0.05
+    # Pitch sweep parameters
+    end_frequency: Optional[float] = None  # For pitch sweeps (kick drums)
+    sweep_curve: str = "exponential"  # "linear", "exponential"
+    
+    def render(self, sample_rate: int) -> np.ndarray:
+        """Generate tone with optional pitch sweep."""
+        # Get envelope to determine duration
+        envelope = self._generate_envelope(
+            self.attack, self.decay, self.sustain, self.release, sample_rate
+        )
+        num_samples = len(envelope)
+        t = np.arange(num_samples) / sample_rate
+        
+        if self.end_frequency is not None and self.end_frequency != self.frequency:
+            # Pitch sweep
+            if self.sweep_curve == "exponential":
+                # Exponential sweep: freq(t) = f0 * (f1/f0)^(t/T)
+                freq_ratio = self.end_frequency / self.frequency
+                instantaneous_freq = self.frequency * (freq_ratio ** (t / t[-1])) if t[-1] > 0 else np.full_like(t, self.frequency)
+            else:  # linear
+                instantaneous_freq = np.linspace(self.frequency, self.end_frequency, num_samples)
+            
+            # Integrate frequency for phase (FM synthesis)
+            phase = 2 * np.pi * np.cumsum(instantaneous_freq) / sample_rate
+        else:
+            # Fixed frequency
+            phase = 2 * np.pi * self.frequency * t
+        
+        tone = np.sin(phase) * envelope
+        return tone
+
+
+@dataclass
+class NoiseComponent(DrumComponent):
+    """Filtered noise band."""
+    low_freq: float  # High-pass cutoff
+    high_freq: float  # Low-pass cutoff
+    # Temporal envelope
+    attack: float = 0.001
+    decay: float = 0.05
+    sustain: float = 0.0
+    release: float = 0.02
+    # Noise characteristics
+    noise_type: str = "white"  # "white", "pink", "metallic"
+    # Metallic noise for cymbals/hi-hats - adds inharmonic partials
+    metallic_ring: Optional[List[Tuple[float, float]]] = None  # (freq_hz, decay_time_ms)
+    
+    def render(self, sample_rate: int) -> np.ndarray:
+        """Generate filtered noise with optional metallic character."""
+        # Get envelope for duration
+        envelope = self._generate_envelope(
+            self.attack, self.decay, self.sustain, self.release, sample_rate
+        )
+        num_samples = len(envelope)
+        
+        # Generate base noise
+        if self.noise_type == "pink":
+            noise = self._generate_pink_noise(num_samples)
+        else:
+            noise = np.random.randn(num_samples)
+        
+        # Apply bandpass filter using FFT
+        noise = self._bandpass_filter(noise, self.low_freq, self.high_freq, sample_rate)
+        
+        # Add metallic ringing if specified
+        if self.metallic_ring:
+            for freq, decay_time in self.metallic_ring:
+                ring = self._generate_metal_ring(freq, decay_time, num_samples, sample_rate)
+                noise += ring
+        
+        # Apply envelope
+        return noise * envelope
+    
+    def _generate_pink_noise(self, num_samples: int) -> np.ndarray:
+        """Generate pink noise (1/f spectrum)."""
+        white = np.random.randn(num_samples)
+        # Simple approximation: filter white noise
+        # Voss-McCartney algorithm would be better but this is sufficient
+        pink = np.cumsum(white)
+        pink = pink - np.mean(pink)
+        # Normalize
+        max_val = np.max(np.abs(pink))
+        if max_val > 0:
+            pink = pink / max_val
+        return pink
+    
+    def _bandpass_filter(self, signal: np.ndarray, low_freq: float, high_freq: float, sample_rate: int) -> np.ndarray:
+        """Apply bandpass filter using FFT."""
+        # FFT-based filtering
+        fft = np.fft.rfft(signal)
+        freqs = np.fft.rfftfreq(len(signal), 1.0 / sample_rate)
+        
+        # Create mask
+        mask = (freqs >= low_freq) & (freqs <= high_freq)
+        
+        # Smooth transitions to avoid artifacts
+        transition_width = 100  # Hz
+        low_transition = (freqs >= low_freq - transition_width) & (freqs < low_freq)
+        high_transition = (freqs > high_freq) & (freqs <= high_freq + transition_width)
+        
+        # Apply smooth falloff
+        fft[~mask] = 0
+        if np.any(low_transition):
+            fft[low_transition] *= np.linspace(0, 1, np.sum(low_transition))
+        if np.any(high_transition):
+            fft[high_transition] *= np.linspace(1, 0, np.sum(high_transition))
+        
+        filtered = np.fft.irfft(fft, n=len(signal))
+        return filtered
+    
+    def _generate_metal_ring(self, freq: float, decay_time: float, num_samples: int, sample_rate: int) -> np.ndarray:
+        """Generate a ringing metallic partial."""
+        t = np.arange(num_samples) / sample_rate
+        # Exponential decay
+        decay = np.exp(-t / (decay_time / 1000))  # decay_time in ms
+        ring = np.sin(2 * np.pi * freq * t) * decay
+        # Scale down to blend with noise
+        return ring * 0.3
+
+
+@dataclass
+class SimpleReverb:
+    """Simple reverb using comb and all-pass filters.
+    
+    This is a Schroeder reverb approximation - lightweight but effective.
+    """
+    room_size: float = 0.8  # 0.0-1.0, affects decay time
+    damping: float = 0.5    # High frequency damping
+    wet_level: float = 0.3  # Mix of reverb vs dry
+    
+    def process(self, audio: np.ndarray, sample_rate: int) -> np.ndarray:
+        """Apply simple reverb to audio."""
+        # Comb filter delays (in samples) - prime numbers for irregular echoes
+        comb_delays = [int(sample_rate * d) for d in [0.0297, 0.0371, 0.0411, 0.0437]]
+        # All-pass filter delays
+        allpass_delays = [int(sample_rate * d) for d in [0.005, 0.0017]]
+        
+        # Comb filters in parallel
+        comb_out = np.zeros_like(audio)
+        for delay in comb_delays:
+            comb_out += self._comb_filter(audio, delay, self.room_size, self.damping)
+        
+        # All-pass filters in series
+        reverb = comb_out / len(comb_delays)
+        for delay in allpass_delays:
+            reverb = self._allpass_filter(reverb, delay, 0.7)
+        
+        # Mix wet/dry
+        return audio * (1 - self.wet_level) + reverb * self.wet_level
+    
+    def _comb_filter(self, input_signal: np.ndarray, delay: int, feedback: float, damping: float) -> np.ndarray:
+        """Simple comb filter with damping."""
+        output = np.zeros_like(input_signal)
+        buffer = np.zeros(delay)
+        
+        for i in range(len(input_signal)):
+            if i < delay:
+                output[i] = input_signal[i]
+            else:
+                # Damped feedback
+                buffer_idx = (i - 1) % delay
+                feedback_sample = buffer[buffer_idx]
+                output[i] = input_signal[i] + feedback_sample * feedback * (1 - damping)
+                buffer[i % delay] = output[i]
+        
+        return output
+    
+    def _allpass_filter(self, input_signal: np.ndarray, delay: int, gain: float) -> np.ndarray:
+        """All-pass filter for colorless echo density."""
+        output = np.zeros_like(input_signal)
+        buffer = np.zeros(delay)
+        
+        for i in range(len(input_signal)):
+            if i < delay:
+                output[i] = input_signal[i]
+            else:
+                buffer_idx = (i - 1) % delay
+                buffer_sample = buffer[buffer_idx]
+                output[i] = -gain * input_signal[i] + buffer_sample + gain * buffer_sample
+                buffer[i % delay] = input_signal[i] + gain * buffer_sample
+        
+        return output
+
 
 # Module-level cached sound generation
 @lru_cache(maxsize=2048)
@@ -159,41 +381,43 @@ class Instrument:
         return mean_amps
 
 class PercussionInstrument(Instrument):
-    """MIDI Channel 10-style percussion instrument.
+    """Component-based percussion instrument.
     
     Unlike pitched instruments where notes are frequencies, percussion
     uses note numbers (0-127 on Channel 10) to represent different drum
-    types. Each drum type has its own fixed-frequency partials that
-    don't track any pitch parameter.
+    types. Each drum type is composed of multiple DrumComponents.
     
-    The incoming frequency is converted to a MIDI note number via a
-    tuning system, then looked up in the drum profile dictionary.
+    Components are rendered at velocity=1.0 and cached at the instance level.
+    Actual velocity is applied by scaling the cached audio.
     """
     
     def __init__(
         self,
-        drum_profiles: Dict[int, List[Tuple[float, float]]],
-        adsr_profiles: Dict[int, ADSR],
-        tuning_system
+        profiles: Dict[int, List[DrumComponent]],
+        tuning_system: TuningSystem,
+        simple_reverb: Optional[SimpleReverb] = None,
+        sample_rate: int = 22050
     ):
-        """Initialize percussion instrument with drum profiles.
+        """Initialize percussion instrument with component-based profiles.
         
         Args:
-            drum_profiles: Dict mapping MIDI note numbers to lists of
-                          (frequency_hz, amplitude) tuples. These are
-                          ABSOLUTE frequencies, not ratios.
-            adsr_profiles: Dict mapping MIDI note numbers to ADSR envelopes
+            profiles: Dict mapping MIDI note numbers to lists of DrumComponents
             tuning_system: TuningSystem for converting frequencies to MIDI notes
+            simple_reverb: Optional SimpleReverb for room simulation
+            sample_rate: Sample rate for caching (must match render sample_rate)
         """
-        self.drum_profiles = drum_profiles
-        self.adsr_profiles = adsr_profiles
+        self.profiles = profiles
         self.tuning_system = tuning_system
+        self.simple_reverb = simple_reverb
+        self.sample_rate = sample_rate
         
-        # Create dummy harmonics for base class compatibility
-        # Real harmonics come from drum_profiles lookup
+        # Cache for rendered drum sounds at velocity=1.0
+        # Key: MIDI note number, Value: np.ndarray of audio
+        self._cache: Dict[int, np.ndarray] = {}
+        
+        # Create dummy values for base class compatibility
+        # These are not actually used
         dummy_harmonics = [(1.0, 1.0)]
-
-        # Create dummy ADSR for base class compatibility
         dummy_adsr = ADSR(attack=0.001, decay=0.1, sustain=0.0, release=0.05)
         
         super().__init__(
@@ -202,44 +426,98 @@ class PercussionInstrument(Instrument):
             harmonic_adsrs={}
         )
     
-    def _get_drum_harmonics(self, freq: float) -> List[Tuple[float, float]]:
-        key = self.tuning_system.freq_to_key(freq)
+    def _render_drum(self, key: int) -> np.ndarray:
+        """Render a drum sound at velocity=1.0 and cache it."""
+        if key in self._cache:
+            return self._cache[key]
         
-        if key not in self.drum_profiles:
-            # Return silence for undefined drum notes
+        components = self.profiles.get(key, [])
+        if not components:
+            self._cache[key] = np.array([])
+            return self._cache[key]
+        
+        # Render each component and find the longest
+        # Store tuples of (audio, amplitude) to preserve amplitude info
+        rendered_components = []
+        max_length = 0
+        
+        for component in components:
+            audio = component.render(self.sample_rate)
+            rendered_components.append((audio, component.amplitude))
+            max_length = max(max_length, len(audio))
+        
+        if max_length == 0:
+            self._cache[key] = np.array([])
+            return self._cache[key]
+        
+        # Mix all components with their respective amplitudes
+        mixed = np.zeros(max_length)
+        for audio, amplitude in rendered_components:
+            mixed[:len(audio)] += audio * amplitude
+        
+        # Apply reverb if configured
+        if self.simple_reverb:
+            mixed = self.simple_reverb.process(mixed, self.sample_rate)
+        
+        self._cache[key] = mixed
+        return mixed
+    
+    def _get_drum_harmonics(self, freq: float) -> List[Tuple[float, float]]:
+        """Return harmonics for dissonance calculation.
+        
+        For drums, we return the spectral centroid weighted by component amplitudes.
+        This allows drums to participate in dissonance calculations with pitched instruments.
+        """
+        key = self.tuning_system.freq_to_key(freq)
+        if key is None or key not in self.profiles:
             return [(1.0, 0.0)]
         
-        abs_harmonics = self.drum_profiles[key]
+        components = self.profiles[key]
+        harmonics = []
         
-        # Convert absolute frequencies to ratios relative to freq parameter
-        # This allows the dissonance matrix to compare drums to pitched instruments
-        # ratio = harmonic_freq / freq, so if freq=61.375 and partial=60, ratio≈0.977
-        ratio_harmonics = []
-        for harmonic_freq, amplitude in abs_harmonics:
-            ratio = harmonic_freq / freq
-            ratio_harmonics.append((ratio, amplitude))
+        for component in components:
+            if isinstance(component, ToneComponent):
+                # For tones, use the frequency as a ratio to the input freq
+                ratio = component.frequency / freq
+                harmonics.append((ratio, component.amplitude))
+            elif isinstance(component, NoiseComponent):
+                # For noise, use the center frequency of the band
+                center_freq = (component.low_freq + component.high_freq) / 2
+                ratio = center_freq / freq
+                harmonics.append((ratio, component.amplitude * 0.5))  # Noise contributes less to dissonance
         
-        return ratio_harmonics
+        return harmonics if harmonics else [(1.0, 0.0)]
     
     def _get_drum_adsr(self, freq: float) -> ADSR:
+        """Return a representative ADSR for this drum.
+        
+        Since components have individual envelopes, we return a composite
+        that approximates the overall envelope.
+        """
         key = self.tuning_system.freq_to_key(freq)
-        return self.adsr_profiles.get(key, self.adsr) # Use the dummy ADSR if no specific profile is defined
+        if key is None or key not in self.profiles:
+            return self.adsr
+        
+        # Use a short envelope as default for drums
+        return ADSR(attack=0.001, decay=0.1, sustain=0.0, release=0.05)
     
     def get_sound(self, freq: float, velocity: float, duration: float, sample_rate: int) -> np.ndarray:
-        """Generate drum sound with fixed-frequency partials."""
-        harmonics = self._get_drum_harmonics(freq)
-        adsr = self._get_drum_adsr(freq)
-
-        # Convert to hashable types for caching
-        harmonics_tuple = tuple(harmonics)
-        harmonic_adsrs_tuple = tuple() # Empty tuple. Note that PercussionInstrument only supports one ADSR per key
-        # We can use the frequency-based global _cached_get_sound because harmonics_tuple has already been turned into ratios by self.get_drum_harmonics
-        return _cached_get_sound(
-            harmonics_tuple,
-            self.adsr.attack, self.adsr.decay, self.adsr.sustain, self.adsr.release,
-            harmonic_adsrs_tuple,
-            freq, velocity, duration, sample_rate
-        )
+        """Generate drum sound by scaling cached audio.
+        
+        Note: The duration parameter is ignored because drum sounds have
+        their own natural duration determined by component envelopes.
+        """
+        if sample_rate != self.sample_rate:
+            # If sample rate differs from cache, we need to re-render
+            # This shouldn't happen in normal usage
+            raise ValueError(f"Sample rate mismatch: expected {self.sample_rate}, got {sample_rate}")
+        
+        key = self.tuning_system.freq_to_key(freq)
+        if key is None:
+            return np.array([])
+        
+        audio = self._render_drum(key)
+        return audio * velocity
     
     def mean_amplitudes(self, freq: float, duration: float, sample_rate: int) -> List[Tuple[float, float]]:
         """Return drum partials as ratios for dissonance calculation."""
@@ -259,14 +537,14 @@ class VoiceInstrument(Instrument):
     This enhanced version includes:
     1. Pitch-dependent formant shifting (formants move slightly with pitch)
     2. Vibrato (natural pitch modulation)
-    3. Breath noise component (aspiration at note attacks)
+    3. (Currently disabled) Breath noise component (aspiration at note attacks)
     4. Inharmonicity (slight detuning of higher harmonics)
     5. More realistic formant shapes
     
     The synthesis works by:
     1. Generate a rich harmonic source with slight inharmonicity
     2. Apply pitch-dependent formant envelope
-    3. Add breath noise (filtered noise during attack)
+    3. (Currently disabled) Add breath noise (filtered noise during attack)
     4. Apply vibrato modulation to the fundamental
     """
     
@@ -290,7 +568,7 @@ class VoiceInstrument(Instrument):
             num_harmonics: Number of harmonics to generate (default 24)
             vibrato_rate: Vibrato frequency in Hz (default 5.5)
             vibrato_depth: Pitch modulation depth as ratio (default 0.03 = +/-3%)
-            breath_amount: Amount of breath noise 0-1 (default 0.15)
+            breath_amount: (Currently disabled) Amount of breath noise 0-1 (default 0.15)
             inharmonicity: Coefficient for harmonic stretch (default 0.001)
             formant_shift_rate: How much formants shift per octave (default 0.15)
         """
@@ -554,39 +832,124 @@ register_instrument("piano", lambda: Instrument(
 ))
 
 # Standard drum kit with Acoustic Bass Drum (35), Acoustic Snare (38), and Closed Hi Hat (42)
-# Uses 12-TET tuning system to map frequencies to MIDI note numbers
+# Uses component-based architecture with pitch sweeps, noise, and metallic ringing
 register_instrument("percussion", lambda: PercussionInstrument(
-    drum_profiles={
-        35: [  # Acoustic Bass Drum (B1 = 61.375 Hz in 12-TET, but these are arbitrary)
-            (60.0, 1.00), # Fundamental "boom"
-            (90.0, 0.30), # Inharmonic click
-            (132.0, 0.20), # Body resonance
-            (210.0, 0.15), # Click/harmonics
+    profiles={
+        35: [  # Acoustic Bass Drum (B1 = 61.375 Hz in 12-TET)
+            # Pitch sweep: ~90Hz → ~45Hz for the "boom"
+            ToneComponent(
+                frequency=90.0,
+                end_frequency=45.0,
+                amplitude=1.0,
+                attack=0.001,
+                decay=0.08,
+                sustain=0.0,
+                release=0.05,
+                sweep_curve="exponential"
+            ),
+            # Body thump at ~60Hz
+            ToneComponent(
+                frequency=60.0,
+                amplitude=0.6,
+                attack=0.001,
+                decay=0.15,
+                sustain=0.0,
+                release=0.1
+            ),
+            # Inharmonic click for beater attack
+            ToneComponent(
+                frequency=3500.0,
+                amplitude=0.25,
+                attack=0.0005,
+                decay=0.015,
+                sustain=0.0,
+                release=0.005
+            ),
+            # Low-mid attack noise
+            NoiseComponent(
+                low_freq=800.0,
+                high_freq=4000.0,
+                amplitude=0.35,
+                attack=0.0005,
+                decay=0.025,
+                noise_type="white"
+            )
         ],
-        38: [  # Acoustic Snare (D2) These are approximate - snare is more noise than tones
-            (200.0, 0.80), # Fundamental (drum body)
-            (282.0, 0.60),
-            (346.0, 0.50),
-            (446.0, 0.40),
-            (566.0, 0.35),
-            (692.0, 0.30),
+        38: [  # Acoustic Snare (D2 = ~73.42 Hz)
+            # Body tone - fundamental
+            ToneComponent(
+                frequency=185.0,
+                amplitude=0.5,
+                attack=0.001,
+                decay=0.12,
+                sustain=0.0,
+                release=0.08
+            ),
+            # Body tone - inharmonic partial
+            ToneComponent(
+                frequency=330.0,
+                amplitude=0.35,
+                attack=0.001,
+                decay=0.10,
+                sustain=0.0,
+                release=0.06
+            ),
+            # Crack - high frequency noise burst
+            NoiseComponent(
+                low_freq=2000.0,
+                high_freq=6000.0,
+                amplitude=0.7,
+                attack=0.0003,
+                decay=0.035,
+                noise_type="white"
+            ),
+            # Wire rattle - longer metallic noise
+            NoiseComponent(
+                low_freq=4000.0,
+                high_freq=12000.0,
+                amplitude=0.55,
+                attack=0.001,
+                decay=0.18,
+                noise_type="metallic",
+                metallic_ring=[
+                    (8000.0, 80.0),   # (freq_hz, decay_ms)
+                    (10000.0, 60.0),
+                    (6500.0, 100.0)
+                ]
+            )
         ],
-        42: [ # Closed Hi Hat (F#2) Modeled as many closely-spaced high harmonics
-            (185.0, 0.50), # Higher relative to fundamental
-            (277.5, 0.60),
-            (370.0, 0.55),
-            (462.5, 0.50),
-            (555.0, 0.45),
-            (647.5, 0.40),
-            (740.0, 0.35),
+        42: [  # Closed Hi Hat (F#2 = ~92.5 Hz, but hi-hats have no real pitch)
+            # Very short, high metallic noise
+            NoiseComponent(
+                low_freq=7000.0,
+                high_freq=18000.0,
+                amplitude=0.6,
+                attack=0.0005,
+                decay=0.04,
+                sustain=0.0,
+                release=0.015,
+                noise_type="metallic",
+                metallic_ring=[
+                    (10000.0, 30.0),
+                    (12500.0, 25.0),
+                    (8000.0, 35.0),
+                    (14000.0, 20.0)
+                ]
+            ),
+            # Additional high click for attack definition
+            ToneComponent(
+                frequency=12000.0,
+                amplitude=0.2,
+                attack=0.0003,
+                decay=0.015,
+                sustain=0.0,
+                release=0.005
+            )
         ],
     },
-    adsr_profiles={
-        35: ADSR(attack=0.001, decay=0.15, sustain=0.0, release=0.05),
-        38: ADSR(attack=0.001, decay=0.12, sustain=0.0, release=0.08),
-        42: ADSR(attack=0.001, decay=0.05, sustain=0.0, release=0.02),
-    },
-    tuning_system=get_tuning_system("12-TET")
+    tuning_system=get_tuning_system("12-TET"),
+    simple_reverb=None,  # Can add SimpleReverb here if desired
+    sample_rate=22050
 ))
 
 # Bass has fewer harmonics than guitar/piano, emphasizing the fundamental and lower harmonics. Long sustain.

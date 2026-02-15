@@ -121,12 +121,15 @@ Anything outside those two folders is work for v3
 - A whole bunch of new instruments
 
 ### 2026-02-13
-- VoiceInstrument: choir oohs and aahs, accepts formants, actual harmonics change depending on fundamental frequency (required updating loss_handler)
+- VoiceInstrument: choir oohs and aahs, accepts formants, actual harmonics change depending on fundamental frequency (required updating LossHandler)
 - PercussionInstrument: currently only supports 35 (Acoustic Bass Drum), 38 (Acoustic Snare), and 42 (Closed Hi Hat)
 - - Patch notes: added Mochizuki Honami
 
 ### 2026-02-15
 - Removed breath static from VoiceInstrument, changed formant_weight min to 1 / n^2 (seems to be a decent approximation to my voice recordings), added jitter to each note's vibrato rate
+- hp['grad'] = False now ignores a band member in loss calculations
+- - Patch notes: removed Mochizuki Honami
+- PercussionInstrument gained a lot of complexity. It now supports pitch sweeps and noise bands
 
 Current issues:
 - The kick is alright I guess. The snare and hi hat sound too low pitched
