@@ -125,8 +125,10 @@ Anything outside those two folders is work for v3
 - PercussionInstrument: currently only supports 35 (Acoustic Bass Drum), 38 (Acoustic Snare), and 42 (Closed Hi Hat)
 - - Patch notes: added Mochizuki Honami
 
+### 2026-02-15
+- Removed breath static from VoiceInstrument, changed formant_weight min to 1 / n^2 (seems to be a decent approximation to my voice recordings), added jitter to each note's vibrato rate
+
 Current issues:
-- The formant shaping in VoiceInstrument is very strong. I recorded my own oohs and aahs and a lot more harmonics are visible in the spectrogram
 - The kick is alright I guess. The snare and hi hat sound too low pitched
 - Subjective issues with solutions the optimizer finds (not sure if these are solvable)
 - - Chords and progressions are, uh, interesting

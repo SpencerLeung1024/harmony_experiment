@@ -118,7 +118,40 @@ An Instrument has:
 - harmonic_adsrs: a dict of int: list of (multiple of the fundamental, amplitude). Used to provide per-harmonic envelope overrides
 
 - get_sound(freq: float, velocity: float, duration: float, sample_rate: int) -> np.ndarray: Returns a (samples) ndarray where each value is the contribution this instrument makes to the sound. After np.sin.
-- mean_amplitudes(duration: float, sample_rate: int) -> list of (multiple of the fundamental, amplitude). Uses ADSR.mean_amplitude() to provide mean amplitude for each harmonic.
+- mean_amplitudes(freq: float, duration: float, sample_rate: int) -> list of (multiple of the fundamental, amplitude): Uses ADSR.mean_amplitude() to provide mean amplitude for each harmonic. freq is not used in Instrument but is needed for VoiceInstrument.
+
+### PercussionInstrument(Instrument)
+A PercussionInstrument is an instrument that, when given a frequency, maps that frequency to a key in a tuning system and returns from its profile the corresponding sound (that does not vary with input frequency)
+A PercussionInstrument has:
+- drum_profiles: a dict of int: list of (absolute frequency, amplitude)
+- adsr_profiles: a dict of int: ADSR
+- tuning_system: a TuningSystem
+
+It generates dummy_harmonics and dummy_adsr for Instrument.__init__ but otherwise these are unused.
+
+- _get_drum_harmonics(freq: float) -> list of (absolute frequency, amplitude): Uses tuning_system.freq_to_key, looks up that key in drum_profiles, divides all absolute frequencies by freq, and returns the ratios.
+- _get_drum_adsr(freq: float) -> ADSR: Uses tuning_system.freq_to_key, looks up that key in adsr_profiles, and returns the ADSR
+
+Note that unlike Instrument, PercussionInstrument only supports one ADSR per key, applied to all harmonics in that sound.
+PercussionInstrument does not use harmonic_adsrs.
+
+### VoiceInstrument(Instrument)
+A VoiceInstrument is an instrument with a bunch of parameters to shape a sawtooth wave to approximate vowels.
+A VoiceInstrument has:
+- base_formants: a list of (absolute frequency, amplitude, absolute bandwidth) at the reference_freq
+- num_harmonics: int, default 24.
+- vibrato_rate: float, default 5.5. The vibrato's cycle in Hz.
+- vibrato_depth: float, default 0.03. The maximum relative ratio of the vibrato's pitch adjustment.
+- inharmonicity: float, default 0.001. Affects how additional sharpness of higher harmonics is calculated.
+- formant_shift_rate: float, default 0.15. The ratio by which formants are pitched up when trying to sing an octave above the reference, or down vice versa.
+
+VoiceInstrument.reference_freq is 220.0 Hz (A3).
+
+- _get_inharmonics(freq: float) -> np.ndarray: Applies the inharmonicity formula to all harmonics and returns their absolute frequencies as an ndarray.
+- _get_shifted_formants(freq: float) -> list of (absolute frequency, amplitude, absolute bandwidth): Applies formant shifting. Also widens bandwidths when trying to sing high, and vice versa.
+- _get_effective_harmonics(freq: float) -> list of (multiple of the fundamental, amplitude): Returns the actual harmonics at this fundamental frequency, after all formant stuff.
+
+VoiceInstrument does not use harmonic_adsrs.
 
 ### ADSR
 An ADSR stores attack, decay, sustain, and release parameters and generates an envelope.

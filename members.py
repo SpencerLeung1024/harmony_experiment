@@ -340,10 +340,14 @@ register_member_helper("vibraphone_lead", "vibraphone", [54, 89], False)
 
 # C3 to C5. The lowest bass can go to E2 and the highest soprano can go to C6, but 1) the optimizer doesn't handle instruments with massive ranges well and 2) don't expect a trained choir
 
-# Choir "ooh" - rounded vowel sound, polyphonic
+# Choir "ooh" - /u/ rounded vowel with low first formant
 register_member_helper("choir_ooh", "voice_ooh", [48, 72], True)
 register_member_helper("voice_ooh", "voice_ooh", [48, 72], False)
 
-# Choir "aah" - open vowel sound, polyphonic
+# Choir "aah" - /a/ open vowel with higher first formant
 register_member_helper("choir_aah", "voice_aah", [48, 72], True)
 register_member_helper("voice_aah", "voice_aah", [48, 72], False)
+
+# Choir "eeh" - /i/ bright vowel with very high F2
+register_member_helper("choir_eeh", "voice_eeh", [48, 72], True)
+register_member_helper("voice_eeh", "voice_eeh", [48, 72], False)

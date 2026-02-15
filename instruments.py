@@ -158,6 +158,96 @@ class Instrument:
             mean_amps.append((h_freq, h_amp * mean_amp))
         return mean_amps
 
+class PercussionInstrument(Instrument):
+    """MIDI Channel 10-style percussion instrument.
+    
+    Unlike pitched instruments where notes are frequencies, percussion
+    uses note numbers (0-127 on Channel 10) to represent different drum
+    types. Each drum type has its own fixed-frequency partials that
+    don't track any pitch parameter.
+    
+    The incoming frequency is converted to a MIDI note number via a
+    tuning system, then looked up in the drum profile dictionary.
+    """
+    
+    def __init__(
+        self,
+        drum_profiles: Dict[int, List[Tuple[float, float]]],
+        adsr_profiles: Dict[int, ADSR],
+        tuning_system
+    ):
+        """Initialize percussion instrument with drum profiles.
+        
+        Args:
+            drum_profiles: Dict mapping MIDI note numbers to lists of
+                          (frequency_hz, amplitude) tuples. These are
+                          ABSOLUTE frequencies, not ratios.
+            adsr_profiles: Dict mapping MIDI note numbers to ADSR envelopes
+            tuning_system: TuningSystem for converting frequencies to MIDI notes
+        """
+        self.drum_profiles = drum_profiles
+        self.adsr_profiles = adsr_profiles
+        self.tuning_system = tuning_system
+        
+        # Create dummy harmonics for base class compatibility
+        # Real harmonics come from drum_profiles lookup
+        dummy_harmonics = [(1.0, 1.0)]
+
+        # Create dummy ADSR for base class compatibility
+        dummy_adsr = ADSR(attack=0.001, decay=0.1, sustain=0.0, release=0.05)
+        
+        super().__init__(
+            harmonics=dummy_harmonics,
+            adsr=dummy_adsr,
+            harmonic_adsrs={}
+        )
+    
+    def _get_drum_harmonics(self, freq: float) -> List[Tuple[float, float]]:
+        key = self.tuning_system.freq_to_key(freq)
+        
+        if key not in self.drum_profiles:
+            # Return silence for undefined drum notes
+            return [(1.0, 0.0)]
+        
+        abs_harmonics = self.drum_profiles[key]
+        
+        # Convert absolute frequencies to ratios relative to freq parameter
+        # This allows the dissonance matrix to compare drums to pitched instruments
+        # ratio = harmonic_freq / freq, so if freq=61.375 and partial=60, ratio≈0.977
+        ratio_harmonics = []
+        for harmonic_freq, amplitude in abs_harmonics:
+            ratio = harmonic_freq / freq
+            ratio_harmonics.append((ratio, amplitude))
+        
+        return ratio_harmonics
+    
+    def _get_drum_adsr(self, freq: float) -> ADSR:
+        key = self.tuning_system.freq_to_key(freq)
+        return self.adsr_profiles.get(key, self.adsr) # Use the dummy ADSR if no specific profile is defined
+    
+    def get_sound(self, freq: float, velocity: float, duration: float, sample_rate: int) -> np.ndarray:
+        """Generate drum sound with fixed-frequency partials."""
+        harmonics = self._get_drum_harmonics(freq)
+        adsr = self._get_drum_adsr(freq)
+
+        # Convert to hashable types for caching
+        harmonics_tuple = tuple(harmonics)
+        harmonic_adsrs_tuple = tuple() # Empty tuple. Note that PercussionInstrument only supports one ADSR per key
+        # We can use the frequency-based global _cached_get_sound because harmonics_tuple has already been turned into ratios by self.get_drum_harmonics
+        return _cached_get_sound(
+            harmonics_tuple,
+            self.adsr.attack, self.adsr.decay, self.adsr.sustain, self.adsr.release,
+            harmonic_adsrs_tuple,
+            freq, velocity, duration, sample_rate
+        )
+    
+    def mean_amplitudes(self, freq: float, duration: float, sample_rate: int) -> List[Tuple[float, float]]:
+        """Return drum partials as ratios for dissonance calculation."""
+        harmonics = self._get_drum_harmonics(freq)
+        adsr = self._get_drum_adsr(freq)
+        mean_amp_factor = adsr.mean_amplitude(duration, sample_rate)
+        
+        return [(ratio, amp * mean_amp_factor) for ratio, amp in harmonics]
 
 class VoiceInstrument(Instrument):
     """Enhanced voice/choral instrument with formant-based synthesis.
@@ -225,6 +315,14 @@ class VoiceInstrument(Instrument):
             harmonic_adsrs={}
         )
     
+    def _get_inharmonics(self, freq: float) -> np.ndarray:
+        """Returns an ndarray of the frequencies of the harmonics after applying inharmonicity."""
+        # Inharmonicity formula: f_n = n * f0 * sqrt(1 + B * n^2)
+        # where B is the inharmonicity coefficient
+        n_arr = np.arange(1, self.num_harmonics + 1)
+        inharmonics = n_arr * freq * np.sqrt(1.0 + self.inharmonicity * np.square(n_arr))
+        return inharmonics
+    
     def _get_shifted_formants(self, freq: float) -> List[Tuple[float, float, float]]:
         """Get formant frequencies shifted based on pitch.
         
@@ -254,26 +352,9 @@ class VoiceInstrument(Instrument):
         
         return shifted_formants
     
-    def _compute_harmonic_frequency(self, n: int, fundamental: float) -> float:
-        """Compute the frequency of the nth harmonic with inharmonicity.
-        
-        Real voices have slightly stretched harmonics due to vocal fold
-        tension. Higher harmonics are slightly sharp.
-        
-        Args:
-            n: Harmonic number (1 = fundamental)
-            fundamental: Fundamental frequency
-            
-        Returns:
-            Frequency of the nth harmonic with inharmonicity applied
-        """
-        # Inharmonicity formula: f_n = n * f0 * sqrt(1 + B * n^2)
-        # where B is the inharmonicity coefficient
-        stretch = np.sqrt(1.0 + self.inharmonicity * n * n)
-        return fundamental * n * stretch
-    
-    def _compute_formant_envelope(self, freq: float) -> List[Tuple[float, float]]:
-        """Compute effective harmonics with pitch-dependent formant weighting.
+    # This is a big function but it doesn't work with a (samples) ndarray so making it a module-level cached function might be more expensive
+    def _get_effective_harmonics(self, freq: float) -> List[Tuple[float, float]]:
+        """Get effective harmonics with pitch-dependent formant weighting.
         
         Args:
             freq: Fundamental frequency in Hz
@@ -282,23 +363,31 @@ class VoiceInstrument(Instrument):
             List of (frequency_ratio, effective_amplitude) tuples
         """
         effective_harmonics = []
+        inharmonics = self._get_inharmonics(freq)
         shifted_formants = self._get_shifted_formants(freq)
+
+        # I've noticed the first harmonic (which should be the fundamental) is subject to the same formant weighting and ends up really weak (since it's far below all formants)
+        # When I record my voice, the fundamental is like 10 - 15 dB above harmonics 2 - 5 or the band of frequencies in the formants
+        # So I have decided to make the fundamental exempt from formant weighting
+        #effective_harmonics.append((inharmonics[0] / freq, 1.0))
+        #for n in range(2, self.num_harmonics + 1):
+        # Nevermind I figured out a more elegant solution. See below
         
         for n in range(1, self.num_harmonics + 1):
-            harmonic_freq = self._compute_harmonic_frequency(n, freq)
+            h_freq = inharmonics[n - 1]
             
             # Source spectrum: 1/n falloff but with slight rolloff at very high freqs
             base_amp = 1.0 / n
             
             # Additional rolloff above ~4kHz (vocal tract can't support high freqs well)
-            if harmonic_freq > 4000:
-                base_amp *= np.exp(-(harmonic_freq - 4000) / 2000)
+            if h_freq > 4000:
+                base_amp *= np.exp(-(h_freq - 4000) / 2000)
             
             # Apply formant envelope using more realistic shape
             formant_weight = 0.0
             for formant_freq, formant_amp, bandwidth in shifted_formants:
                 # Use a combination of Gaussian and Lorentzian for more realistic shape
-                distance = abs(harmonic_freq - formant_freq)
+                distance = abs(h_freq - formant_freq)
                 
                 # Gaussian component (smooth peak)
                 gauss_weight = np.exp(-0.5 * (distance / bandwidth) ** 2)
@@ -311,13 +400,19 @@ class VoiceInstrument(Instrument):
                 formant_weight += formant_amp * combined_weight
             
             # Ensure some minimum amplitude so voice isn't silent
-            formant_weight = max(formant_weight, 0.05)
-            effective_amp = base_amp * formant_weight
+            #formant_weight = max(formant_weight, 0.05)
+            # 0.05 is too strong at high harmonics
+            # On the other hand, the second harmonic shouldn't die immediately. It doesn't when I record my voice, no matter what vowel I use
+            formant_weight = max(formant_weight, 1.0 / (n ** 2)) # A compromise
+            # 1.0 / 1.0 = 1, meaning the fundamental passes straight through
+            # 1.0 / 4.0 = 0.25, which is about -12 dB
+            h_amp = base_amp * formant_weight
             
-            effective_harmonics.append((float(n), effective_amp))
+            effective_harmonics.append((h_freq / freq, h_amp))
         
         return effective_harmonics
     
+    # With the current set of parameters (formants, vibrato, inharmonicity, etc.) this should be considered infeasible to cache
     def get_sound(self, freq: float, velocity: float, duration: float, sample_rate: int) -> np.ndarray:
         """Generate enhanced voice sound with vibrato, noise, and formants."""
         max_release = self.adsr.release
@@ -329,11 +424,19 @@ class VoiceInstrument(Instrument):
         
         envelope = self.adsr.get_envelope(duration, sample_rate)
         envelope_end = envelope.shape[0]
+
+        # Awful patch to stop the choir from having all vibratos in sync
+        # Use the fractional part of the frequency as a modifier to vibrato_rate for this note
+        this_vibrato_rate = self.vibrato_rate + (freq - int(freq) - 0.5) # + [-0.5, 0.5) Hz
         
         # Generate vibrato modulation
-        vibrato_phase = 2 * np.pi * self.vibrato_rate * t
+        vibrato_phase = 2 * np.pi * this_vibrato_rate * t
         vibrato_factor = 1.0 + self.vibrato_depth * np.sin(vibrato_phase)
         
+        # Actual breath noise is some weird filtered kind of noise, as if it goes through its own formants
+        # It would take too much effort to filter np.random.randn to something that doesn't sound like static
+        # If you want realistic breath noise use actual singing software like Vocaloid or UTAU
+        '''
         # Generate breath noise (filtered white noise)
         # More breath during attack, less during sustain
         noise = np.random.randn(samples) * self.breath_amount * velocity
@@ -349,19 +452,19 @@ class VoiceInstrument(Instrument):
         # Filter breath noise to be high-frequency (simulating aspiration)
         # Simple high-pass characteristic: emphasize frequencies above 1kHz
         breath_filtered = noise * breath_envelope
+        '''
         
         # Get effective harmonics with formant weighting
-        effective_harmonics = self._compute_formant_envelope(freq)
+        effective_harmonics = self._get_effective_harmonics(freq)
         
         # Add each formant-weighted harmonic with vibrato
         for n, (h_ratio, h_amp) in enumerate(effective_harmonics, 1):
-            # Compute actual harmonic frequency with inharmonicity
-            base_harmonic_freq = self._compute_harmonic_frequency(n, freq)
+            base_h_freq = h_ratio * freq # When vibrato is 0
             
             # Apply vibrato to each harmonic (more vibrato on higher harmonics)
             # Real voices have more vibrato excursion on higher harmonics
-            harmonic_vibrato = 1.0 + (self.vibrato_depth * (1.0 + 0.1 * n)) * np.sin(vibrato_phase)
-            modulated_freq = base_harmonic_freq * harmonic_vibrato
+            h_vibrato = 1.0 + (self.vibrato_depth * (1.0 + 0.1 * n)) * np.sin(vibrato_phase)
+            modulated_freq = base_h_freq * h_vibrato
             
             # Integrate frequency for phase (FM synthesis)
             phase = 2 * np.pi * np.cumsum(modulated_freq / sample_rate) * (1.0 / sample_rate) * sample_rate
@@ -373,7 +476,7 @@ class VoiceInstrument(Instrument):
             sound[:envelope_end] += this_amp * sin_pattern[:envelope_end] * envelope
         
         # Add breath noise (mostly during attack)
-        sound[:envelope_end] += breath_filtered[:envelope_end] * envelope
+        #sound[:envelope_end] += breath_filtered[:envelope_end] * envelope
         
         return sound
     
@@ -382,133 +485,11 @@ class VoiceInstrument(Instrument):
         
         For loss calculation, we use the average (non-vibrato) state.
         """
-        effective_harmonics = self._compute_formant_envelope(freq)
+        effective_harmonics = self._get_effective_harmonics(freq)
         mean_amp_factor = self.adsr.mean_amplitude(duration, sample_rate)
         
         # Apply ADSR mean amplitude to all harmonics
         return [(ratio, amp * mean_amp_factor) for ratio, amp in effective_harmonics]
-
-
-class PercussionInstrument(Instrument):
-    """MIDI Channel 10-style percussion instrument.
-    
-    Unlike pitched instruments where notes are frequencies, percussion
-    uses note numbers (0-127 on Channel 10) to represent different drum
-    types. Each drum type has its own fixed-frequency partials that
-    don't track any pitch parameter.
-    
-    The incoming frequency is converted to a MIDI note number via a
-    tuning system, then looked up in the drum profile dictionary.
-    """
-    
-    def __init__(
-        self,
-        drum_profiles: Dict[int, List[Tuple[float, float]]],
-        adsr_profiles: Dict[int, ADSR],
-        tuning_system  # TuningSystem for freq <-> note conversion
-    ):
-        """Initialize percussion instrument with drum profiles.
-        
-        Args:
-            drum_profiles: Dict mapping MIDI note numbers to lists of
-                          (frequency_hz, amplitude) tuples. These are
-                          ABSOLUTE frequencies, not ratios.
-            adsr_profiles: Dict mapping MIDI note numbers to ADSR envelopes
-            tuning_system: TuningSystem for converting frequencies to MIDI notes
-        """
-        self.drum_profiles = drum_profiles
-        self._adsr_profiles = adsr_profiles
-        self._tuning_system = tuning_system
-        
-        # Create dummy harmonics for base class compatibility
-        # Real harmonics come from drum_profiles lookup
-        dummy_harmonics = [(1.0, 1.0)]
-
-        # Create dummy ADSR for base class compatibility
-        dummy_adsr = ADSR(attack=0.001, decay=0.1, sustain=0.0, release=0.05)
-        
-        super().__init__(
-            harmonics=dummy_harmonics,
-            adsr=dummy_adsr,
-            harmonic_adsrs={}
-        )
-    
-    def _freq_to_note(self, freq: float) -> int:
-        """Convert frequency to MIDI note number using tuning system."""
-        # Use the tuning system's freq_to_key method
-        note = self._tuning_system.freq_to_key(freq)
-        if note is None:
-            # Fallback: compute from 12-TET formula
-            note = int(69 + 12 * np.log2(freq / 440.0))
-        return note
-    
-    def _get_drum_partials(self, freq: float) -> List[Tuple[float, float]]:
-        """Get the partials for a drum given the frequency parameter.
-        
-        Args:
-            freq: The frequency parameter (typically from tuning_system.key_to_freq(note))
-            
-        Returns:
-            List of (frequency_ratio, amplitude) tuples where ratios are
-            relative to the incoming freq parameter for dissonance calculation
-        """
-        note = self._freq_to_note(freq)
-        
-        if note not in self.drum_profiles:
-            # Return silence for undefined drum notes
-            return [(1.0, 0.0)]
-        
-        partials = self.drum_profiles[note]
-        
-        # Convert absolute frequencies to ratios relative to freq parameter
-        # This allows the dissonance matrix to compare drums to pitched instruments
-        # ratio = partial_freq / freq, so if freq=61.375 and partial=60, ratio≈0.977
-        ratio_partials = []
-        for partial_freq, amplitude in partials:
-            ratio = partial_freq / freq if freq > 0 else 1.0
-            ratio_partials.append((ratio, amplitude))
-        
-        return ratio_partials
-    
-    def _get_drum_adsr(self, freq: float) -> ADSR:
-        """Get the ADSR envelope for a drum given the frequency parameter."""
-        note = self._freq_to_note(freq)
-        return self._adsr_profiles.get(note, self.adsr) # Use the dummy ADSR if no specific profile is defined
-    
-    def get_sound(self, freq: float, velocity: float, duration: float, sample_rate: int) -> np.ndarray:
-        """Generate drum sound with fixed-frequency partials."""
-        partials = self._get_drum_partials(freq)
-        adsr = self._get_drum_adsr(freq)
-        
-        max_release = adsr.release
-        total_duration = duration + max_release
-        samples = int(duration * sample_rate) + int(max_release * sample_rate)
-        
-        t = np.linspace(0, total_duration, samples)
-        sound = np.zeros(samples)
-        
-        envelope = adsr.get_envelope(duration, sample_rate)
-        envelope_end = envelope.shape[0]
-        
-        # Add each partial at its fixed frequency
-        for ratio, amp in partials:
-            # For sound generation, convert ratio back to absolute frequency
-            # ratio = partial_freq / freq, so partial_freq = ratio * freq
-            partial_freq = ratio * freq
-            this_amp = velocity * amp
-            
-            sin_pattern = np.sin(2 * np.pi * partial_freq * t)
-            sound[:envelope_end] += this_amp * sin_pattern[:envelope_end] * envelope
-        
-        return sound
-    
-    def mean_amplitudes(self, freq: float, duration: float, sample_rate: int) -> List[Tuple[float, float]]:
-        """Return drum partials as ratios for dissonance calculation."""
-        partials = self._get_drum_partials(freq)
-        adsr = self._get_drum_adsr(freq)
-        mean_amp_factor = adsr.mean_amplitude(duration, sample_rate)
-        
-        return [(ratio, amp * mean_amp_factor) for ratio, amp in partials]
 
 # Use a registry pattern to turn str into default objects
 _INSTRUMENT_REGISTRY = {}
