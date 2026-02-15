@@ -166,7 +166,7 @@ def plot_loss_history(loss_history: list, interactive: bool = True):
     return fig
 
 # Refactored out of the main function
-def output_results(song: Song, step_str: str, interactive: bool):
+def output_results(song: Song, step_str: str, interactive: bool, loss_history: list = []):
     # Try to get the actual integer step, or None if step_str is "initial" or "final"
     step = None
     if step_str.startswith("step"):
@@ -186,6 +186,11 @@ def output_results(song: Song, step_str: str, interactive: bool):
     
     fig_spectrogram = plot_spectrogram(audio, song.sample_rate, f"({step_str})", interactive)
     fig_spectrogram.savefig(f"{OUTPUT_FOLDER}/spectrogram_{step_str}.png")
+
+    # Plot loss history
+    if len(loss_history) > 1:
+        fig_loss = plot_loss_history(loss_history, interactive)
+        fig_loss.savefig(f"{OUTPUT_FOLDER}/loss_history.png")
     
     if interactive:
         if step is not None:
@@ -336,7 +341,7 @@ A3 E5 C#5 A4''')
     song.optim_handler = OptimHandler(song, song.loss_handler)
     
     # Plot initial state
-    output_results(song, "initial", interactive)
+    output_results(song, "initial", interactive, []) # No loss history yet
     
     # Optimization loop with user input
     loss_history = []
@@ -377,10 +382,10 @@ A3 E5 C#5 A4''')
 
         # Plot this step
         step_str = f"step{song.optim_handler.steps:04d}"
-        output_results(song, step_str, interactive)
+        output_results(song, step_str, interactive, loss_history)
     
     # Plot final state
-    output_results(song, "final", interactive)
+    output_results(song, "final", interactive, loss_history)
     
     print(f"\nDone! All outputs saved to {OUTPUT_FOLDER}/")
 
